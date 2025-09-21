@@ -8,24 +8,27 @@
 import UIKit
 
 class HomeViewController: UIViewController {
-
+    
+    // MARK: - Properties
+    private var homeView: HomeView?
+    
+    // MARK: - Lifecycle
+    override func loadView() {
+        let view = HomeView()
+        self.homeView = view
+        self.view = view
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
-        
-        // 네비게이션 바 타이틀 설정
-        self.title = "I-GoU"
-        
-        // 이 부분에 홈 화면의 UI 요소(UILabel, UITableView 등)를 추가하고 AutoLayout을 설정합니다.
-        // 예시:
-        let welcomeLabel = UILabel()
-        welcomeLabel.text = "안녕하세요, OOO! 👋"
-        welcomeLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(welcomeLabel)
-        
-        NSLayoutConstraint.activate([
-            welcomeLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            welcomeLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20)
-        ])
+        setupNavigationBar()
+        guard let homeView = self.homeView else { return }
+    }
+    
+    // MARK: - Private Methods
+    
+    private func setupNavigationBar() {
+        navigationItem.title = "I-GoU"
+        self.view.backgroundColor = UIColor(red: 242/255, green: 242/255, blue: 247/255, alpha: 1.0)
     }
 }
