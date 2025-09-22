@@ -18,7 +18,7 @@ class MainTabBarController: UITabBarController {
         // 탭별 뷰 컨트롤러 인스턴스 생성
         let homeVC = HomeViewController()
         let plannerVC = PlannerViewController()
-        let scoreVC = ViewController()  // 임시
+        let scoreVC = GradesViewController()
         let universityVC = ViewController() // 임시
         let consultVC = ViewController()  // 임시
         

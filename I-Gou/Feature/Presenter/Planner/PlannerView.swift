@@ -84,7 +84,6 @@ class PlannerView: UIView {
         titleLabel.font = .systemFont(ofSize: 22, weight: .bold)
         
         let dateLabel = UILabel()
-        // DateFormatter를 사용해 현재 날짜를 "YYYY년 M월 d일" 형식으로 표시
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy년 M월 d일"
         dateLabel.text = formatter.string(from: Date())

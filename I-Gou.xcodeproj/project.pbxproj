@@ -19,6 +19,15 @@
 		896E3BFE2E7ECFAE00AC49CF /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896E3BF62E7ECFAE00AC49CF /* ViewController.swift */; };
 		896E3C062E7EFF4900AC49CF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896E3C012E7EFF4900AC49CF /* AppDelegate.swift */; };
 		896E3C072E7EFF4900AC49CF /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896E3C032E7EFF4900AC49CF /* SceneDelegate.swift */; };
+		89C627552E80E6B200CAB833 /* GradesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627542E80E6B200CAB833 /* GradesViewController.swift */; };
+		89C627572E80E6BB00CAB833 /* GradesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627562E80E6BB00CAB833 /* GradesView.swift */; };
+		89C6275A2E80E6E100CAB833 /* GradeChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627592E80E6E100CAB833 /* GradeChart.swift */; };
+		89C6275D2E80E8B100CAB833 /* InternalGradesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C6275C2E80E8B100CAB833 /* InternalGradesViewController.swift */; };
+		89C6275F2E80E8C700CAB833 /* MockExamViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C6275E2E80E8C700CAB833 /* MockExamViewController.swift */; };
+		89C627612E80E8E000CAB833 /* ExtraCurricularViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627602E80E8E000CAB833 /* ExtraCurricularViewController.swift */; };
+		89C627662E80E9B600CAB833 /* InternalGradesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627652E80E9B600CAB833 /* InternalGradesView.swift */; };
+		89C627682E8118CE00CAB833 /* MockExamView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627672E8118CE00CAB833 /* MockExamView.swift */; };
+		89C6276A2E811A3400CAB833 /* ExtraCurricularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627692E811A3400CAB833 /* ExtraCurricularView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +46,15 @@
 		896E3C012E7EFF4900AC49CF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		896E3C022E7EFF4900AC49CF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		896E3C032E7EFF4900AC49CF /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		89C627542E80E6B200CAB833 /* GradesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesViewController.swift; sourceTree = "<group>"; };
+		89C627562E80E6BB00CAB833 /* GradesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesView.swift; sourceTree = "<group>"; };
+		89C627592E80E6E100CAB833 /* GradeChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradeChart.swift; sourceTree = "<group>"; };
+		89C6275C2E80E8B100CAB833 /* InternalGradesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalGradesViewController.swift; sourceTree = "<group>"; };
+		89C6275E2E80E8C700CAB833 /* MockExamViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockExamViewController.swift; sourceTree = "<group>"; };
+		89C627602E80E8E000CAB833 /* ExtraCurricularViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraCurricularViewController.swift; sourceTree = "<group>"; };
+		89C627652E80E9B600CAB833 /* InternalGradesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalGradesView.swift; sourceTree = "<group>"; };
+		89C627672E8118CE00CAB833 /* MockExamView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockExamView.swift; sourceTree = "<group>"; };
+		89C627692E811A3400CAB833 /* ExtraCurricularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraCurricularView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,6 +189,7 @@
 				896E3C0F2E7F006700AC49CF /* Login */,
 				890E6D202E7FD94F0037EEB9 /* Home */,
 				890E6D272E8012C50037EEB9 /* Planner */,
+				89C627532E80E68000CAB833 /* Grades */,
 			);
 			path = Presenter;
 			sourceTree = "<group>";
@@ -181,6 +200,62 @@
 				896E3BF62E7ECFAE00AC49CF /* ViewController.swift */,
 			);
 			path = Login;
+			sourceTree = "<group>";
+		};
+		89C627532E80E68000CAB833 /* Grades */ = {
+			isa = PBXGroup;
+			children = (
+				89C627582E80E6C300CAB833 /* GradeChart */,
+				89C6275B2E80E8A100CAB833 /* ChildView */,
+				89C627542E80E6B200CAB833 /* GradesViewController.swift */,
+				89C627562E80E6BB00CAB833 /* GradesView.swift */,
+			);
+			path = Grades;
+			sourceTree = "<group>";
+		};
+		89C627582E80E6C300CAB833 /* GradeChart */ = {
+			isa = PBXGroup;
+			children = (
+				89C627592E80E6E100CAB833 /* GradeChart.swift */,
+			);
+			path = GradeChart;
+			sourceTree = "<group>";
+		};
+		89C6275B2E80E8A100CAB833 /* ChildView */ = {
+			isa = PBXGroup;
+			children = (
+				89C627622E80E95200CAB833 /* InternalGrades */,
+				89C627632E80E95D00CAB833 /* MockExam */,
+				89C627642E80E96500CAB833 /* ExtraCurricular */,
+			);
+			path = ChildView;
+			sourceTree = "<group>";
+		};
+		89C627622E80E95200CAB833 /* InternalGrades */ = {
+			isa = PBXGroup;
+			children = (
+				89C6275C2E80E8B100CAB833 /* InternalGradesViewController.swift */,
+				89C627652E80E9B600CAB833 /* InternalGradesView.swift */,
+			);
+			path = InternalGrades;
+			sourceTree = "<group>";
+		};
+		89C627632E80E95D00CAB833 /* MockExam */ = {
+			isa = PBXGroup;
+			children = (
+				89C6275E2E80E8C700CAB833 /* MockExamViewController.swift */,
+				89C627672E8118CE00CAB833 /* MockExamView.swift */,
+			);
+			path = MockExam;
+			sourceTree = "<group>";
+		};
+		89C627642E80E96500CAB833 /* ExtraCurricular */ = {
+			isa = PBXGroup;
+			children = (
+				89C627602E80E8E000CAB833 /* ExtraCurricularViewController.swift */,
+				89C627692E811A3400CAB833 /* ExtraCurricularView.swift */,
+			);
+			path = ExtraCurricular;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -257,14 +332,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				89C6275A2E80E6E100CAB833 /* GradeChart.swift in Sources */,
+				89C6276A2E811A3400CAB833 /* ExtraCurricularView.swift in Sources */,
+				89C627662E80E9B600CAB833 /* InternalGradesView.swift in Sources */,
+				89C627612E80E8E000CAB833 /* ExtraCurricularViewController.swift in Sources */,
 				890E6D222E7FD9640037EEB9 /* HomeViewController.swift in Sources */,
 				890E6D2E2E8013D70037EEB9 /* CardView.swift in Sources */,
 				896E3BFE2E7ECFAE00AC49CF /* ViewController.swift in Sources */,
 				896E3C062E7EFF4900AC49CF /* AppDelegate.swift in Sources */,
+				89C627552E80E6B200CAB833 /* GradesViewController.swift in Sources */,
 				890E6D252E7FF38D0037EEB9 /* HomeView.swift in Sources */,
 				890E6D1F2E7FD8A60037EEB9 /* MainTabBarController.swift in Sources */,
+				89C627572E80E6BB00CAB833 /* GradesView.swift in Sources */,
 				890E6D2B2E80130D0037EEB9 /* PlannerViewController.swift in Sources */,
+				89C6275D2E80E8B100CAB833 /* InternalGradesViewController.swift in Sources */,
 				896E3C072E7EFF4900AC49CF /* SceneDelegate.swift in Sources */,
+				89C627682E8118CE00CAB833 /* MockExamView.swift in Sources */,
+				89C6275F2E80E8C700CAB833 /* MockExamViewController.swift in Sources */,
 				890E6D292E8012E80037EEB9 /* PlannerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
