@@ -10,6 +10,9 @@
 		890E6D1F2E7FD8A60037EEB9 /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890E6D1E2E7FD8A60037EEB9 /* MainTabBarController.swift */; };
 		890E6D222E7FD9640037EEB9 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890E6D212E7FD9640037EEB9 /* HomeViewController.swift */; };
 		890E6D252E7FF38D0037EEB9 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890E6D242E7FF38D0037EEB9 /* HomeView.swift */; };
+		890E6D292E8012E80037EEB9 /* PlannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890E6D282E8012E80037EEB9 /* PlannerView.swift */; };
+		890E6D2B2E80130D0037EEB9 /* PlannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890E6D2A2E80130D0037EEB9 /* PlannerViewController.swift */; };
+		890E6D2E2E8013D70037EEB9 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890E6D2D2E8013D70037EEB9 /* CardView.swift */; };
 		896E3BF82E7ECFAE00AC49CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 896E3BEF2E7ECFAE00AC49CF /* Assets.xcassets */; };
 		896E3BFA2E7ECFAE00AC49CF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 896E3BF22E7ECFAE00AC49CF /* LaunchScreen.storyboard */; };
 		896E3BFB2E7ECFAE00AC49CF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 896E3BF42E7ECFAE00AC49CF /* Main.storyboard */; };
@@ -23,6 +26,9 @@
 		890E6D212E7FD9640037EEB9 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		890E6D242E7FF38D0037EEB9 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		890E6D262E7FF4BC0037EEB9 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		890E6D282E8012E80037EEB9 /* PlannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlannerView.swift; sourceTree = "<group>"; };
+		890E6D2A2E80130D0037EEB9 /* PlannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlannerViewController.swift; sourceTree = "<group>"; };
+		890E6D2D2E8013D70037EEB9 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
 		896E3BD62E7ECFA200AC49CF /* I-Gou.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "I-Gou.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		896E3BEF2E7ECFAE00AC49CF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		896E3BF12E7ECFAE00AC49CF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -59,6 +65,23 @@
 				890E6D212E7FD9640037EEB9 /* HomeViewController.swift */,
 			);
 			path = Home;
+			sourceTree = "<group>";
+		};
+		890E6D272E8012C50037EEB9 /* Planner */ = {
+			isa = PBXGroup;
+			children = (
+				890E6D282E8012E80037EEB9 /* PlannerView.swift */,
+				890E6D2A2E80130D0037EEB9 /* PlannerViewController.swift */,
+			);
+			path = Planner;
+			sourceTree = "<group>";
+		};
+		890E6D2C2E8013BF0037EEB9 /* Component */ = {
+			isa = PBXGroup;
+			children = (
+				890E6D2D2E8013D70037EEB9 /* CardView.swift */,
+			);
+			path = Component;
 			sourceTree = "<group>";
 		};
 		896E3BCD2E7ECFA200AC49CF = {
@@ -126,6 +149,7 @@
 		896E3C0C2E7EFFEA00AC49CF /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				890E6D2C2E8013BF0037EEB9 /* Component */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -144,8 +168,9 @@
 			isa = PBXGroup;
 			children = (
 				890E6D1D2E7FD8880037EEB9 /* TabBar */,
-				890E6D202E7FD94F0037EEB9 /* Home */,
 				896E3C0F2E7F006700AC49CF /* Login */,
+				890E6D202E7FD94F0037EEB9 /* Home */,
+				890E6D272E8012C50037EEB9 /* Planner */,
 			);
 			path = Presenter;
 			sourceTree = "<group>";
@@ -233,11 +258,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				890E6D222E7FD9640037EEB9 /* HomeViewController.swift in Sources */,
+				890E6D2E2E8013D70037EEB9 /* CardView.swift in Sources */,
 				896E3BFE2E7ECFAE00AC49CF /* ViewController.swift in Sources */,
 				896E3C062E7EFF4900AC49CF /* AppDelegate.swift in Sources */,
 				890E6D252E7FF38D0037EEB9 /* HomeView.swift in Sources */,
 				890E6D1F2E7FD8A60037EEB9 /* MainTabBarController.swift in Sources */,
+				890E6D2B2E80130D0037EEB9 /* PlannerViewController.swift in Sources */,
 				896E3C072E7EFF4900AC49CF /* SceneDelegate.swift in Sources */,
+				890E6D292E8012E80037EEB9 /* PlannerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
