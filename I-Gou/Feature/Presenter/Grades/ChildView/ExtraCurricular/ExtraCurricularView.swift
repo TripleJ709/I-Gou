@@ -102,8 +102,6 @@ class ExtraCurricularView: UIView {
     
     // MARK: - Helper Methods
     
-    // ExtraCurricularView.swift
-    
     private func createCardHeader(iconName: String, title: String, subtitle: String?) -> UIView {
         let iconImageView = UIImageView(image: UIImage(systemName: iconName))
         iconImageView.tintColor = .label
