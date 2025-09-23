@@ -28,6 +28,14 @@
 		89C627662E80E9B600CAB833 /* InternalGradesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627652E80E9B600CAB833 /* InternalGradesView.swift */; };
 		89C627682E8118CE00CAB833 /* MockExamView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627672E8118CE00CAB833 /* MockExamView.swift */; };
 		89C6276A2E811A3400CAB833 /* ExtraCurricularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627692E811A3400CAB833 /* ExtraCurricularView.swift */; };
+		89CBA1A32E8262DB0075941D /* UniversityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBA1A22E8262DB0075941D /* UniversityView.swift */; };
+		89CBA1A62E8263680075941D /* UniversityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBA1A52E8263680075941D /* UniversityViewController.swift */; };
+		89CBA1A92E82639E0075941D /* MyUniversitiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBA1A82E82639E0075941D /* MyUniversitiesView.swift */; };
+		89CBA1AB2E8264AC0075941D /* MyUniversitiesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBA1AA2E8264AC0075941D /* MyUniversitiesViewController.swift */; };
+		89CBA1AF2E8265270075941D /* AdmissionNewsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBA1AE2E8265270075941D /* AdmissionNewsView.swift */; };
+		89CBA1B12E8265360075941D /* AdmissionNewsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBA1B02E8265360075941D /* AdmissionNewsViewController.swift */; };
+		89CBA1B42E82656E0075941D /* AdmissionScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBA1B32E82656E0075941D /* AdmissionScheduleView.swift */; };
+		89CBA1B62E82657F0075941D /* AdmissionScheduleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBA1B52E82657F0075941D /* AdmissionScheduleViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +63,14 @@
 		89C627652E80E9B600CAB833 /* InternalGradesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalGradesView.swift; sourceTree = "<group>"; };
 		89C627672E8118CE00CAB833 /* MockExamView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockExamView.swift; sourceTree = "<group>"; };
 		89C627692E811A3400CAB833 /* ExtraCurricularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraCurricularView.swift; sourceTree = "<group>"; };
+		89CBA1A22E8262DB0075941D /* UniversityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityView.swift; sourceTree = "<group>"; };
+		89CBA1A52E8263680075941D /* UniversityViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityViewController.swift; sourceTree = "<group>"; };
+		89CBA1A82E82639E0075941D /* MyUniversitiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyUniversitiesView.swift; sourceTree = "<group>"; };
+		89CBA1AA2E8264AC0075941D /* MyUniversitiesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyUniversitiesViewController.swift; sourceTree = "<group>"; };
+		89CBA1AE2E8265270075941D /* AdmissionNewsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdmissionNewsView.swift; sourceTree = "<group>"; };
+		89CBA1B02E8265360075941D /* AdmissionNewsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdmissionNewsViewController.swift; sourceTree = "<group>"; };
+		89CBA1B32E82656E0075941D /* AdmissionScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdmissionScheduleView.swift; sourceTree = "<group>"; };
+		89CBA1B52E82657F0075941D /* AdmissionScheduleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdmissionScheduleViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +206,7 @@
 				890E6D202E7FD94F0037EEB9 /* Home */,
 				890E6D272E8012C50037EEB9 /* Planner */,
 				89C627532E80E68000CAB833 /* Grades */,
+				89CBA1A42E8262FA0075941D /* University */,
 			);
 			path = Presenter;
 			sourceTree = "<group>";
@@ -256,6 +273,45 @@
 				89C627692E811A3400CAB833 /* ExtraCurricularView.swift */,
 			);
 			path = ExtraCurricular;
+			sourceTree = "<group>";
+		};
+		89CBA1A42E8262FA0075941D /* University */ = {
+			isa = PBXGroup;
+			children = (
+				89CBA1A72E8263860075941D /* MyUniversity */,
+				89CBA1AC2E8264C80075941D /* AdmissionsNews */,
+				89CBA1AD2E8264EC0075941D /* AdmissionSchedule */,
+				89CBA1A22E8262DB0075941D /* UniversityView.swift */,
+				89CBA1A52E8263680075941D /* UniversityViewController.swift */,
+			);
+			path = University;
+			sourceTree = "<group>";
+		};
+		89CBA1A72E8263860075941D /* MyUniversity */ = {
+			isa = PBXGroup;
+			children = (
+				89CBA1A82E82639E0075941D /* MyUniversitiesView.swift */,
+				89CBA1AA2E8264AC0075941D /* MyUniversitiesViewController.swift */,
+			);
+			path = MyUniversity;
+			sourceTree = "<group>";
+		};
+		89CBA1AC2E8264C80075941D /* AdmissionsNews */ = {
+			isa = PBXGroup;
+			children = (
+				89CBA1AE2E8265270075941D /* AdmissionNewsView.swift */,
+				89CBA1B02E8265360075941D /* AdmissionNewsViewController.swift */,
+			);
+			path = AdmissionsNews;
+			sourceTree = "<group>";
+		};
+		89CBA1AD2E8264EC0075941D /* AdmissionSchedule */ = {
+			isa = PBXGroup;
+			children = (
+				89CBA1B32E82656E0075941D /* AdmissionScheduleView.swift */,
+				89CBA1B52E82657F0075941D /* AdmissionScheduleViewController.swift */,
+			);
+			path = AdmissionSchedule;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -334,6 +390,8 @@
 			files = (
 				89C6275A2E80E6E100CAB833 /* GradeChart.swift in Sources */,
 				89C6276A2E811A3400CAB833 /* ExtraCurricularView.swift in Sources */,
+				89CBA1AF2E8265270075941D /* AdmissionNewsView.swift in Sources */,
+				89CBA1B62E82657F0075941D /* AdmissionScheduleViewController.swift in Sources */,
 				89C627662E80E9B600CAB833 /* InternalGradesView.swift in Sources */,
 				89C627612E80E8E000CAB833 /* ExtraCurricularViewController.swift in Sources */,
 				890E6D222E7FD9640037EEB9 /* HomeViewController.swift in Sources */,
@@ -342,14 +400,20 @@
 				896E3C062E7EFF4900AC49CF /* AppDelegate.swift in Sources */,
 				89C627552E80E6B200CAB833 /* GradesViewController.swift in Sources */,
 				890E6D252E7FF38D0037EEB9 /* HomeView.swift in Sources */,
+				89CBA1AB2E8264AC0075941D /* MyUniversitiesViewController.swift in Sources */,
 				890E6D1F2E7FD8A60037EEB9 /* MainTabBarController.swift in Sources */,
+				89CBA1B42E82656E0075941D /* AdmissionScheduleView.swift in Sources */,
 				89C627572E80E6BB00CAB833 /* GradesView.swift in Sources */,
+				89CBA1A92E82639E0075941D /* MyUniversitiesView.swift in Sources */,
 				890E6D2B2E80130D0037EEB9 /* PlannerViewController.swift in Sources */,
 				89C6275D2E80E8B100CAB833 /* InternalGradesViewController.swift in Sources */,
 				896E3C072E7EFF4900AC49CF /* SceneDelegate.swift in Sources */,
 				89C627682E8118CE00CAB833 /* MockExamView.swift in Sources */,
 				89C6275F2E80E8C700CAB833 /* MockExamViewController.swift in Sources */,
 				890E6D292E8012E80037EEB9 /* PlannerView.swift in Sources */,
+				89CBA1B12E8265360075941D /* AdmissionNewsViewController.swift in Sources */,
+				89CBA1A62E8263680075941D /* UniversityViewController.swift in Sources */,
+				89CBA1A32E8262DB0075941D /* UniversityView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
