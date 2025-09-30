@@ -29,6 +29,8 @@
 		8997E9D12E8BE1C200E572E7 /* FaqViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9D02E8BE1C200E572E7 /* FaqViewController.swift */; };
 		8997E9D42E8BF6F900E572E7 /* HomeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9D32E8BF6F900E572E7 /* HomeData.swift */; };
 		8997E9D62E8BF9A100E572E7 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9D52E8BF9A100E572E7 /* HomeViewModel.swift */; };
+		8997E9D92E8C25BF00E572E7 /* UniversityNewsDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9D82E8C25BF00E572E7 /* UniversityNewsDetailView.swift */; };
+		8997E9DB2E8C25C800E572E7 /* UniversityNewsDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9DA2E8C25C800E572E7 /* UniversityNewsDetailViewController.swift */; };
 		89C627552E80E6B200CAB833 /* GradesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627542E80E6B200CAB833 /* GradesViewController.swift */; };
 		89C627572E80E6BB00CAB833 /* GradesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627562E80E6BB00CAB833 /* GradesView.swift */; };
 		89C6275A2E80E6E100CAB833 /* GradeChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627592E80E6E100CAB833 /* GradeChart.swift */; };
@@ -74,6 +76,8 @@
 		8997E9D02E8BE1C200E572E7 /* FaqViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaqViewController.swift; sourceTree = "<group>"; };
 		8997E9D32E8BF6F900E572E7 /* HomeData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeData.swift; sourceTree = "<group>"; };
 		8997E9D52E8BF9A100E572E7 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		8997E9D82E8C25BF00E572E7 /* UniversityNewsDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityNewsDetailView.swift; sourceTree = "<group>"; };
+		8997E9DA2E8C25C800E572E7 /* UniversityNewsDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityNewsDetailViewController.swift; sourceTree = "<group>"; };
 		89C627542E80E6B200CAB833 /* GradesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesViewController.swift; sourceTree = "<group>"; };
 		89C627562E80E6BB00CAB833 /* GradesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesView.swift; sourceTree = "<group>"; };
 		89C627592E80E6E100CAB833 /* GradeChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradeChart.swift; sourceTree = "<group>"; };
@@ -289,6 +293,15 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
+		8997E9D72E8C25A100E572E7 /* UniversityNewsDetail */ = {
+			isa = PBXGroup;
+			children = (
+				8997E9D82E8C25BF00E572E7 /* UniversityNewsDetailView.swift */,
+				8997E9DA2E8C25C800E572E7 /* UniversityNewsDetailViewController.swift */,
+			);
+			path = UniversityNewsDetail;
+			sourceTree = "<group>";
+		};
 		89C627532E80E68000CAB833 /* Grades */ = {
 			isa = PBXGroup;
 			children = (
@@ -360,6 +373,7 @@
 		89CBA1A72E8263860075941D /* MyUniversity */ = {
 			isa = PBXGroup;
 			children = (
+				8997E9D72E8C25A100E572E7 /* UniversityNewsDetail */,
 				89CBA1A82E82639E0075941D /* MyUniversitiesView.swift */,
 				89CBA1AA2E8264AC0075941D /* MyUniversitiesViewController.swift */,
 			);
@@ -466,9 +480,11 @@
 				89CBA1AF2E8265270075941D /* AdmissionNewsView.swift in Sources */,
 				8997E9C22E8BDF0000E572E7 /* CounselingViewController.swift in Sources */,
 				89CBA1B62E82657F0075941D /* AdmissionScheduleViewController.swift in Sources */,
+				8997E9D92E8C25BF00E572E7 /* UniversityNewsDetailView.swift in Sources */,
 				89C627662E80E9B600CAB833 /* InternalGradesView.swift in Sources */,
 				89C627612E80E8E000CAB833 /* ExtraCurricularViewController.swift in Sources */,
 				8997E9CB2E8BE16400E572E7 /* NotificationView.swift in Sources */,
+				8997E9DB2E8C25C800E572E7 /* UniversityNewsDetailViewController.swift in Sources */,
 				890E6D222E7FD9640037EEB9 /* HomeViewController.swift in Sources */,
 				8997E9C72E8BDF9200E572E7 /* MyQuestionViewController.swift in Sources */,
 				890E6D2E2E8013D70037EEB9 /* CardView.swift in Sources */,

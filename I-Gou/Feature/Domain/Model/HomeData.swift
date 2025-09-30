@@ -14,6 +14,7 @@ struct HomeData: Codable {
     let todaySchedules: [Schedule]
     let recentGrades: [Grade]
     let notifications: [Notification]
+    let universityNews: [UniversityNews]
 }
 
 // MARK: - User
@@ -58,5 +59,19 @@ struct Notification: Codable, Identifiable {
 
     enum CodingKeys: String, CodingKey {
         case content, createdAt
+    }
+}
+
+// MARK: - UniversityNews
+struct UniversityNews: Codable, Identifiable {
+    let id = UUID()
+    let universityName: String
+    let title: String
+    let isNew: Bool
+    let content: String // 상세 페이지 내용
+
+    // JSON의 snake_case 키를 Swift의 camelCase 프로퍼티에 매핑
+    enum CodingKeys: String, CodingKey {
+        case universityName, title, isNew, content
     }
 }

@@ -7,12 +7,6 @@
 
 import UIKit
 
-protocol HomeViewDelegate: AnyObject {
-    func didTapViewAllSchedules()
-    func didTapViewAllGrades()
-}
-
-
 class HomeView: UIView {
     
     weak var delegate: HomeViewDelegate?
@@ -71,14 +65,14 @@ class HomeView: UIView {
     }
     
     func updateUI(with data: HomeData) {
-        // 기존에 스택뷰에 있던 모든 뷰를 제거하여 화면을 초기화합니다.
         mainStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
-        // 새로운 데이터로 카드들을 생성하여 스택뷰에 추가합니다.
         mainStackView.addArrangedSubview(createWelcomeCard(user: data.user))
         mainStackView.addArrangedSubview(createNotificationCard(notifications: data.notifications))
         mainStackView.addArrangedSubview(createTodayScheduleCard(schedules: data.todaySchedules))
         mainStackView.addArrangedSubview(createRecentGradesCard(grades: data.recentGrades))
+        mainStackView.addArrangedSubview(createUniversityNewsCard(newsItems: data.universityNews))
+        mainStackView.addArrangedSubview(createQuickActionsCard())
     }
     
     // MARK: - Private Setup Methods
@@ -87,7 +81,7 @@ class HomeView: UIView {
         self.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubview(mainStackView)
-        self.addSubview(loadingIndicator) // 로딩 인디케이터 추가
+        self.addSubview(loadingIndicator)
     }
     
     private func setupLayout() {
@@ -169,18 +163,15 @@ class HomeView: UIView {
         let card = CardView()
         let header = createHeaderView(iconName: "calendar", title: "오늘의 일정", actionButtonTitle: "전체보기")
         
-        // '전체보기' 버튼에 액션을 연결합니다.
         if let headerStack = header as? UIStackView,
            let actionButton = headerStack.arrangedSubviews.last as? UIButton {
             actionButton.addTarget(self, action: #selector(viewAllSchedulesTapped), for: .touchUpInside)
         }
         
-        // 스케줄 데이터로 스케줄 아이템 UI를 만듭니다.
         let scheduleItems = schedules.map { schedule in
             createScheduleItem(time: schedule.startTime, title: schedule.title, tagText: schedule.type)
         }
         
-        // 최종적으로 헤더와 아이템들을 합쳐서 스택뷰에 넣습니다.
         let stackView = UIStackView(arrangedSubviews: [header] + scheduleItems)
         stackView.axis = .vertical
         stackView.spacing = 12
@@ -200,18 +191,15 @@ class HomeView: UIView {
         let card = CardView()
         let header = createHeaderView(iconName: "chart.bar.fill", title: "최근 성적", actionButtonTitle: "상세보기")
         
-        // '상세보기' 버튼에 액션을 연결합니다.
         if let headerStack = header as? UIStackView,
            let actionButton = headerStack.arrangedSubviews.last as? UIButton {
             actionButton.addTarget(self, action: #selector(viewAllGradesTapped), for: .touchUpInside)
         }
         
-        // 성적 데이터로 성적 아이템 UI를 만듭니다.
         let gradeItems = grades.map { grade in
             createGradeItem(subject: grade.subjectName, score: "\(grade.score)점", grade: grade.gradeLevel, isHighlight: grade.gradeLevel == "1등급")
         }
         
-        // 최종적으로 헤더와 아이템들을 합쳐서 스택뷰에 넣습니다.
         let stackView = UIStackView(arrangedSubviews: [header] + gradeItems)
         stackView.axis = .vertical
         stackView.spacing = 16
@@ -228,36 +216,40 @@ class HomeView: UIView {
     }
     
     // MARK: - UI Element Helper Methods
-    
+
     private func createHeaderView(iconName: String, title: String, actionButtonTitle: String? = nil) -> UIView {
-        let iconImageView = UIImageView()
-        iconImageView.translatesAutoresizingMaskIntoConstraints = false
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 18, weight: .bold)
+
+        var titleStackContent: [UIView] = []
+        
         if !iconName.isEmpty {
-            iconImageView.image = UIImage(systemName: iconName)
+            let iconImageView = UIImageView(image: UIImage(systemName: iconName))
             iconImageView.tintColor = .label
-            
+            iconImageView.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([
                 iconImageView.widthAnchor.constraint(equalToConstant: 22),
                 iconImageView.heightAnchor.constraint(equalToConstant: 22)
             ])
+            titleStackContent.append(iconImageView)
         }
         
-        let titleLabel = UILabel()
-        titleLabel.text = title
-        titleLabel.font = .systemFont(ofSize: 18, weight: .bold)
+        titleStackContent.append(titleLabel)
         
-        let hStack = UIStackView(arrangedSubviews: [iconImageView, titleLabel])
-        hStack.spacing = 8
-        hStack.alignment = .center
+        let titleStack = UIStackView(arrangedSubviews: titleStackContent)
+        titleStack.spacing = 8
+        titleStack.alignment = .center
         
-        let mainStack = UIStackView(arrangedSubviews: [hStack])
-        mainStack.alignment = .center
+        let mainStack = UIStackView()
+        mainStack.addArrangedSubview(titleStack)
         
         if let actionTitle = actionButtonTitle {
             let actionButton = UIButton(type: .system)
             actionButton.setTitle(actionTitle, for: .normal)
             actionButton.titleLabel?.font = .systemFont(ofSize: 14)
             actionButton.tintColor = .gray
+            actionButton.setContentHuggingPriority(.required, for: .horizontal)
             mainStack.addArrangedSubview(actionButton)
         } else {
             mainStack.addArrangedSubview(UIView())
@@ -337,7 +329,6 @@ class HomeView: UIView {
         return container
     }
     
-    // [추가된 부분] 빠져있던 createGradeItem 함수
     private func createGradeItem(subject: String, score: String, grade: String, isHighlight: Bool = false) -> UIView {
         let subjectLabel = UILabel()
         subjectLabel.text = subject
@@ -370,6 +361,162 @@ class HomeView: UIView {
         return stack
     }
     
+    private func createUniversityNewsCard(newsItems: [UniversityNews]) -> UIView {
+        let card = CardView()
+        let header = createHeaderView(iconName: "star.fill", title: "관심 대학 소식")
+        
+        let newsItemViews = newsItems.map { createNewsItem(news: $0) }
+        
+        let itemStack = UIStackView(arrangedSubviews: newsItemViews)
+        itemStack.axis = .vertical
+        itemStack.spacing = 12
+        
+        let stackView = UIStackView(arrangedSubviews: [header, itemStack])
+        stackView.axis = .vertical
+        stackView.spacing = 16
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        card.addSubview(stackView)
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
+            stackView.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
+            stackView.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
+            stackView.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
+        ])
+        return card
+    }
+    
+    private func createQuickActionsCard() -> UIView {
+        let card = CardView()
+        let header = createHeaderView(iconName: "", title: "빠른 기능")
+        
+        let studyButton = createActionButton(iconName: "book.fill", title: "학습 기록")
+        let gradeButton = createActionButton(iconName: "chart.bar.fill", title: "성적 입력")
+        
+        let buttonStack = UIStackView(arrangedSubviews: [studyButton, gradeButton])
+        buttonStack.spacing = 12
+        buttonStack.distribution = .fillEqually
+        
+        let mainStack = UIStackView(arrangedSubviews: [header, buttonStack])
+        mainStack.axis = .vertical
+        mainStack.spacing = 16
+        mainStack.translatesAutoresizingMaskIntoConstraints = false
+        
+        card.addSubview(mainStack)
+        NSLayoutConstraint.activate([
+            mainStack.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
+            mainStack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
+            mainStack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
+            mainStack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
+        ])
+        return card
+    }
+    
+    private func createNewsItem(news: UniversityNews) -> UIView {
+        let container = NewsItemView()
+        container.newsItem = news
+        container.backgroundColor = .systemBackground
+        container.layer.cornerRadius = 10
+        container.layer.borderColor = UIColor.systemGray5.cgColor
+        container.layer.borderWidth = 1
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(newsItemTapped(_:)))
+        container.addGestureRecognizer(tapGesture)
+        
+        let universityLabel = UILabel()
+        universityLabel.text = news.universityName
+        universityLabel.font = .systemFont(ofSize: 16, weight: .bold)
+        
+        let newTag: UIView? = news.isNew ? createNewTag() : nil
+        
+        let headerStack = UIStackView(arrangedSubviews: [universityLabel, newTag, UIView()].compactMap { $0 })
+        headerStack.spacing = 8
+        
+        let titleLabel = UILabel()
+        titleLabel.text = news.title
+        titleLabel.font = .systemFont(ofSize: 14)
+        titleLabel.textColor = .darkGray
+        titleLabel.numberOfLines = 0
+        
+        let mainStack = UIStackView(arrangedSubviews: [headerStack, titleLabel])
+        mainStack.axis = .vertical
+        mainStack.spacing = 8
+        mainStack.alignment = .leading
+        mainStack.isUserInteractionEnabled = false
+        mainStack.translatesAutoresizingMaskIntoConstraints = false
+        
+        container.addSubview(mainStack)
+        NSLayoutConstraint.activate([
+            mainStack.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
+            mainStack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            mainStack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+            mainStack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -16)
+        ])
+        
+        return container
+    }
+    
+    private func createNewTag() -> UIView {
+        let label = UILabel()
+        label.text = "NEW"
+        label.font = .systemFont(ofSize: 10, weight: .bold)
+        label.textColor = .systemRed
+        label.textAlignment = .center
+        
+        let view = UIView()
+        view.layer.borderColor = UIColor.systemRed.cgColor
+        view.layer.borderWidth = 1
+        view.layer.cornerRadius = 4
+        
+        view.addSubview(label)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            label.topAnchor.constraint(equalTo: view.topAnchor, constant: 2),
+            label.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -2),
+            label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 6),
+            label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -6)
+        ])
+        return view
+    }
+    
+    private func createActionButton(iconName: String, title: String) -> UIView {
+        let button = UIButton(type: .system)
+        button.backgroundColor = .white
+        button.layer.cornerRadius = 10
+        button.layer.borderColor = UIColor.systemGray5.cgColor
+        button.layer.borderWidth = 1
+        
+        let iconImageView = UIImageView(image: UIImage(systemName: iconName))
+        iconImageView.tintColor = .label
+        iconImageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            iconImageView.widthAnchor.constraint(equalToConstant: 24),
+            iconImageView.heightAnchor.constraint(equalToConstant: 24)
+        ])
+        
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 15, weight: .semibold)
+        titleLabel.textColor = .label
+        
+        let stack = UIStackView(arrangedSubviews: [iconImageView, titleLabel])
+        stack.axis = .vertical
+        stack.spacing = 8
+        stack.alignment = .center
+        stack.isUserInteractionEnabled = false
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        
+        button.addSubview(stack)
+        NSLayoutConstraint.activate([
+            button.heightAnchor.constraint(equalToConstant: 80),
+            stack.centerXAnchor.constraint(equalTo: button.centerXAnchor),
+            stack.centerYAnchor.constraint(equalTo: button.centerYAnchor)
+        ])
+        
+        return button
+    }
+    
     @objc private func viewAllSchedulesTapped() {
         delegate?.didTapViewAllSchedules()
     }
@@ -377,4 +524,20 @@ class HomeView: UIView {
     @objc private func viewAllGradesTapped() {
         delegate?.didTapViewAllGrades()
     }
+    
+    @objc private func newsItemTapped(_ sender: UITapGestureRecognizer) {
+        guard let newsView = sender.view as? NewsItemView,
+              let newsItem = newsView.newsItem else { return }
+        delegate?.didSelectUniversityNews(newsItem)
+    }
+}
+
+protocol HomeViewDelegate: AnyObject {
+    func didTapViewAllSchedules()
+    func didTapViewAllGrades()
+    func didSelectUniversityNews(_ newsItem: UniversityNews)
+}
+
+class NewsItemView: UIView {
+    var newsItem: UniversityNews?
 }
