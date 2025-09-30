@@ -25,3 +25,7 @@ fastlane/test_output
 
 # Archives
 *.xcarchive
+
+# Node.js
+node_modules/
+package-lock.json
