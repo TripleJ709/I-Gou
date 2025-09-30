@@ -27,6 +27,8 @@
 		8997E9CD2E8BE16F00E572E7 /* NotificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9CC2E8BE16F00E572E7 /* NotificationViewController.swift */; };
 		8997E9CF2E8BE1B900E572E7 /* FaqView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9CE2E8BE1B900E572E7 /* FaqView.swift */; };
 		8997E9D12E8BE1C200E572E7 /* FaqViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9D02E8BE1C200E572E7 /* FaqViewController.swift */; };
+		8997E9D42E8BF6F900E572E7 /* HomeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9D32E8BF6F900E572E7 /* HomeData.swift */; };
+		8997E9D62E8BF9A100E572E7 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9D52E8BF9A100E572E7 /* HomeViewModel.swift */; };
 		89C627552E80E6B200CAB833 /* GradesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627542E80E6B200CAB833 /* GradesViewController.swift */; };
 		89C627572E80E6BB00CAB833 /* GradesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627562E80E6BB00CAB833 /* GradesView.swift */; };
 		89C6275A2E80E6E100CAB833 /* GradeChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627592E80E6E100CAB833 /* GradeChart.swift */; };
@@ -70,6 +72,8 @@
 		8997E9CC2E8BE16F00E572E7 /* NotificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewController.swift; sourceTree = "<group>"; };
 		8997E9CE2E8BE1B900E572E7 /* FaqView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaqView.swift; sourceTree = "<group>"; };
 		8997E9D02E8BE1C200E572E7 /* FaqViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaqViewController.swift; sourceTree = "<group>"; };
+		8997E9D32E8BF6F900E572E7 /* HomeData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeData.swift; sourceTree = "<group>"; };
+		8997E9D52E8BF9A100E572E7 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		89C627542E80E6B200CAB833 /* GradesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesViewController.swift; sourceTree = "<group>"; };
 		89C627562E80E6BB00CAB833 /* GradesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesView.swift; sourceTree = "<group>"; };
 		89C627592E80E6E100CAB833 /* GradeChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradeChart.swift; sourceTree = "<group>"; };
@@ -113,6 +117,7 @@
 			children = (
 				890E6D242E7FF38D0037EEB9 /* HomeView.swift */,
 				890E6D212E7FD9640037EEB9 /* HomeViewController.swift */,
+				8997E9D52E8BF9A100E572E7 /* HomeViewModel.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -185,6 +190,7 @@
 		896E3C0A2E7EFFD800AC49CF /* Domain */ = {
 			isa = PBXGroup;
 			children = (
+				8997E9D22E8BF6EB00E572E7 /* Model */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
@@ -273,6 +279,14 @@
 				8997E9D02E8BE1C200E572E7 /* FaqViewController.swift */,
 			);
 			path = Faq;
+			sourceTree = "<group>";
+		};
+		8997E9D22E8BF6EB00E572E7 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				8997E9D32E8BF6F900E572E7 /* HomeData.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 		89C627532E80E68000CAB833 /* Grades */ = {
@@ -448,6 +462,7 @@
 				89C6275A2E80E6E100CAB833 /* GradeChart.swift in Sources */,
 				89C6276A2E811A3400CAB833 /* ExtraCurricularView.swift in Sources */,
 				8997E9CD2E8BE16F00E572E7 /* NotificationViewController.swift in Sources */,
+				8997E9D42E8BF6F900E572E7 /* HomeData.swift in Sources */,
 				89CBA1AF2E8265270075941D /* AdmissionNewsView.swift in Sources */,
 				8997E9C22E8BDF0000E572E7 /* CounselingViewController.swift in Sources */,
 				89CBA1B62E82657F0075941D /* AdmissionScheduleViewController.swift in Sources */,
@@ -462,6 +477,7 @@
 				89C627552E80E6B200CAB833 /* GradesViewController.swift in Sources */,
 				8997E9C52E8BDF8600E572E7 /* MyQuestionView.swift in Sources */,
 				890E6D252E7FF38D0037EEB9 /* HomeView.swift in Sources */,
+				8997E9D62E8BF9A100E572E7 /* HomeViewModel.swift in Sources */,
 				89CBA1AB2E8264AC0075941D /* MyUniversitiesViewController.swift in Sources */,
 				8997E9D12E8BE1C200E572E7 /* FaqViewController.swift in Sources */,
 				890E6D1F2E7FD8A60037EEB9 /* MainTabBarController.swift in Sources */,
