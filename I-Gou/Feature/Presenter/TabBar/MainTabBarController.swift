@@ -20,7 +20,7 @@ class MainTabBarController: UITabBarController {
         let plannerVC = PlannerViewController()
         let scoreVC = GradesViewController()
         let universityVC = UniversityViewController()
-        let consultVC = ViewController()  // 임시
+        let consultVC = CounselingViewController()
         
         // 각 뷰 컨트롤러를 UINavigationController로 감싸주기
         let homeNavController = UINavigationController(rootViewController: homeVC)

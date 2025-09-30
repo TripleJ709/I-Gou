@@ -19,6 +19,14 @@
 		896E3BFE2E7ECFAE00AC49CF /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896E3BF62E7ECFAE00AC49CF /* ViewController.swift */; };
 		896E3C062E7EFF4900AC49CF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896E3C012E7EFF4900AC49CF /* AppDelegate.swift */; };
 		896E3C072E7EFF4900AC49CF /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896E3C032E7EFF4900AC49CF /* SceneDelegate.swift */; };
+		8997E9C02E8BDEE300E572E7 /* CounselingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9BF2E8BDEE300E572E7 /* CounselingView.swift */; };
+		8997E9C22E8BDF0000E572E7 /* CounselingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9C12E8BDF0000E572E7 /* CounselingViewController.swift */; };
+		8997E9C52E8BDF8600E572E7 /* MyQuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9C42E8BDF8600E572E7 /* MyQuestionView.swift */; };
+		8997E9C72E8BDF9200E572E7 /* MyQuestionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9C62E8BDF9200E572E7 /* MyQuestionViewController.swift */; };
+		8997E9CB2E8BE16400E572E7 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9CA2E8BE16400E572E7 /* NotificationView.swift */; };
+		8997E9CD2E8BE16F00E572E7 /* NotificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9CC2E8BE16F00E572E7 /* NotificationViewController.swift */; };
+		8997E9CF2E8BE1B900E572E7 /* FaqView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9CE2E8BE1B900E572E7 /* FaqView.swift */; };
+		8997E9D12E8BE1C200E572E7 /* FaqViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9D02E8BE1C200E572E7 /* FaqViewController.swift */; };
 		89C627552E80E6B200CAB833 /* GradesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627542E80E6B200CAB833 /* GradesViewController.swift */; };
 		89C627572E80E6BB00CAB833 /* GradesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627562E80E6BB00CAB833 /* GradesView.swift */; };
 		89C6275A2E80E6E100CAB833 /* GradeChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627592E80E6E100CAB833 /* GradeChart.swift */; };
@@ -54,6 +62,14 @@
 		896E3C012E7EFF4900AC49CF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		896E3C022E7EFF4900AC49CF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		896E3C032E7EFF4900AC49CF /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		8997E9BF2E8BDEE300E572E7 /* CounselingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounselingView.swift; sourceTree = "<group>"; };
+		8997E9C12E8BDF0000E572E7 /* CounselingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounselingViewController.swift; sourceTree = "<group>"; };
+		8997E9C42E8BDF8600E572E7 /* MyQuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyQuestionView.swift; sourceTree = "<group>"; };
+		8997E9C62E8BDF9200E572E7 /* MyQuestionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyQuestionViewController.swift; sourceTree = "<group>"; };
+		8997E9CA2E8BE16400E572E7 /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
+		8997E9CC2E8BE16F00E572E7 /* NotificationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewController.swift; sourceTree = "<group>"; };
+		8997E9CE2E8BE1B900E572E7 /* FaqView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaqView.swift; sourceTree = "<group>"; };
+		8997E9D02E8BE1C200E572E7 /* FaqViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaqViewController.swift; sourceTree = "<group>"; };
 		89C627542E80E6B200CAB833 /* GradesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesViewController.swift; sourceTree = "<group>"; };
 		89C627562E80E6BB00CAB833 /* GradesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesView.swift; sourceTree = "<group>"; };
 		89C627592E80E6E100CAB833 /* GradeChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradeChart.swift; sourceTree = "<group>"; };
@@ -207,6 +223,7 @@
 				890E6D272E8012C50037EEB9 /* Planner */,
 				89C627532E80E68000CAB833 /* Grades */,
 				89CBA1A42E8262FA0075941D /* University */,
+				8997E9BE2E8BDEBA00E572E7 /* Counseling */,
 			);
 			path = Presenter;
 			sourceTree = "<group>";
@@ -217,6 +234,45 @@
 				896E3BF62E7ECFAE00AC49CF /* ViewController.swift */,
 			);
 			path = Login;
+			sourceTree = "<group>";
+		};
+		8997E9BE2E8BDEBA00E572E7 /* Counseling */ = {
+			isa = PBXGroup;
+			children = (
+				8997E9C32E8BDF7000E572E7 /* MyQuestions */,
+				8997E9C82E8BDFC700E572E7 /* Notifications */,
+				8997E9C92E8BDFD400E572E7 /* Faq */,
+				8997E9BF2E8BDEE300E572E7 /* CounselingView.swift */,
+				8997E9C12E8BDF0000E572E7 /* CounselingViewController.swift */,
+			);
+			path = Counseling;
+			sourceTree = "<group>";
+		};
+		8997E9C32E8BDF7000E572E7 /* MyQuestions */ = {
+			isa = PBXGroup;
+			children = (
+				8997E9C42E8BDF8600E572E7 /* MyQuestionView.swift */,
+				8997E9C62E8BDF9200E572E7 /* MyQuestionViewController.swift */,
+			);
+			path = MyQuestions;
+			sourceTree = "<group>";
+		};
+		8997E9C82E8BDFC700E572E7 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				8997E9CA2E8BE16400E572E7 /* NotificationView.swift */,
+				8997E9CC2E8BE16F00E572E7 /* NotificationViewController.swift */,
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
+		8997E9C92E8BDFD400E572E7 /* Faq */ = {
+			isa = PBXGroup;
+			children = (
+				8997E9CE2E8BE1B900E572E7 /* FaqView.swift */,
+				8997E9D02E8BE1C200E572E7 /* FaqViewController.swift */,
+			);
+			path = Faq;
 			sourceTree = "<group>";
 		};
 		89C627532E80E68000CAB833 /* Grades */ = {
@@ -388,19 +444,26 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8997E9CF2E8BE1B900E572E7 /* FaqView.swift in Sources */,
 				89C6275A2E80E6E100CAB833 /* GradeChart.swift in Sources */,
 				89C6276A2E811A3400CAB833 /* ExtraCurricularView.swift in Sources */,
+				8997E9CD2E8BE16F00E572E7 /* NotificationViewController.swift in Sources */,
 				89CBA1AF2E8265270075941D /* AdmissionNewsView.swift in Sources */,
+				8997E9C22E8BDF0000E572E7 /* CounselingViewController.swift in Sources */,
 				89CBA1B62E82657F0075941D /* AdmissionScheduleViewController.swift in Sources */,
 				89C627662E80E9B600CAB833 /* InternalGradesView.swift in Sources */,
 				89C627612E80E8E000CAB833 /* ExtraCurricularViewController.swift in Sources */,
+				8997E9CB2E8BE16400E572E7 /* NotificationView.swift in Sources */,
 				890E6D222E7FD9640037EEB9 /* HomeViewController.swift in Sources */,
+				8997E9C72E8BDF9200E572E7 /* MyQuestionViewController.swift in Sources */,
 				890E6D2E2E8013D70037EEB9 /* CardView.swift in Sources */,
 				896E3BFE2E7ECFAE00AC49CF /* ViewController.swift in Sources */,
 				896E3C062E7EFF4900AC49CF /* AppDelegate.swift in Sources */,
 				89C627552E80E6B200CAB833 /* GradesViewController.swift in Sources */,
+				8997E9C52E8BDF8600E572E7 /* MyQuestionView.swift in Sources */,
 				890E6D252E7FF38D0037EEB9 /* HomeView.swift in Sources */,
 				89CBA1AB2E8264AC0075941D /* MyUniversitiesViewController.swift in Sources */,
+				8997E9D12E8BE1C200E572E7 /* FaqViewController.swift in Sources */,
 				890E6D1F2E7FD8A60037EEB9 /* MainTabBarController.swift in Sources */,
 				89CBA1B42E82656E0075941D /* AdmissionScheduleView.swift in Sources */,
 				89C627572E80E6BB00CAB833 /* GradesView.swift in Sources */,
@@ -410,6 +473,7 @@
 				896E3C072E7EFF4900AC49CF /* SceneDelegate.swift in Sources */,
 				89C627682E8118CE00CAB833 /* MockExamView.swift in Sources */,
 				89C6275F2E80E8C700CAB833 /* MockExamViewController.swift in Sources */,
+				8997E9C02E8BDEE300E572E7 /* CounselingView.swift in Sources */,
 				890E6D292E8012E80037EEB9 /* PlannerView.swift in Sources */,
 				89CBA1B12E8265360075941D /* AdmissionNewsViewController.swift in Sources */,
 				89CBA1A62E8263680075941D /* UniversityViewController.swift in Sources */,

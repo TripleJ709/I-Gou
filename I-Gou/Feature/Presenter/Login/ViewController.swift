@@ -11,7 +11,7 @@ class ViewController: UIViewController {
     
     let test: UILabel = {
         let lb = UILabel()
-        lb.text = "Hello, World!"
+        lb.text = "로그인뷰 미구현"
         lb.translatesAutoresizingMaskIntoConstraints = false
         return lb
     }()
