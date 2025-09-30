@@ -2,7 +2,7 @@
 .DS_Store
 
 # Xcode
-xcuserdata/
+I-Gou.xcodeproj/project.xcworkspace/xcuserdata/
 DerivedData/
 build/
 
@@ -27,5 +27,5 @@ fastlane/test_output
 *.xcarchive
 
 # Node.js
-node_modules/
-package-lock.json
+/node_modules/
+/package-lock.json
