@@ -9,54 +9,72 @@ import UIKit
 
 class PlannerView: UIView {
     
+    weak var delegate: PlannerViewDelegate?
+    
     // MARK: - UI Components
     
-    private let scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        return scrollView
-    }()
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
+    private let mainStackView = UIStackView()
+    private let loadingIndicator = UIActivityIndicatorView(style: .large)
     
-    private let contentView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
-    private let mainStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.spacing = 20
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
-    }()
-
     // MARK: - Initializer
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
+        setupLayout()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
+    // MARK: - Public Methods
+    
+    func setLoading(_ isLoading: Bool) {
+        if isLoading {
+            loadingIndicator.startAnimating()
+            scrollView.isHidden = true
+        } else {
+            loadingIndicator.stopAnimating()
+            scrollView.isHidden = false
+        }
+    }
+    
+    func updateUI(with data: PlannerData) {
+        // 기존 UI를 모두 지우고 데이터 기반으로 새로 그립니다.
+        mainStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        
+        mainStackView.addArrangedSubview(createHeaderView())
+        mainStackView.addArrangedSubview(createCalendarCard())
+        mainStackView.addArrangedSubview(createTodayScheduleCard(schedules: data.todaySchedules))
+        mainStackView.addArrangedSubview(createDeadlineCard(deadlines: data.deadlines))
+        mainStackView.addArrangedSubview(createStudyStatusCard())
+    }
+    
     // MARK: - Private Methods
     
     private func setupUI() {
+        // 기본 뷰 스타일 및 계층 구조 설정
+        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
+        loadingIndicator.hidesWhenStopped = true
+        
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        
+        mainStackView.translatesAutoresizingMaskIntoConstraints = false
+        mainStackView.axis = .vertical
+        mainStackView.spacing = 20
+        
         self.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubview(mainStackView)
-        
-        // 메인 스택뷰에 각 UI 섹션(카드)을 추가합니다.
-        mainStackView.addArrangedSubview(createHeaderView())
-        mainStackView.addArrangedSubview(createCalendarCard())
-        mainStackView.addArrangedSubview(createTodayScheduleCard())
-        mainStackView.addArrangedSubview(createDeadlineCard())
-        mainStackView.addArrangedSubview(createStudyStatusCard())
-        
-        // 오토레이아웃 설정
+        self.addSubview(loadingIndicator)
+    }
+    
+    private func setupLayout() {
+        // Auto Layout 제약조건 설정
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
@@ -72,8 +90,15 @@ class PlannerView: UIView {
             mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
             mainStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             mainStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
+            mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
+            
+            loadingIndicator.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: self.centerYAnchor)
         ])
+    }
+    
+    @objc private func addScheduleButtonTapped() {
+        delegate?.didTapAddScheduleButton()
     }
     
     // MARK: - View Factory Methods
@@ -101,6 +126,7 @@ class PlannerView: UIView {
         addButton.setTitleColor(.white, for: .normal)
         addButton.layer.cornerRadius = 8
         addButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 14, bottom: 8, right: 14)
+        addButton.addTarget(self, action: #selector(addScheduleButtonTapped), for: .touchUpInside)
         
         let headerStack = UIStackView(arrangedSubviews: [labelStack, addButton])
         headerStack.alignment = .center
@@ -144,21 +170,42 @@ class PlannerView: UIView {
         
         return card
     }
-
-    private func createTodayScheduleCard() -> UIView {
+    
+    private func createTodayScheduleCard(schedules: [DailySchedule]) -> UIView {
         let card = CardView()
         let header = createCardHeader(iconName: "clock", title: "오늘의 일정")
-
-        let schedule1 = createScheduleItem(time: "09:00", title: "수학 문제집 풀이", subtitle: "미적분 연습문제 10문제", tagText: "학습", color: .systemBlue)
-        let schedule2 = createScheduleItem(time: "14:00", title: "영어 단어 암기", subtitle: "고등어휘 50개", tagText: "학습", color: .systemBlue)
-        let schedule3 = createScheduleItem(time: "16:00", title: "과학 실험 보고서", subtitle: "화학 실험 결과 정리", tagText: "활동", color: .systemGreen)
-        let schedule4 = createScheduleItem(time: "19:00", title: "독서 활동", subtitle: "사피엔스 3장 읽기", tagText: "독서", color: .systemPurple)
-
-        let stack = UIStackView(arrangedSubviews: [header, schedule1, schedule2, schedule3, schedule4])
+        
+        // 데이터가 비어있을 경우 안내 문구 표시
+        guard !schedules.isEmpty else {
+            let emptyLabel = UILabel()
+            emptyLabel.text = "오늘의 일정이 없습니다."
+            emptyLabel.font = .systemFont(ofSize: 15)
+            emptyLabel.textColor = .gray
+            
+            let stack = UIStackView(arrangedSubviews: [header, emptyLabel])
+            stack.axis = .vertical
+            stack.spacing = 16
+            stack.translatesAutoresizingMaskIntoConstraints = false
+            
+            card.addSubview(stack)
+            NSLayoutConstraint.activate([
+                stack.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
+                stack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
+                stack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
+                stack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
+            ])
+            return card
+        }
+        
+        let scheduleItems = schedules.map {
+            createScheduleItem(time: $0.time, title: $0.title, subtitle: $0.subtitle, tagText: $0.tag, color: .systemBlue)
+        }
+        
+        let stack = UIStackView(arrangedSubviews: [header] + scheduleItems)
         stack.axis = .vertical
         stack.spacing = 12
         stack.translatesAutoresizingMaskIntoConstraints = false
-
+        
         card.addSubview(stack)
         NSLayoutConstraint.activate([
             stack.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
@@ -169,20 +216,42 @@ class PlannerView: UIView {
         return card
     }
     
-    private func createDeadlineCard() -> UIView {
+    private func createDeadlineCard(deadlines: [Deadline]) -> UIView {
         let card = CardView()
         let header = createCardHeader(iconName: "book.pages", title: "다가오는 마감일")
-
-        let deadline1 = createDeadlineItem(title: "수학 과제 제출", date: "2024-09-15", priority: "높음", color: .systemRed)
-        let deadline2 = createDeadlineItem(title: "영어 발표 준비", date: "2024-09-18", priority: "보통", color: .systemYellow)
-        let deadline3 = createDeadlineItem(title: "과학 실험 보고서", date: "2024-09-20", priority: "보통", color: .systemYellow)
-        let deadline4 = createDeadlineItem(title: "진로 탐색 보고서", date: "2024-09-25", priority: "낮음", color: .systemGreen)
         
-        let stack = UIStackView(arrangedSubviews: [header, deadline1, deadline2, deadline3, deadline4])
+        // 데이터가 비어있을 경우 안내 문구 표시
+        guard !deadlines.isEmpty else {
+            let emptyLabel = UILabel()
+            emptyLabel.text = "다가오는 마감일이 없습니다."
+            emptyLabel.font = .systemFont(ofSize: 15)
+            emptyLabel.textColor = .gray
+            
+            let stack = UIStackView(arrangedSubviews: [header, emptyLabel])
+            stack.axis = .vertical
+            stack.spacing = 16
+            stack.translatesAutoresizingMaskIntoConstraints = false
+            
+            card.addSubview(stack)
+            NSLayoutConstraint.activate([
+                stack.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
+                stack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
+                stack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
+                stack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
+            ])
+            return card
+        }
+        
+        // 데이터가 있을 경우, 리스트를 생성
+        let deadlineItems = deadlines.map {
+            createDeadlineItem(title: $0.title, date: $0.date, priority: $0.priority, color: .systemRed)
+        }
+        
+        let stack = UIStackView(arrangedSubviews: [header] + deadlineItems)
         stack.axis = .vertical
         stack.spacing = 12
         stack.translatesAutoresizingMaskIntoConstraints = false
-
+        
         card.addSubview(stack)
         NSLayoutConstraint.activate([
             stack.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
@@ -196,10 +265,10 @@ class PlannerView: UIView {
     private func createStudyStatusCard() -> UIView {
         let card = CardView()
         let header = createCardHeader(iconName: "chart.pie", title: "이번 주 학습 현황")
-
+        
         let completedView = createStatusItem(value: "32", label: "완료한 일정")
         let timeView = createStatusItem(value: "18", label: "학습 시간")
-
+        
         let itemStack = UIStackView(arrangedSubviews: [completedView, timeView])
         itemStack.distribution = .fillEqually
         itemStack.spacing = 12
@@ -218,7 +287,10 @@ class PlannerView: UIView {
         ])
         return card
     }
-
+    
+    
+    
+    
     // MARK: - UI Element Helper Methods
     
     private func createCardHeader(iconName: String, title: String) -> UIView {
@@ -241,7 +313,7 @@ class PlannerView: UIView {
         
         return stackView
     }
-
+    
     private func createScheduleItem(time: String, title: String, subtitle: String, tagText: String, color: UIColor) -> UIView {
         let container = UIView()
         container.backgroundColor = UIColor(red: 242/255, green: 242/255, blue: 247/255, alpha: 1.0)
@@ -320,7 +392,7 @@ class PlannerView: UIView {
         
         return container
     }
-
+    
     private func createStatusItem(value: String, label: String) -> UIView {
         let container = UIView()
         container.backgroundColor = UIColor(red: 242/255, green: 242/255, blue: 247/255, alpha: 1.0)
@@ -374,4 +446,9 @@ class PlannerView: UIView {
         
         return view
     }
+}
+
+
+protocol PlannerViewDelegate: AnyObject {
+    func didTapAddScheduleButton()
 }

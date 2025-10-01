@@ -1,12 +1,12 @@
 const express = require('express');
 const app = express();
-const port = 3000; // 서버가 3000번 포트에서 실행됩니다.
+const port = 3000;
 
-// GET /api/home 주소로 요청이 들어왔을 때 실행될 코드
+app.use(express.json());
+
 app.get('/api/home', (req, res) => {
   console.log("iOS 앱에서 홈 데이터 요청이 들어왔습니다");
 
-  // 지금은 데이터베이스 대신 '가짜 데이터(Dummy Data)'를 JSON 형태로 직접 만들어 보냅니다.
   const homeData = {
     user: {
       name: "김학생"
@@ -38,12 +38,32 @@ app.get('/api/home', (req, res) => {
       }
     ]
   };
-
-  // iOS 앱에게 JSON 데이터를 응답으로 보냅니다.
   res.json(homeData);
 });
 
-// 서버를 3000번 포트에서 실행합니다.
+let plannerData = {
+  todaySchedules: [
+    { id: 1, time: "09:00", title: "수학 문제집 풀이", subtitle: "미적분 연습문제 10문제", tag: "학습", color: "blue" },
+    { id: 2, time: "14:00", title: "영어 단어 암기", subtitle: "고등어휘 50개", tag: "학습", color: "blue" }
+  ],
+  deadlines: [
+    { id: 1, title: "수학 과제 제출", date: "2025-10-15", priority: "높음", color: "red" },
+    { id: 2, title: "영어 발표 준비", date: "2025-10-18", priority: "보통", color: "yellow" }
+  ]
+};
+
+app.get('/api/planner', (req, res) => {
+  console.log("iOS 앱에서 플래너 데이터 요청이 들어왔습니다!");
+  res.json(plannerData);
+});
+
+app.post('/api/schedules', (req, res) => {
+  const newSchedule = req.body;
+  console.log("새로운 일정 추가됨:", newSchedule);
+  plannerData.todaySchedules.push({ id: Date.now(), ...newSchedule });
+  res.status(201).json({ message: "일정이 성공적으로 추가되었습니다." });
+});
+
 app.listen(port, () => {
   console.log(`I-Gou 서버가 http://localhost:${port} 에서 실행 중입니다.`);
 });
