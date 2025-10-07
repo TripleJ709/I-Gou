@@ -30,41 +30,63 @@ struct GradeDistribution: Identifiable {
 }
 
 // MARK: - Line Chart View
+
+class ChartDataStore: ObservableObject {
+    // @Published: 이 데이터가 변경되면 SwiftUI 뷰가 자동으로 업데이트됩니다.
+    @Published var performances: [SubjectPerformance]
+    
+    init() {
+        // 초기 데이터 설정
+        self.performances = [
+            .init(subject: "국어", scores: [.init(month: "1학기 중간", score: 90), .init(month: "1학기 기말", score: 85)], color: .orange),
+            .init(subject: "수학", scores: [.init(month: "1학기 중간", score: 88), .init(month: "1학기 기말", score: 78)], color: .blue),
+            .init(subject: "영어", scores: [.init(month: "1학기 중간", score: 92), .init(month: "1학기 기말", score: 88)], color: .green)
+        ]
+    }
+    
+    // 새로운 성적 기록을 데이터에 추가하는 함수
+    func addGradeRecord(_ record: InternalGradeRecord) {
+        let newMonth = record.examName
+        
+        // 국어 점수 추가
+        if let index = performances.firstIndex(where: { $0.subject == "국어" }) {
+            performances[index].scores.append(.init(month: newMonth, score: record.koreanScore))
+        }
+        // 수학 점수 추가
+        if let index = performances.firstIndex(where: { $0.subject == "수학" }) {
+            performances[index].scores.append(.init(month: newMonth, score: record.mathScore))
+        }
+        // 영어 점수 추가
+        if let index = performances.firstIndex(where: { $0.subject == "영어" }) {
+            performances[index].scores.append(.init(month: newMonth, score: record.englishScore))
+        }
+    }
+}
+
 struct GradeLineChartView: View {
-    let performances: [SubjectPerformance] = [
-        .init(subject: "국어", scores: [.init(month: "국어", score: 90), .init(month: "수학", score: 85), .init(month: "영어", score: 92), .init(month: "한국사", score: 98), .init(month: "물리", score: 88), .init(month: "화학", score: 82)], color: .blue),
-        .init(subject: "수학", scores: [.init(month: "국어", score: 88), .init(month: "수학", score: 78), .init(month: "영어", score: 88), .init(month: "한국사", score: 95), .init(month: "물리", score: 85), .init(month: "화학", score: 75)], color: .gray)
-    ]
+    @ObservedObject var dataStore: ChartDataStore
 
     var body: some View {
-        Chart {
-            RuleMark(y: .value("Goal", 90)).foregroundStyle(Color.gray).lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
-
-            ForEach(performances) { performance in
-                ForEach(performance.scores) { score in
-                    LineMark(
-                        x: .value("Subject", score.month),
-                        y: .value("Score", score.score)
-                    )
-                    .foregroundStyle(performance.color)
-                    .symbol(by: .value("Subject", performance.subject))
-                    
-                    PointMark(
-                        x: .value("Subject", score.month),
-                        y: .value("Score", score.score)
-                    )
-                    .foregroundStyle(performance.color)
-                }
+        Chart(dataStore.performances) { performance in
+            ForEach(performance.scores) { score in
+                LineMark(
+                    x: .value("Exam", score.month),
+                    y: .value("Score", score.score)
+                )
+                .foregroundStyle(by: .value("Subject", performance.subject))
+                
+                PointMark(
+                    x: .value("Exam", score.month),
+                    y: .value("Score", score.score)
+                )
+                .foregroundStyle(by: .value("Subject", performance.subject))
             }
         }
+        .chartForegroundStyleScale([
+            "국어": Color.orange, "수학": Color.blue, "영어": Color.green
+        ])
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 5))
-        }
-        .chartXAxis {
-            AxisMarks(values: .automatic) { _ in
-                AxisGridLine()
-                AxisValueLabel()
-            }
         }
         .frame(height: 250)
     }

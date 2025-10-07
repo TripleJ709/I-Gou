@@ -8,43 +8,56 @@
 import UIKit
 
 protocol AddGradeDelegate: AnyObject {
-    func didAddGrade(subject: String, score: String)
+    func didAddGrade(record: InternalGradeRecord)
 }
 
 class AddGradeViewController: UIViewController {
-
-    private var addGradeView: AddGradeView?
+    
+    private var addInternalGradeView: AddGradeView?
     weak var delegate: AddGradeDelegate?
-
+    
     override func loadView() {
         let view = AddGradeView()
-        self.addGradeView = view
+        self.addInternalGradeView = view
         self.view = view
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupButtonActions()
     }
-
+    
     private func setupButtonActions() {
-        addGradeView?.cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
-        addGradeView?.saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
+        addInternalGradeView?.cancelButton.addTarget(self, action: #selector(cancelButtonTapped), for: .touchUpInside)
+        addInternalGradeView?.saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
     }
-
+    
     @objc private func cancelButtonTapped() {
         self.dismiss(animated: true)
     }
-
+    
     @objc private func saveButtonTapped() {
-        guard let subject = addGradeView?.subjectTextField.text, !subject.isEmpty,
-              let score = addGradeView?.scoreTextField.text, !score.isEmpty else {
-            // 간단한 유효성 검사
-            print("과목과 점수를 모두 입력하세요.")
+        // 모든 텍스트필드에서 값을 가져옵니다.
+        guard let view = self.addInternalGradeView,
+              let examName = view.examNameTextField.text, !examName.isEmpty,
+              let koreanScoreText = view.koreanScoreTextField.text, let koreanScore = Int(koreanScoreText),
+              let mathScoreText = view.mathScoreTextField.text, let mathScore = Int(mathScoreText),
+              let englishScoreText = view.englishScoreTextField.text, let englishScore = Int(englishScoreText)
+        else {
+            print("모든 항목을 올바르게 입력하세요.")
             return
         }
         
-        delegate?.didAddGrade(subject: subject, score: score)
+        // InternalGradeRecord 객체로 만듭니다.
+        let newRecord = InternalGradeRecord(
+            examName: examName,
+            koreanScore: koreanScore,
+            mathScore: mathScore,
+            englishScore: englishScore
+        )
+        
+        // Delegate를 통해 GradesViewController에 데이터 전달
+        delegate?.didAddGrade(record: newRecord)
         self.dismiss(animated: true)
     }
 }

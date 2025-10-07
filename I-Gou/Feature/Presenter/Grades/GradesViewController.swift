@@ -8,9 +8,9 @@
 import UIKit
 
 class GradesViewController: UIViewController {
-
+    
     private var gradesView: GradesView?
-
+    
     // 자식 뷰 컨트롤러들 선언
     private lazy var internalGradesVC = InternalGradesViewController()
     private lazy var mockExamVC = MockExamViewController()
@@ -18,13 +18,13 @@ class GradesViewController: UIViewController {
     
     // 현재 활성화된 자식 뷰 컨트롤러
     private var activeViewController: UIViewController?
-
+    
     override func loadView() {
         let view = GradesView()
         self.gradesView = view
         self.view = view
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
@@ -37,13 +37,13 @@ class GradesViewController: UIViewController {
         navigationItem.title = "I-GoU"
         view.backgroundColor = UIColor(red: 242/255, green: 242/255, blue: 247/255, alpha: 1.0)
     }
-
+    
     private func setupSegmentButtons() {
         gradesView?.internalGradesButton.addTarget(self, action: #selector(didTapSegmentButton(_:)), for: .touchUpInside)
         gradesView?.mockExamButton.addTarget(self, action: #selector(didTapSegmentButton(_:)), for: .touchUpInside)
         gradesView?.extraCurricularButton.addTarget(self, action: #selector(didTapSegmentButton(_:)), for: .touchUpInside)
     }
-
+    
     @objc private func didTapSegmentButton(_ sender: UIButton) {
         guard let gradesView = self.gradesView else { return }
         
@@ -57,7 +57,7 @@ class GradesViewController: UIViewController {
         // 선택된 버튼 스타일 활성화
         sender.backgroundColor = .white
         sender.setTitleColor(.black, for: .normal)
-
+        
         // 버튼에 맞는 자식 컨트롤러 표시
         if sender == gradesView.internalGradesButton {
             displayChildController(internalGradesVC)
@@ -71,7 +71,7 @@ class GradesViewController: UIViewController {
     // 자식 뷰 컨트롤러 전환 로직
     private func displayChildController(_ newChildVC: UIViewController) {
         if activeViewController == newChildVC { return }
-
+        
         // 기존 자식이 있으면 제거
         if let existingChildVC = activeViewController {
             existingChildVC.willMove(toParent: nil)
@@ -110,8 +110,11 @@ extension GradesViewController: GradesViewDelegate {
 }
 
 extension GradesViewController: AddGradeDelegate {
-    func didAddGrade(subject: String, score: String) {
-        // 나중에는 이 데이터로 ViewModel을 통해 서버에 POST 요청을 보냅니다.
-        print("새로운 성적 추가됨 -> 과목: \(subject), 점수: \(score)")
+    func didAddGrade(record: InternalGradeRecord) {
+        internalGradesVC.addNewGrade(record: record)
+        
+        if self.activeViewController != internalGradesVC {
+            didTapSegmentButton(gradesView!.internalGradesButton)
+        }
     }
 }

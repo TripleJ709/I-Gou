@@ -8,39 +8,46 @@
 import UIKit
 
 class AddGradeView: UIView {
-
     let cancelButton = UIButton(type: .system)
     let saveButton = UIButton(type: .system)
-    let subjectTextField = UITextField()
-    let scoreTextField = UITextField()
-
+    
+    let examNameTextField = UITextField()
+    let koreanScoreTextField = UITextField()
+    let mathScoreTextField = UITextField()
+    let englishScoreTextField = UITextField()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .systemGroupedBackground
         setupUI()
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     private func setupUI() {
         // Navigation Bar Items
         cancelButton.setTitle("취소", for: .normal)
         saveButton.setTitle("저장", for: .normal)
         saveButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
-
         let navStack = UIStackView(arrangedSubviews: [cancelButton, UIView(), saveButton])
         
         // Input Fields
-        subjectTextField.placeholder = "과목명"
-        scoreTextField.placeholder = "점수"
-        scoreTextField.keyboardType = .numberPad // 숫자 키패드
+        examNameTextField.placeholder = "예: 1학년 1학기 중간고사"
+        koreanScoreTextField.placeholder = "점수 입력"
+        koreanScoreTextField.keyboardType = .numberPad
+        mathScoreTextField.placeholder = "점수 입력"
+        mathScoreTextField.keyboardType = .numberPad
+        englishScoreTextField.placeholder = "점수 입력"
+        englishScoreTextField.keyboardType = .numberPad
         
-        let subjectStack = createInputStack(label: "과목", textField: subjectTextField)
-        let scoreStack = createInputStack(label: "점수", textField: scoreTextField)
+        let examNameStack = createInputStack(label: "시험명", textField: examNameTextField)
+        let koreanStack = createInputStack(label: "국어", textField: koreanScoreTextField)
+        let mathStack = createInputStack(label: "수학", textField: mathScoreTextField)
+        let englishStack = createInputStack(label: "영어", textField: englishScoreTextField)
         
-        let formStack = UIStackView(arrangedSubviews: [subjectStack, scoreStack])
+        let formStack = UIStackView(arrangedSubviews: [examNameStack, koreanStack, mathStack, englishStack])
         formStack.axis = .vertical
         formStack.spacing = 1
         

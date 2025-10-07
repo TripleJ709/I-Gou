@@ -9,21 +9,24 @@ import UIKit
 import SwiftUI
 
 class InternalGradesView: UIView {
-
+    
+    private var chartDataStore: ChartDataStore
+    
     // MARK: - UI Components
-    // 불필요한 scrollView와 contentView를 제거합니다.
     private let mainStackView = UIStackView()
-
+    
     // MARK: - Initializer
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(chartDataStore: ChartDataStore) {
+        self.chartDataStore = chartDataStore
+        super.init(frame: .zero)
         setupUI()
+        setupLayout()
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     // MARK: - Private Methods
     private func setupUI() {
         // 기본 뷰 설정
@@ -42,7 +45,7 @@ class InternalGradesView: UIView {
         // 레이아웃 설정
         setupLayout()
     }
-
+    
     private func setupLayout() {
         // mainStackView를 self의 경계에 맞게 설정합니다.
         NSLayoutConstraint.activate([
@@ -52,14 +55,14 @@ class InternalGradesView: UIView {
             mainStackView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         ])
     }
-
+    
     // MARK: - View Factory Methods (From GradesView)
     // 이 아래 부분은 이전 코드와 동일합니다.
     
     private func createLineChartCard() -> CardView {
         let card = CardView()
         let header = createCardHeader(title: "과목별 성적 현황", subtitle: "최근 3학기 성적 변화")
-        let lineChartView = GradeLineChartView()
+        let lineChartView = GradeLineChartView(dataStore: self.chartDataStore)
         let chartHostView = addSwiftUIView(lineChartView)
         
         let stack = UIStackView(arrangedSubviews: [header, chartHostView])
@@ -80,7 +83,7 @@ class InternalGradesView: UIView {
     private func createDetailedGradesCard() -> CardView {
         let card = CardView()
         let header = createCardHeader(title: "과목별 상세 성적", subtitle: nil)
-
+        
         let grade1 = createGradeItem(subject: "국어", score: "88", grade: "2등급", goal: "92", trend: .down)
         let grade2 = createGradeItem(subject: "수학", score: "85", grade: "2등급", goal: "90", trend: .up)
         let grade3 = createGradeItem(subject: "영어", score: "89", grade: "2등급", goal: "93", trend: .up)
@@ -100,7 +103,7 @@ class InternalGradesView: UIView {
         ])
         return card
     }
-
+    
     private func createPieChartCard() -> CardView {
         let card = CardView()
         let header = createCardHeader(title: "등급 분포", subtitle: nil)
@@ -121,7 +124,7 @@ class InternalGradesView: UIView {
         ])
         return card
     }
-
+    
     // MARK: - Helper Methods
     
     private func addSwiftUIView<V: View>(_ swiftUIView: V) -> UIView {
@@ -130,7 +133,7 @@ class InternalGradesView: UIView {
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
         return hostingController.view
     }
-
+    
     private func createCardHeader(title: String, subtitle: String?) -> UIView {
         let titleLabel = UILabel()
         titleLabel.text = title
@@ -173,7 +176,7 @@ class InternalGradesView: UIView {
         gradeLabel.layer.cornerRadius = 8
         gradeLabel.layer.masksToBounds = true
         gradeLabel.widthAnchor.constraint(equalToConstant: 40).isActive = true
-
+        
         let iconName = (trend == .up) ? "arrow.up.right" : "arrow.down.right"
         let iconColor: UIColor = (trend == .up) ? .green : .red
         let trendIcon = UIImageView(image: UIImage(systemName: iconName))
