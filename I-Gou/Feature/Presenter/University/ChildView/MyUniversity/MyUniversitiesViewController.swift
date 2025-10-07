@@ -12,6 +12,8 @@ class MyUniversitiesViewController: UIViewController {
 
     override func loadView() {
         let view = MyUniversitiesView()
+        // [추가] Delegate를 self로 지정
+        view.delegate = self
         self.myUniversitiesView = view
         self.view = view
     }
@@ -19,5 +21,14 @@ class MyUniversitiesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .clear
+    }
+}
+
+extension MyUniversitiesViewController: MyUniversitiesViewDelegate {
+    func didSelectUniversity(_ university: UniversityItem) {
+        print("\(university.universityName) 선택됨")
+        let detailVC = UniversityDetailViewController()
+        detailVC.universityData = university
+        self.navigationController?.pushViewController(detailVC, animated: true)
     }
 }

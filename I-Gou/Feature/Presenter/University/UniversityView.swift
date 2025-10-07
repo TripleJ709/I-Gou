@@ -25,6 +25,7 @@ class UniversityView: UIView {
     
     // 자식 View가 들어올 컨테이너
     let contentContainerView = UIView()
+    let addFavoriteButton = UIButton(type: .system)
 
     // MARK: - Initializer
     override init(frame: CGRect) {
@@ -78,7 +79,7 @@ class UniversityView: UIView {
     }
     
     // MARK: - View Factory Methods
-    
+
     private func createHeaderView() -> UIView {
         let titleLabel = UILabel()
         titleLabel.text = "대학 정보"
@@ -93,18 +94,17 @@ class UniversityView: UIView {
         labelStack.axis = .vertical
         labelStack.spacing = 4
         
-        let addButton = UIButton(type: .system)
-        addButton.setTitle("관심 대학 추가", for: .normal)
-        addButton.setImage(UIImage(systemName: "star"), for: .normal)
-        addButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
-        addButton.backgroundColor = .black
-        addButton.tintColor = .white
-        addButton.setTitleColor(.white, for: .normal)
-        addButton.layer.cornerRadius = 8
-        addButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 14, bottom: 8, right: 14)
-        addButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: -4, bottom: 0, right: 4)
+        self.addFavoriteButton.setTitle("관심 대학 추가", for: .normal)
+        self.addFavoriteButton.setImage(UIImage(systemName: "star"), for: .normal)
+        self.addFavoriteButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
+        self.addFavoriteButton.backgroundColor = .black
+        self.addFavoriteButton.tintColor = .white
+        self.addFavoriteButton.setTitleColor(.white, for: .normal)
+        self.addFavoriteButton.layer.cornerRadius = 8
+        self.addFavoriteButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 14, bottom: 8, right: 14)
+        self.addFavoriteButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: -4, bottom: 0, right: 4)
         
-        let headerStack = UIStackView(arrangedSubviews: [labelStack, addButton])
+        let headerStack = UIStackView(arrangedSubviews: [labelStack, self.addFavoriteButton])
         headerStack.alignment = .center
         headerStack.distribution = .equalCentering
         

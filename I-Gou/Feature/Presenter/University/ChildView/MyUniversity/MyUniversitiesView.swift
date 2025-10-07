@@ -8,7 +8,9 @@
 import UIKit
 
 class MyUniversitiesView: UIView {
+    
     private let mainStackView = UIStackView()
+    weak var delegate: MyUniversitiesViewDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -18,6 +20,12 @@ class MyUniversitiesView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    private let universityItems: [UniversityItem] = [
+        .init(universityName: "서울대학교", department: "경영학과", major: "학생부종합", myScore: 88.5, requiredScore: 92, deadline: "2024-09-15", status: .challenging, location: "서울 관악구", competitionRate: "10.2:1"),
+        .init(universityName: "연세대학교", department: "경제학과", major: "학생부교과", myScore: 88.5, requiredScore: 89, deadline: "2024-09-18", status: .appropriate, location: "서울 서대문구", competitionRate: "6.7:1"),
+        .init(universityName: "고려대학교", department: "경영학과", major: "학생부교과", myScore: 88.5, requiredScore: 87, deadline: "2024-09-20", status: .safe, location: "서울 성북구", competitionRate: "7.1:1")
+    ]
     
     private func setupUI() {
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -46,11 +54,9 @@ class MyUniversitiesView: UIView {
         let card = CardView()
         let header = createCardHeader(title: "합격 가능성 분석", subtitle: "현재 성적 기준 예상 합격 가능성")
         
-        let uni1 = createUniversityItem(university: "서울대학교", department: "경영학과", major: "학생부종합", myScore: 88.5, requiredScore: 92, deadline: "2024-09-15", status: .challenging)
-        let uni2 = createUniversityItem(university: "연세대학교", department: "경제학과", major: "학생부교과", myScore: 88.5, requiredScore: 89, deadline: "2024-09-18", status: .appropriate)
-        let uni3 = createUniversityItem(university: "고려대학교", department: "경영학과", major: "학생부교과", myScore: 88.5, requiredScore: 87, deadline: "2024-09-20", status: .safe)
-
-        let stack = UIStackView(arrangedSubviews: [header, uni1, uni2, uni3])
+        let universityItemViews = universityItems.map { createUniversityItem(data: $0) }
+        
+        let stack = UIStackView(arrangedSubviews: [header] + universityItemViews)
         stack.axis = .vertical
         stack.spacing = 16
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -126,20 +132,25 @@ class MyUniversitiesView: UIView {
     }
 
     enum Status { case challenging, appropriate, safe }
-    private func createUniversityItem(university: String, department: String, major: String, myScore: Float, requiredScore: Float, deadline: String, status: Status) -> UIView {
-        let container = UIView()
+    private func createUniversityItem(data: UniversityItem) -> UIView {
+        let container = UniversityItemView()
+        container.universityData = data
         container.backgroundColor = .systemGray6
         container.layer.cornerRadius = 10
         
+        // 탭 제스처 추가
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(universityItemTapped(_:)))
+        container.addGestureRecognizer(tapGesture)
+        
         // Header
         let uniLabel = UILabel()
-        uniLabel.text = university
+        uniLabel.text = data.universityName // 수정
         uniLabel.font = .systemFont(ofSize: 16, weight: .bold)
         
         let starIcon = UIImageView(image: UIImage(systemName: "star.fill"))
         starIcon.tintColor = .systemYellow
         
-        let statusTag = createStatusTag(status: status)
+        let statusTag = createStatusTag(status: data.status) // 수정
         
         let headerStack = UIStackView(arrangedSubviews: [uniLabel, starIcon, UIView(), statusTag])
         headerStack.spacing = 4
@@ -147,36 +158,37 @@ class MyUniversitiesView: UIView {
         
         // Department / Major
         let deptLabel = UILabel()
-        deptLabel.text = department
+        deptLabel.text = data.department // 수정
         deptLabel.font = .systemFont(ofSize: 14)
         
         let majorLabel = UILabel()
-        majorLabel.text = major
+        majorLabel.text = data.major // 수정
         majorLabel.font = .systemFont(ofSize: 14)
         majorLabel.textColor = .gray
         
         let detailStack = UIStackView(arrangedSubviews: [deptLabel, majorLabel])
+        detailStack.spacing = 4
         
         // Score Progress
         let myScoreLabel = UILabel()
-        myScoreLabel.text = "내 성적: \(myScore)"
+        myScoreLabel.text = "내 성적: \(data.myScore)" // 수정
         myScoreLabel.font = .systemFont(ofSize: 13)
         
         let requiredScoreLabel = UILabel()
-        requiredScoreLabel.text = "요구 성적: \(requiredScore)"
+        requiredScoreLabel.text = "요구 성적: \(data.requiredScore)" // 수정
         requiredScoreLabel.font = .systemFont(ofSize: 13)
         requiredScoreLabel.textAlignment = .right
         
         let scoreLabelStack = UIStackView(arrangedSubviews: [myScoreLabel, requiredScoreLabel])
         
         let progressView = UIProgressView()
-        progressView.progress = myScore / requiredScore
-        progressView.progressTintColor = (status == .safe) ? .systemGreen : .systemYellow
+        progressView.progress = data.myScore / data.requiredScore // 수정
+        progressView.progressTintColor = (data.status == .safe) ? .systemGreen : .systemYellow // 수정
         progressView.trackTintColor = .systemGray4
         
         // Footer
         let deadlineLabel = UILabel()
-        deadlineLabel.text = "마감일: \(deadline)"
+        deadlineLabel.text = "마감일: \(data.deadline)" // 수정
         deadlineLabel.font = .systemFont(ofSize: 13)
         deadlineLabel.textColor = .gray
         
@@ -187,6 +199,7 @@ class MyUniversitiesView: UIView {
         detailButton.layer.cornerRadius = 12
         detailButton.layer.borderColor = UIColor.systemGray4.cgColor
         detailButton.layer.borderWidth = 1
+        detailButton.isUserInteractionEnabled = false // 컨테이너 전체에 탭 제스처가 있으므로 버튼 자체는 비활성화
         detailButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
         detailButton.heightAnchor.constraint(equalToConstant: 24).isActive = true
         
@@ -276,4 +289,19 @@ class MyUniversitiesView: UIView {
         
         return container
     }
+    
+    @objc private func universityItemTapped(_ sender: UITapGestureRecognizer) {
+        guard let itemView = sender.view as? UniversityItemView,
+              let data = itemView.universityData else { return }
+        
+        delegate?.didSelectUniversity(data)
+    }
+}
+
+protocol MyUniversitiesViewDelegate: AnyObject {
+    func didSelectUniversity(_ university: UniversityItem)
+}
+
+class UniversityItemView: UIView {
+    var universityData: UniversityItem?
 }
