@@ -29,8 +29,7 @@ class GradesViewController: UIViewController {
         super.viewDidLoad()
         setupNavigationBar()
         setupSegmentButtons()
-        
-        // 초기 화면 설정
+        gradesView?.delegate = self
         displayChildController(internalGradesVC)
     }
     
@@ -99,5 +98,20 @@ class GradesViewController: UIViewController {
         
         // 활성화된 컨트롤러 업데이트
         self.activeViewController = newChildVC
+    }
+}
+
+extension GradesViewController: GradesViewDelegate {
+    func didTapAddGradeButton() {
+        let addGradeVC = AddGradeViewController()
+        addGradeVC.delegate = self
+        self.present(addGradeVC, animated: true)
+    }
+}
+
+extension GradesViewController: AddGradeDelegate {
+    func didAddGrade(subject: String, score: String) {
+        // 나중에는 이 데이터로 ViewModel을 통해 서버에 POST 요청을 보냅니다.
+        print("새로운 성적 추가됨 -> 과목: \(subject), 점수: \(score)")
     }
 }

@@ -19,6 +19,8 @@
 		896E3BFE2E7ECFAE00AC49CF /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896E3BF62E7ECFAE00AC49CF /* ViewController.swift */; };
 		896E3C062E7EFF4900AC49CF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896E3C012E7EFF4900AC49CF /* AppDelegate.swift */; };
 		896E3C072E7EFF4900AC49CF /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 896E3C032E7EFF4900AC49CF /* SceneDelegate.swift */; };
+		8976678E2E9382AD009ECEFC /* AddGradeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8976678D2E9382AD009ECEFC /* AddGradeView.swift */; };
+		897667902E9382D6009ECEFC /* AddGradeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8976678F2E9382D6009ECEFC /* AddGradeViewController.swift */; };
 		8997E9C02E8BDEE300E572E7 /* CounselingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9BF2E8BDEE300E572E7 /* CounselingView.swift */; };
 		8997E9C22E8BDF0000E572E7 /* CounselingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9C12E8BDF0000E572E7 /* CounselingViewController.swift */; };
 		8997E9C52E8BDF8600E572E7 /* MyQuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9C42E8BDF8600E572E7 /* MyQuestionView.swift */; };
@@ -69,6 +71,8 @@
 		896E3C012E7EFF4900AC49CF /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		896E3C022E7EFF4900AC49CF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		896E3C032E7EFF4900AC49CF /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		8976678D2E9382AD009ECEFC /* AddGradeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGradeView.swift; sourceTree = "<group>"; };
+		8976678F2E9382D6009ECEFC /* AddGradeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGradeViewController.swift; sourceTree = "<group>"; };
 		8997E9BF2E8BDEE300E572E7 /* CounselingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounselingView.swift; sourceTree = "<group>"; };
 		8997E9C12E8BDF0000E572E7 /* CounselingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounselingViewController.swift; sourceTree = "<group>"; };
 		8997E9C42E8BDF8600E572E7 /* MyQuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyQuestionView.swift; sourceTree = "<group>"; };
@@ -254,6 +258,15 @@
 			path = Login;
 			sourceTree = "<group>";
 		};
+		8976678C2E938292009ECEFC /* AddGrade */ = {
+			isa = PBXGroup;
+			children = (
+				8976678D2E9382AD009ECEFC /* AddGradeView.swift */,
+				8976678F2E9382D6009ECEFC /* AddGradeViewController.swift */,
+			);
+			path = AddGrade;
+			sourceTree = "<group>";
+		};
 		8997E9BE2E8BDEBA00E572E7 /* Counseling */ = {
 			isa = PBXGroup;
 			children = (
@@ -323,6 +336,7 @@
 		89C627532E80E68000CAB833 /* Grades */ = {
 			isa = PBXGroup;
 			children = (
+				8976678C2E938292009ECEFC /* AddGrade */,
 				89C627582E80E6C300CAB833 /* GradeChart */,
 				89C6275B2E80E8A100CAB833 /* ChildView */,
 				89C627542E80E6B200CAB833 /* GradesViewController.swift */,
@@ -505,6 +519,7 @@
 				8997E9DB2E8C25C800E572E7 /* UniversityNewsDetailViewController.swift in Sources */,
 				890E6D222E7FD9640037EEB9 /* HomeViewController.swift in Sources */,
 				8997E9C72E8BDF9200E572E7 /* MyQuestionViewController.swift in Sources */,
+				8976678E2E9382AD009ECEFC /* AddGradeView.swift in Sources */,
 				890E6D2E2E8013D70037EEB9 /* CardView.swift in Sources */,
 				896E3BFE2E7ECFAE00AC49CF /* ViewController.swift in Sources */,
 				8997E9E02E8C4F3400E572E7 /* AddSchedulViewController.swift in Sources */,
@@ -523,6 +538,7 @@
 				89C627572E80E6BB00CAB833 /* GradesView.swift in Sources */,
 				89CBA1A92E82639E0075941D /* MyUniversitiesView.swift in Sources */,
 				890E6D2B2E80130D0037EEB9 /* PlannerViewController.swift in Sources */,
+				897667902E9382D6009ECEFC /* AddGradeViewController.swift in Sources */,
 				89C6275D2E80E8B100CAB833 /* InternalGradesViewController.swift in Sources */,
 				896E3C072E7EFF4900AC49CF /* SceneDelegate.swift in Sources */,
 				89C627682E8118CE00CAB833 /* MockExamView.swift in Sources */,

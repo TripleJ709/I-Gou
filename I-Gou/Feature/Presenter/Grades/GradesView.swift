@@ -21,7 +21,9 @@ class GradesView: UIView {
     
     // 자식 뷰 컨트롤러의 뷰가 들어올 컨테이너
     let contentContainerView = UIView()
-
+    
+    weak var delegate: GradesViewDelegate?
+    
     // MARK: - Initializer
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -100,6 +102,7 @@ class GradesView: UIView {
         addButton.setTitleColor(.white, for: .normal)
         addButton.layer.cornerRadius = 8
         addButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 14, bottom: 8, right: 14)
+        addButton.addTarget(self, action: #selector(addGradeButtonTapped), for: .touchUpInside)
         
         let headerStack = UIStackView(arrangedSubviews: [labelStack, addButton])
         headerStack.alignment = .center
@@ -111,7 +114,7 @@ class GradesView: UIView {
     private func createSummaryCards() -> UIView {
         let averageCard = createSummaryItem(title: "전체 평균", value: "87.8", subtitle: "+2.5점 전 학기 대비", iconName: "arrow.up.right", iconColor: .green)
         let goalCard = createSummaryItem(title: "목표 달성률", value: "78%", subtitle: nil, iconName: "target", iconColor: .blue)
-
+        
         let stack = UIStackView(arrangedSubviews: [averageCard, goalCard])
         stack.distribution = .fillEqually
         stack.spacing = 16
@@ -139,7 +142,7 @@ class GradesView: UIView {
         let valueLabel = UILabel()
         valueLabel.text = value
         valueLabel.font = .systemFont(ofSize: 32, weight: .bold)
-
+        
         let iconView = UIImageView(image: UIImage(systemName: iconName))
         iconView.tintColor = iconColor
         
@@ -188,4 +191,12 @@ class GradesView: UIView {
         button.heightAnchor.constraint(equalToConstant: 44).isActive = true
         return button
     }
+    
+    @objc private func addGradeButtonTapped() {
+        delegate?.didTapAddGradeButton()
+    }
+}
+
+protocol GradesViewDelegate: AnyObject {
+    func didTapAddGradeButton()
 }
