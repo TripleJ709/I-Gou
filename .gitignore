@@ -5,6 +5,7 @@
 I-Gou.xcodeproj/project.xcworkspace/xcuserdata/
 DerivedData/
 build/
+Config.xcconfig
 
 # Swift Package Manager
 .swiftpm/
