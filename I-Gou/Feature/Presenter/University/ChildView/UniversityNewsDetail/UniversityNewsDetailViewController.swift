@@ -9,7 +9,6 @@ import UIKit
 
 class UniversityNewsDetailViewController: UIViewController {
 
-    // HomeViewController에서 데이터를 전달받을 프로퍼티
     var newsItem: UniversityNews?
 
     override func viewDidLoad() {
@@ -20,8 +19,7 @@ class UniversityNewsDetailViewController: UIViewController {
 
     private func setupUI() {
         guard let newsItem = newsItem else { return }
-        
-        // UINavigationBar의 타이틀을 대학 이름으로 설정
+    
         self.title = newsItem.universityName
         
         let card = CardView()
@@ -29,12 +27,12 @@ class UniversityNewsDetailViewController: UIViewController {
         let titleLabel = UILabel()
         titleLabel.text = newsItem.title
         titleLabel.font = .systemFont(ofSize: 20, weight: .bold)
-        titleLabel.numberOfLines = 0 // 여러 줄 표시 가능하도록 설정
+        titleLabel.numberOfLines = 0
         
         let contentLabel = UILabel()
         contentLabel.text = newsItem.content
         contentLabel.font = .systemFont(ofSize: 16)
-        contentLabel.numberOfLines = 0 // 여러 줄 표시 가능하도록 설정
+        contentLabel.numberOfLines = 0
         
         let stackView = UIStackView(arrangedSubviews: [titleLabel, contentLabel])
         stackView.axis = .vertical
@@ -44,7 +42,6 @@ class UniversityNewsDetailViewController: UIViewController {
         card.addSubview(stackView)
         view.addSubview(card)
         
-        // Auto Layout 설정
         NSLayoutConstraint.activate([
             card.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             card.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),

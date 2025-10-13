@@ -43,9 +43,7 @@ class PlannerView: UIView {
     }
     
     func updateUI(with data: PlannerData) {
-        // 기존 UI를 모두 지우고 데이터 기반으로 새로 그립니다.
         mainStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        
         mainStackView.addArrangedSubview(createHeaderView())
         mainStackView.addArrangedSubview(createCalendarCard())
         mainStackView.addArrangedSubview(createTodayScheduleCard(schedules: data.todaySchedules))
@@ -56,7 +54,6 @@ class PlannerView: UIView {
     // MARK: - Private Methods
     
     private func setupUI() {
-        // 기본 뷰 스타일 및 계층 구조 설정
         loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
         loadingIndicator.hidesWhenStopped = true
         
@@ -74,7 +71,6 @@ class PlannerView: UIView {
     }
     
     private func setupLayout() {
-        // Auto Layout 제약조건 설정
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
@@ -144,7 +140,6 @@ class PlannerView: UIView {
         calendarView.calendar = .current
         calendarView.locale = .current
         
-        // 현재 날짜를 달력에 표시하고 선택
         let calendar = Calendar.current
         let today = Date()
         let dateComponents = calendar.dateComponents([.year, .month, .day], from: today)
@@ -175,7 +170,6 @@ class PlannerView: UIView {
         let card = CardView()
         let header = createCardHeader(iconName: "clock", title: "오늘의 일정")
         
-        // 데이터가 비어있을 경우 안내 문구 표시
         guard !schedules.isEmpty else {
             let emptyLabel = UILabel()
             emptyLabel.text = "오늘의 일정이 없습니다."
@@ -220,7 +214,6 @@ class PlannerView: UIView {
         let card = CardView()
         let header = createCardHeader(iconName: "book.pages", title: "다가오는 마감일")
         
-        // 데이터가 비어있을 경우 안내 문구 표시
         guard !deadlines.isEmpty else {
             let emptyLabel = UILabel()
             emptyLabel.text = "다가오는 마감일이 없습니다."
@@ -242,7 +235,6 @@ class PlannerView: UIView {
             return card
         }
         
-        // 데이터가 있을 경우, 리스트를 생성
         let deadlineItems = deadlines.map {
             createDeadlineItem(title: $0.title, date: $0.date, priority: $0.priority, color: .systemRed)
         }

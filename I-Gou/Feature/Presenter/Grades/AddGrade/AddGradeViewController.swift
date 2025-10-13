@@ -37,7 +37,6 @@ class AddGradeViewController: UIViewController {
     }
     
     @objc private func saveButtonTapped() {
-        // 모든 텍스트필드에서 값을 가져옵니다.
         guard let view = self.addInternalGradeView,
               let examName = view.examNameTextField.text, !examName.isEmpty,
               let koreanScoreText = view.koreanScoreTextField.text, let koreanScore = Int(koreanScoreText),
@@ -48,7 +47,6 @@ class AddGradeViewController: UIViewController {
             return
         }
         
-        // InternalGradeRecord 객체로 만듭니다.
         let newRecord = InternalGradeRecord(
             examName: examName,
             koreanScore: koreanScore,
@@ -56,7 +54,6 @@ class AddGradeViewController: UIViewController {
             englishScore: englishScore
         )
         
-        // Delegate를 통해 GradesViewController에 데이터 전달
         delegate?.didAddGrade(record: newRecord)
         self.dismiss(animated: true)
     }

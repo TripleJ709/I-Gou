@@ -19,7 +19,6 @@ class MockExamViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // 모의고사 뷰 컨트롤러의 배경색을 설정 (GradesViewController에서 설정된 기본 배경 위에 올라옴)
-        view.backgroundColor = .clear // 부모 뷰의 배경색을 사용하도록 투명하게 설정
+        view.backgroundColor = .clear
     }
 }

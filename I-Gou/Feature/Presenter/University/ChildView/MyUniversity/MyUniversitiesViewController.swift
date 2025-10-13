@@ -12,7 +12,6 @@ class MyUniversitiesViewController: UIViewController {
 
     override func loadView() {
         let view = MyUniversitiesView()
-        // [추가] Delegate를 self로 지정
         view.delegate = self
         self.myUniversitiesView = view
         self.view = view

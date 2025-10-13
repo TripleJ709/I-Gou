@@ -138,57 +138,52 @@ class MyUniversitiesView: UIView {
         container.backgroundColor = .systemGray6
         container.layer.cornerRadius = 10
         
-        // 탭 제스처 추가
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(universityItemTapped(_:)))
         container.addGestureRecognizer(tapGesture)
         
-        // Header
         let uniLabel = UILabel()
-        uniLabel.text = data.universityName // 수정
+        uniLabel.text = data.universityName
         uniLabel.font = .systemFont(ofSize: 16, weight: .bold)
         
         let starIcon = UIImageView(image: UIImage(systemName: "star.fill"))
         starIcon.tintColor = .systemYellow
         
-        let statusTag = createStatusTag(status: data.status) // 수정
+        let statusTag = createStatusTag(status: data.status)
         
         let headerStack = UIStackView(arrangedSubviews: [uniLabel, starIcon, UIView(), statusTag])
         headerStack.spacing = 4
         headerStack.alignment = .center
         
-        // Department / Major
         let deptLabel = UILabel()
-        deptLabel.text = data.department // 수정
+        deptLabel.text = data.department
         deptLabel.font = .systemFont(ofSize: 14)
         
         let majorLabel = UILabel()
-        majorLabel.text = data.major // 수정
+        majorLabel.text = data.major
         majorLabel.font = .systemFont(ofSize: 14)
         majorLabel.textColor = .gray
         
         let detailStack = UIStackView(arrangedSubviews: [deptLabel, majorLabel])
         detailStack.spacing = 4
         
-        // Score Progress
         let myScoreLabel = UILabel()
-        myScoreLabel.text = "내 성적: \(data.myScore)" // 수정
+        myScoreLabel.text = "내 성적: \(data.myScore)"
         myScoreLabel.font = .systemFont(ofSize: 13)
         
         let requiredScoreLabel = UILabel()
-        requiredScoreLabel.text = "요구 성적: \(data.requiredScore)" // 수정
+        requiredScoreLabel.text = "요구 성적: \(data.requiredScore)"
         requiredScoreLabel.font = .systemFont(ofSize: 13)
         requiredScoreLabel.textAlignment = .right
         
         let scoreLabelStack = UIStackView(arrangedSubviews: [myScoreLabel, requiredScoreLabel])
         
         let progressView = UIProgressView()
-        progressView.progress = data.myScore / data.requiredScore // 수정
-        progressView.progressTintColor = (data.status == .safe) ? .systemGreen : .systemYellow // 수정
+        progressView.progress = data.myScore / data.requiredScore
+        progressView.progressTintColor = (data.status == .safe) ? .systemGreen : .systemYellow
         progressView.trackTintColor = .systemGray4
         
-        // Footer
         let deadlineLabel = UILabel()
-        deadlineLabel.text = "마감일: \(data.deadline)" // 수정
+        deadlineLabel.text = "마감일: \(data.deadline)"
         deadlineLabel.font = .systemFont(ofSize: 13)
         deadlineLabel.textColor = .gray
         
@@ -199,14 +194,13 @@ class MyUniversitiesView: UIView {
         detailButton.layer.cornerRadius = 12
         detailButton.layer.borderColor = UIColor.systemGray4.cgColor
         detailButton.layer.borderWidth = 1
-        detailButton.isUserInteractionEnabled = false // 컨테이너 전체에 탭 제스처가 있으므로 버튼 자체는 비활성화
+        detailButton.isUserInteractionEnabled = false
         detailButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
         detailButton.heightAnchor.constraint(equalToConstant: 24).isActive = true
         
         let footerStack = UIStackView(arrangedSubviews: [deadlineLabel, UIView(), detailButton])
         footerStack.alignment = .center
         
-        // Main Stack
         let mainStack = UIStackView(arrangedSubviews: [headerStack, detailStack, scoreLabelStack, progressView, footerStack])
         mainStack.axis = .vertical
         mainStack.spacing = 8

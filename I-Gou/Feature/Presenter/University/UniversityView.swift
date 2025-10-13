@@ -18,12 +18,10 @@ class UniversityView: UIView {
     private let contentView = UIView()
     private let mainStackView = UIStackView()
     
-    // Controller에서 이벤트를 연결할 버튼들
     let myUniversityButton = UniversityView.createSegmentButton(title: "내 대학", isSelected: true)
     let admissionsNewsButton = UniversityView.createSegmentButton(title: "입시 소식", isSelected: false)
     let admissionsScheduleButton = UniversityView.createSegmentButton(title: "입시 일정", isSelected: false)
     
-    // 자식 View가 들어올 컨테이너
     let contentContainerView = UIView()
     let addFavoriteButton = UIButton(type: .system)
 

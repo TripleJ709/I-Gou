@@ -32,11 +32,9 @@ struct GradeDistribution: Identifiable {
 // MARK: - Line Chart View
 
 class ChartDataStore: ObservableObject {
-    // @Published: 이 데이터가 변경되면 SwiftUI 뷰가 자동으로 업데이트됩니다.
     @Published var performances: [SubjectPerformance]
     
     init() {
-        // 초기 데이터 설정
         self.performances = [
             .init(subject: "국어", scores: [.init(month: "1학기 중간", score: 90), .init(month: "1학기 기말", score: 85)], color: .orange),
             .init(subject: "수학", scores: [.init(month: "1학기 중간", score: 88), .init(month: "1학기 기말", score: 78)], color: .blue),
@@ -44,19 +42,15 @@ class ChartDataStore: ObservableObject {
         ]
     }
     
-    // 새로운 성적 기록을 데이터에 추가하는 함수
     func addGradeRecord(_ record: InternalGradeRecord) {
         let newMonth = record.examName
         
-        // 국어 점수 추가
         if let index = performances.firstIndex(where: { $0.subject == "국어" }) {
             performances[index].scores.append(.init(month: newMonth, score: record.koreanScore))
         }
-        // 수학 점수 추가
         if let index = performances.firstIndex(where: { $0.subject == "수학" }) {
             performances[index].scores.append(.init(month: newMonth, score: record.mathScore))
         }
-        // 영어 점수 추가
         if let index = performances.firstIndex(where: { $0.subject == "영어" }) {
             performances[index].scores.append(.init(month: newMonth, score: record.englishScore))
         }
@@ -122,7 +116,7 @@ struct GradePieChartView: View {
 struct MockExamScore: Identifiable {
     var id = UUID()
     var month: String
-    var subject: String // 국, 수, 영
+    var subject: String
     var score: Int
     var color: Color
 }
@@ -154,7 +148,6 @@ struct MockExamBarChartView: View {
                     y: .value("Score", scoreData.score)
                 )
                 .foregroundStyle(scoreData.color)
-                // 그룹화할 때 subject를 사용합니다.
                 .position(by: .value("Subject", scoreData.subject))
             }
         }

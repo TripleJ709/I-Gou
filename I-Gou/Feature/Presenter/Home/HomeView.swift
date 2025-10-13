@@ -393,6 +393,9 @@ class HomeView: UIView {
         let studyButton = createActionButton(iconName: "book.fill", title: "학습 기록")
         let gradeButton = createActionButton(iconName: "chart.bar.fill", title: "성적 입력")
         
+        studyButton.addTarget(self, action: #selector(addScheduleButtonTapped), for: .touchUpInside)
+        gradeButton.addTarget(self, action: #selector(addGradeButtonTapped), for: .touchUpInside)
+        
         let buttonStack = UIStackView(arrangedSubviews: [studyButton, gradeButton])
         buttonStack.spacing = 12
         buttonStack.distribution = .fillEqually
@@ -480,7 +483,7 @@ class HomeView: UIView {
         return view
     }
     
-    private func createActionButton(iconName: String, title: String) -> UIView {
+    private func createActionButton(iconName: String, title: String) -> UIButton {
         let button = UIButton(type: .system)
         button.backgroundColor = .white
         button.layer.cornerRadius = 10
@@ -530,12 +533,22 @@ class HomeView: UIView {
               let newsItem = newsView.newsItem else { return }
         delegate?.didSelectUniversityNews(newsItem)
     }
+    
+    @objc private func addScheduleButtonTapped() {
+        delegate?.didTapAddScheduleQuickAction()
+    }
+    
+    @objc private func addGradeButtonTapped() {
+        delegate?.didTapAddGradeQuickAction()
+    }
 }
 
 protocol HomeViewDelegate: AnyObject {
     func didTapViewAllSchedules()
     func didTapViewAllGrades()
     func didSelectUniversityNews(_ newsItem: UniversityNews)
+    func didTapAddScheduleQuickAction() 
+    func didTapAddGradeQuickAction()
 }
 
 class NewsItemView: UIView {

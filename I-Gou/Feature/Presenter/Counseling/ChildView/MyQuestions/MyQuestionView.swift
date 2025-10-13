@@ -141,14 +141,12 @@ class MyQuestionsView: UIView {
         container.backgroundColor = .systemGray6
         container.layer.cornerRadius = 10
         
-        // Header
         let categoryTag = createTagLabel(text: category, color: .gray)
         let statusTag = createStatusTag(status: status)
         
         let headerStack = UIStackView(arrangedSubviews: [categoryTag, statusTag, UIView()])
         headerStack.spacing = 8
         
-        // Question
         let questionLabel = UILabel()
         questionLabel.text = question
         questionLabel.font = .systemFont(ofSize: 16, weight: .medium)
@@ -162,13 +160,11 @@ class MyQuestionsView: UIView {
         questionStack.axis = .vertical
         questionStack.spacing = 4
         
-        // Main Stack
         let mainStack = UIStackView(arrangedSubviews: [headerStack, questionStack])
         mainStack.axis = .vertical
         mainStack.spacing = 8
         mainStack.translatesAutoresizingMaskIntoConstraints = false
         
-        // Add answer if it exists
         if let counselor = counselor, let answer = answer {
             let answerView = createAnswerView(counselor: counselor, answer: answer)
             mainStack.addArrangedSubview(answerView)

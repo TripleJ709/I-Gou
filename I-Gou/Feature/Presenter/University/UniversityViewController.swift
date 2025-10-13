@@ -11,8 +11,6 @@ class UniversityViewController: UIViewController {
     
     private var universityView: UniversityView?
     private var activeViewController: UIViewController?
-    
-    // 자식 컨트롤러들 선언
     private lazy var myUniversitiesVC = MyUniversitiesViewController()
     private lazy var admissionsNewsVC = AdmissionsNewsViewController()
     private lazy var admissionsScheduleVC = AdmissionsScheduleViewController()

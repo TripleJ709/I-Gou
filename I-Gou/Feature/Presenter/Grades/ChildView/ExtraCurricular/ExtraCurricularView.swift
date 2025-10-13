@@ -119,7 +119,6 @@ class ExtraCurricularView: UIView {
         mainStack.alignment = .leading
         mainStack.spacing = 4
         
-        // 아이콘의 너비와 높이를 먼저 설정합니다.
         NSLayoutConstraint.activate([
             iconImageView.widthAnchor.constraint(equalToConstant: 20),
             iconImageView.heightAnchor.constraint(equalToConstant: 20)

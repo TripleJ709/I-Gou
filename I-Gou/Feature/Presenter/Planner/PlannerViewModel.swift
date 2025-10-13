@@ -26,7 +26,6 @@ class PlannerViewModel {
         }
         
         URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-            // UI 업데이트는 항상 메인 스레드에서 수행해야 합니다.
             DispatchQueue.main.async {
                 self?.isLoading = false
                 
@@ -56,12 +55,10 @@ class PlannerViewModel {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        // Date 객체를 서버가 원하는 시간(HH:mm) 문자열 형태로 변환합니다.
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
         let timeString = formatter.string(from: date)
         
-        // 서버로 보낼 데이터를 Dictionary 형태로 구성합니다.
         let newScheduleData: [String: Any] = [
             "time": timeString,
             "title": title,
@@ -70,7 +67,6 @@ class PlannerViewModel {
             "color": "blue"
         ]
         
-        // Dictionary를 JSON 데이터로 변환합니다.
         guard let jsonData = try? JSONSerialization.data(withJSONObject: newScheduleData) else {
             self.errorMessage = "데이터를 JSON 형식으로 변환하는데 실패했습니다."
             return
@@ -78,7 +74,6 @@ class PlannerViewModel {
         
         request.httpBody = jsonData
         
-        // 서버에 POST 요청을 보냅니다.
         URLSession.shared.dataTask(with: request) { [weak self] _, response, error in
             DispatchQueue.main.async {
                 if let error = error {

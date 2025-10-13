@@ -11,8 +11,6 @@ class CounselingViewController: UIViewController {
 
     private var counselingView: CounselingView?
     private var activeViewController: UIViewController?
-    
-    // 자식 컨트롤러들 선언
     private lazy var myQuestionsVC = MyQuestionsViewController()
     private lazy var notificationsVC = NotificationsViewController()
     private lazy var faqVC = FaqViewController()

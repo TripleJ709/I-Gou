@@ -9,20 +9,17 @@ import UIKit
 
 class GradesView: UIView {
     
+    weak var delegate: GradesViewDelegate?
+    
     // MARK: - UI Components
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     private let mainStackView = UIStackView()
     
-    // ViewController에서 접근할 수 있도록 버튼들을 프로퍼티로 선언
     let internalGradesButton = GradesView.createSegmentButton(title: "내신 성적", isSelected: true)
     let mockExamButton = GradesView.createSegmentButton(title: "모의고사", isSelected: false)
     let extraCurricularButton = GradesView.createSegmentButton(title: "비교과", isSelected: false)
-    
-    // 자식 뷰 컨트롤러의 뷰가 들어올 컨테이너
     let contentContainerView = UIView()
-    
-    weak var delegate: GradesViewDelegate?
     
     // MARK: - Initializer
     override init(frame: CGRect) {
@@ -36,7 +33,6 @@ class GradesView: UIView {
     
     // MARK: - Private Methods
     private func setupUI() {
-        // 기본 뷰 설정
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -44,18 +40,15 @@ class GradesView: UIView {
         mainStackView.spacing = 20
         contentContainerView.translatesAutoresizingMaskIntoConstraints = false
         
-        // 뷰 계층 설정
         self.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubview(mainStackView)
         
-        // 메인 스택뷰에 공통 UI와 컨테이너 뷰 추가
         mainStackView.addArrangedSubview(createHeaderView())
         mainStackView.addArrangedSubview(createSummaryCards())
         mainStackView.addArrangedSubview(createSegmentedControl())
         mainStackView.addArrangedSubview(contentContainerView)
         
-        // 레이아웃 설정
         setupLayout()
     }
     

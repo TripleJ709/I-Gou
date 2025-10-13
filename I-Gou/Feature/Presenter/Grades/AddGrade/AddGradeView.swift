@@ -58,14 +58,12 @@ class AddGradeView: UIView {
         formContainer.addSubview(formStack)
         formStack.translatesAutoresizingMaskIntoConstraints = false
         
-        // Main Stack View
         let mainStack = UIStackView(arrangedSubviews: [navStack, formContainer])
         mainStack.axis = .vertical
         mainStack.spacing = 20
         mainStack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(mainStack)
         
-        // Layout
         NSLayoutConstraint.activate([
             mainStack.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 16),
             mainStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),

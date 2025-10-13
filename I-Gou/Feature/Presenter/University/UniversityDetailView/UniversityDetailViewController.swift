@@ -9,7 +9,7 @@ import UIKit
 
 class UniversityDetailViewController: UIViewController {
 
-    var universityData: UniversityItem? // 이전 화면에서 데이터를 전달받을 프로퍼티
+    var universityData: UniversityItem?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,7 +20,6 @@ class UniversityDetailViewController: UIViewController {
     private func setupUI() {
         guard let data = universityData else { return }
         
-        // 내비게이션 바 타이틀 설정
         self.title = data.universityName
         
         let card = CardView()

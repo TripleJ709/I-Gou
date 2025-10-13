@@ -29,25 +29,20 @@ class InternalGradesView: UIView {
     
     // MARK: - Private Methods
     private func setupUI() {
-        // 기본 뷰 설정
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
         mainStackView.axis = .vertical
         mainStackView.spacing = 20
         
-        // 뷰 계층 설정 (self에 mainStackView를 바로 추가)
         self.addSubview(mainStackView)
         
-        // 메인 스택뷰에 내신 성적 관련 컴포넌트만 추가
         mainStackView.addArrangedSubview(createLineChartCard())
         mainStackView.addArrangedSubview(createDetailedGradesCard())
         mainStackView.addArrangedSubview(createPieChartCard())
         
-        // 레이아웃 설정
         setupLayout()
     }
     
     private func setupLayout() {
-        // mainStackView를 self의 경계에 맞게 설정합니다.
         NSLayoutConstraint.activate([
             mainStackView.topAnchor.constraint(equalTo: self.topAnchor),
             mainStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
@@ -57,8 +52,6 @@ class InternalGradesView: UIView {
     }
     
     // MARK: - View Factory Methods (From GradesView)
-    // 이 아래 부분은 이전 코드와 동일합니다.
-    
     private func createLineChartCard() -> CardView {
         let card = CardView()
         let header = createCardHeader(title: "과목별 성적 현황", subtitle: "최근 3학기 성적 변화")

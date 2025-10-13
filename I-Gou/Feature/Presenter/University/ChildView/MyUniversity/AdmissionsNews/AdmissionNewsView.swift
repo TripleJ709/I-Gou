@@ -123,11 +123,10 @@ class AdmissionsNewsView: UIView {
             let secondaryTagLabel = createTagLabel(text: secondaryTag, color: tagColor)
             topStack.addArrangedSubview(secondaryTagLabel)
         }
-        topStack.addArrangedSubview(UIView()) // Spacer
+        topStack.addArrangedSubview(UIView())
         topStack.addArrangedSubview(dateLabel)
         topStack.spacing = 8
         
-        // Title and Subtitle
         let titleLabel = UILabel()
         titleLabel.text = title
         titleLabel.font = .systemFont(ofSize: 16, weight: .bold)
@@ -137,7 +136,6 @@ class AdmissionsNewsView: UIView {
         subtitleLabel.font = .systemFont(ofSize: 14)
         subtitleLabel.textColor = .darkGray
         
-        // Button
         let detailButton = UIButton(type: .system)
         detailButton.setTitle("자세히 보기", for: .normal)
         detailButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
@@ -148,9 +146,8 @@ class AdmissionsNewsView: UIView {
         detailButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
         detailButton.widthAnchor.constraint(equalToConstant: 90).isActive = true
         
-        let buttonStack = UIStackView(arrangedSubviews: [UIView(), detailButton]) // Align button to the right
+        let buttonStack = UIStackView(arrangedSubviews: [UIView(), detailButton])
 
-        // Main Stack
         let mainStack = UIStackView(arrangedSubviews: [topStack, titleLabel, subtitleLabel, buttonStack])
         mainStack.axis = .vertical
         mainStack.spacing = 8
@@ -176,10 +173,10 @@ class AdmissionsNewsView: UIView {
         let container = UIView()
         container.layer.cornerRadius = 8
         
-        if color == .systemRed { // "중요" 태그 스타일
+        if color == .systemRed {
             label.textColor = color
             container.backgroundColor = color.withAlphaComponent(0.1)
-        } else { // 기본 태그 스타일
+        } else {
             label.textColor = .darkGray
             container.backgroundColor = .systemGray4
         }

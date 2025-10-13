@@ -38,7 +38,7 @@ class HomeViewController: UIViewController {
         viewModel.$isLoading.sink { [weak self] isLoading in
             self?.homeView?.setLoading(isLoading)
         }.store(in: &cancellables)
-
+        
         viewModel.$errorMessage.sink { [weak self] errorMessage in
             if let message = errorMessage {
                 let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
@@ -46,7 +46,7 @@ class HomeViewController: UIViewController {
                 self?.present(alert, animated: true)
             }
         }.store(in: &cancellables)
-
+        
         viewModel.$homeData.sink { [weak self] data in
             if let data = data {
                 self?.homeView?.updateUI(with: data)
@@ -63,7 +63,6 @@ extension HomeViewController: HomeViewDelegate {
     
     func didTapViewAllSchedules() {
         print("전체보기 버튼 눌림 -> 플래너 탭으로 이동")
-        // 0: 홈, 1: 플래너, 2: 성적, 3: 대학, 4: 상담
         self.tabBarController?.selectedIndex = 1
     }
     
@@ -76,5 +75,34 @@ extension HomeViewController: HomeViewDelegate {
         let detailVC = UniversityNewsDetailViewController()
         detailVC.newsItem = newsItem
         self.navigationController?.pushViewController(detailVC, animated: true)
+    }
+    
+    func didTapAddScheduleQuickAction() {
+        print("'학습 기록' 버튼 탭됨")
+        let addScheduleVC = AddScheduleViewController()
+        addScheduleVC.delegate = self
+        self.present(addScheduleVC, animated: true)
+    }
+    
+    func didTapAddGradeQuickAction() {
+        print("'성적 입력' 버튼 탭됨")
+        let addGradeVC = AddGradeViewController()
+        addGradeVC.delegate = self
+        self.present(addGradeVC, animated: true)
+    }
+}
+
+extension HomeViewController: AddScheduleDelegate, AddGradeDelegate {
+    func didAddGrade(record: InternalGradeRecord) {
+        print("홈 탭에서 새로운 내신 성적 추가됨:")
+        print("- 시험명: \(record.examName)")
+        print("- 국어: \(record.koreanScore), 수학: \(record.mathScore), 영어: \(record.englishScore)")
+        viewModel.fetchHomeData()
+    }
+    
+    
+    func didAddSchedule(title: String, date: Date) {
+        print("홈 탭에서 새로운 일정 추가: \(title)")
+        viewModel.fetchHomeData()
     }
 }

@@ -25,24 +25,19 @@ class MockExamView: UIView {
 
     // MARK: - Private Methods
     private func setupUI() {
-        // 기본 뷰 설정
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
         mainStackView.axis = .vertical
         mainStackView.spacing = 20
         
-        // 뷰 계층 설정 (self에 mainStackView를 바로 추가)
         self.addSubview(mainStackView)
         
-        // 메인 스택뷰에 모의고사 관련 컴포넌트 추가
         mainStackView.addArrangedSubview(createMockExamTrendCard())
         mainStackView.addArrangedSubview(createRecentMockExamResultsCard())
         
-        // 레이아웃 설정
         setupLayout()
     }
 
     private func setupLayout() {
-        // mainStackView를 self의 경계에 맞게 설정합니다.
         NSLayoutConstraint.activate([
             mainStackView.topAnchor.constraint(equalTo: self.topAnchor),
             mainStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
@@ -52,8 +47,6 @@ class MockExamView: UIView {
     }
 
     // MARK: - View Factory Methods
-    
-    // 모의고사 성적 추이 카드 (막대 그래프)
     private func createMockExamTrendCard() -> CardView {
         let card = CardView()
         let header = createCardHeader(title: "모의고사 성적 추이", subtitle: "전국연합학력평가 결과")
@@ -75,7 +68,6 @@ class MockExamView: UIView {
         return card
     }
     
-    // 최근 모의고사 결과 카드 (상세 리스트)
     private func createRecentMockExamResultsCard() -> CardView {
         let card = CardView()
         let header = createCardHeader(title: "최근 모의고사 결과", subtitle: nil)
@@ -99,7 +91,6 @@ class MockExamView: UIView {
     }
 
     // MARK: - Helper Methods
-    
     private func addSwiftUIView<V: View>(_ swiftUIView: V) -> UIView {
         let hostingController = UIHostingController(rootView: swiftUIView)
         hostingController.view.backgroundColor = .clear
@@ -125,8 +116,6 @@ class MockExamView: UIView {
         }
         return stack
     }
-    
-    // MockExamView.swift
 
     private func createMockExamResultItem(month: String, totalScore: String, korean: String, math: String, english: String) -> UIView {
         let container = UIView()

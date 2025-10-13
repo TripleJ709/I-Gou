@@ -15,13 +15,11 @@ class CounselingView: UIView {
     private let mainStackView = UIStackView()
     let questionButton = UIButton(type: .system)
     
-    // Controller에서 이벤트를 연결할 버튼들
     let myQuestionsButton = CounselingView.createSegmentButton(title: "내 질문", isSelected: true)
     let notificationsButton = CounselingView.createSegmentButton(title: "알림", isSelected: false)
     let faqButton = CounselingView.createSegmentButton(title: "FAQ", isSelected: false)
     weak var delegate: CounselingViewDelegate?
     
-    // 자식 View가 들어올 컨테이너
     let contentContainerView = UIView()
 
     // MARK: - Initializer
