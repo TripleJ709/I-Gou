@@ -13,11 +13,13 @@ class CounselingView: UIView {
     private let scrollView = UIScrollView()
     private let contentView = UIView()
     private let mainStackView = UIStackView()
+    let questionButton = UIButton(type: .system)
     
     // Controller에서 이벤트를 연결할 버튼들
     let myQuestionsButton = CounselingView.createSegmentButton(title: "내 질문", isSelected: true)
     let notificationsButton = CounselingView.createSegmentButton(title: "알림", isSelected: false)
     let faqButton = CounselingView.createSegmentButton(title: "FAQ", isSelected: false)
+    weak var delegate: CounselingViewDelegate?
     
     // 자식 View가 들어올 컨테이너
     let contentContainerView = UIView()
@@ -87,18 +89,18 @@ class CounselingView: UIView {
         labelStack.axis = .vertical
         labelStack.spacing = 4
         
-        let questionButton = UIButton(type: .system)
-        questionButton.setTitle("질문하기", for: .normal)
-        questionButton.setImage(UIImage(systemName: "message.fill"), for: .normal)
-        questionButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
-        questionButton.backgroundColor = .black
-        questionButton.tintColor = .white
-        questionButton.setTitleColor(.white, for: .normal)
-        questionButton.layer.cornerRadius = 8
-        questionButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 14, bottom: 8, right: 14)
-        questionButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: -4, bottom: 0, right: 4)
+        self.questionButton.setTitle("질문하기", for: .normal)
+        self.questionButton.setImage(UIImage(systemName: "message.fill"), for: .normal)
+        self.questionButton.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
+        self.questionButton.backgroundColor = .black
+        self.questionButton.tintColor = .white
+        self.questionButton.setTitleColor(.white, for: .normal)
+        self.questionButton.layer.cornerRadius = 8
+        self.questionButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 14, bottom: 8, right: 14)
+        self.questionButton.imageEdgeInsets = UIEdgeInsets(top: 0, left: -4, bottom: 0, right: 4)
+        self.questionButton.addTarget(self, action: #selector(askQuestionButtonTapped), for: .touchUpInside)
         
-        let headerStack = UIStackView(arrangedSubviews: [labelStack, questionButton])
+        let headerStack = UIStackView(arrangedSubviews: [labelStack, self.questionButton])
         headerStack.alignment = .center
         headerStack.distribution = .equalCentering
         
@@ -131,4 +133,13 @@ class CounselingView: UIView {
         button.heightAnchor.constraint(equalToConstant: 44).isActive = true
         return button
     }
+    
+    @objc private func askQuestionButtonTapped() {
+        delegate?.didTapAskQuestionButton()
+    }
+
+}
+
+protocol CounselingViewDelegate: AnyObject {
+    func didTapAskQuestionButton()
 }

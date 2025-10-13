@@ -18,6 +18,8 @@
 		890F08822E951B4900B47FCE /* UniversityDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890F08812E951B4900B47FCE /* UniversityDetailViewController.swift */; };
 		890F08872E951EEB00B47FCE /* AddUniversityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890F08862E951EEB00B47FCE /* AddUniversityView.swift */; };
 		890F08892E951F1100B47FCE /* AddUniversityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890F08882E951F1100B47FCE /* AddUniversityViewController.swift */; };
+		8956A7422E9CCDF8004678F0 /* AddQuestionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8956A7412E9CCDF8004678F0 /* AddQuestionView.swift */; };
+		8956A7442E9CCE04004678F0 /* AddQuestionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8956A7432E9CCE04004678F0 /* AddQuestionViewController.swift */; };
 		896E3BF82E7ECFAE00AC49CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 896E3BEF2E7ECFAE00AC49CF /* Assets.xcassets */; };
 		896E3BFA2E7ECFAE00AC49CF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 896E3BF22E7ECFAE00AC49CF /* LaunchScreen.storyboard */; };
 		896E3BFB2E7ECFAE00AC49CF /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 896E3BF42E7ECFAE00AC49CF /* Main.storyboard */; };
@@ -73,6 +75,8 @@
 		890F08812E951B4900B47FCE /* UniversityDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityDetailViewController.swift; sourceTree = "<group>"; };
 		890F08862E951EEB00B47FCE /* AddUniversityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddUniversityView.swift; sourceTree = "<group>"; };
 		890F08882E951F1100B47FCE /* AddUniversityViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddUniversityViewController.swift; sourceTree = "<group>"; };
+		8956A7412E9CCDF8004678F0 /* AddQuestionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddQuestionView.swift; sourceTree = "<group>"; };
+		8956A7432E9CCE04004678F0 /* AddQuestionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddQuestionViewController.swift; sourceTree = "<group>"; };
 		896E3BD62E7ECFA200AC49CF /* I-Gou.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "I-Gou.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		896E3BEF2E7ECFAE00AC49CF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		896E3BF12E7ECFAE00AC49CF /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -203,6 +207,15 @@
 			path = AddUniversity;
 			sourceTree = "<group>";
 		};
+		8956A7402E9CCDE1004678F0 /* AddQuestion */ = {
+			isa = PBXGroup;
+			children = (
+				8956A7412E9CCDF8004678F0 /* AddQuestionView.swift */,
+				8956A7432E9CCE04004678F0 /* AddQuestionViewController.swift */,
+			);
+			path = AddQuestion;
+			sourceTree = "<group>";
+		};
 		896E3BCD2E7ECFA200AC49CF = {
 			isa = PBXGroup;
 			children = (
@@ -317,6 +330,7 @@
 		8997E9BE2E8BDEBA00E572E7 /* Counseling */ = {
 			isa = PBXGroup;
 			children = (
+				8956A7402E9CCDE1004678F0 /* AddQuestion */,
 				890F087B2E94F7F100B47FCE /* ChildView */,
 				8997E9BF2E8BDEE300E572E7 /* CounselingView.swift */,
 				8997E9C12E8BDF0000E572E7 /* CounselingViewController.swift */,
@@ -579,6 +593,7 @@
 				890E6D252E7FF38D0037EEB9 /* HomeView.swift in Sources */,
 				8997E9E42E8C5A8000E572E7 /* PlannerViewModel.swift in Sources */,
 				8997E9D62E8BF9A100E572E7 /* HomeViewModel.swift in Sources */,
+				8956A7422E9CCDF8004678F0 /* AddQuestionView.swift in Sources */,
 				89CBA1AB2E8264AC0075941D /* MyUniversitiesViewController.swift in Sources */,
 				890F08822E951B4900B47FCE /* UniversityDetailViewController.swift in Sources */,
 				8997E9DE2E8C4F2400E572E7 /* AddScheduleView.swift in Sources */,
@@ -600,6 +615,7 @@
 				89CBA1B12E8265360075941D /* AdmissionNewsViewController.swift in Sources */,
 				89CBA1A62E8263680075941D /* UniversityViewController.swift in Sources */,
 				89CBA1A32E8262DB0075941D /* UniversityView.swift in Sources */,
+				8956A7442E9CCE04004678F0 /* AddQuestionViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

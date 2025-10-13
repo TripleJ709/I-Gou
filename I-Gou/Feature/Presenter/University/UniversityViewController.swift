@@ -5,13 +5,6 @@
 //  Created by 장주진 on 9/23/25.
 //
 
-//
-//  UniversityViewController.swift
-//  I-Gou
-//
-//  Created by Gemini on 2025/09/23.
-//
-
 import UIKit
 
 class UniversityViewController: UIViewController {
@@ -116,7 +109,6 @@ class UniversityViewController: UIViewController {
     @objc private func addFavoriteButtonTapped() {
         let addVC = AddUniversityViewController()
         
-        // 모달 화면에도 내비게이션 바를 보여주기 위해 UINavigationController로 감쌉니다.
         let navController = UINavigationController(rootViewController: addVC)
         
         self.present(navController, animated: true)

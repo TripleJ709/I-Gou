@@ -27,6 +27,7 @@ class CounselingViewController: UIViewController {
         super.viewDidLoad()
         setupNavigationBar()
         setupSegmentButtons()
+        counselingView?.delegate = self
         displayChildController(myQuestionsVC)
     }
     
@@ -87,5 +88,24 @@ class CounselingViewController: UIViewController {
         newChildVC.didMove(toParent: self)
         
         self.activeViewController = newChildVC
+    }
+}
+
+extension CounselingViewController: CounselingViewDelegate {
+    func didTapAskQuestionButton() {
+        let askVC = AskQuestionViewController()
+        askVC.delegate = self
+        let navController = UINavigationController(rootViewController: askVC)
+        self.present(navController, animated: true)
+    }
+}
+
+extension CounselingViewController: AskQuestionDelegate {
+    func didPostQuestion(text: String) {
+        print("새로운 질문 등록됨: \(text)")
+        
+        if activeViewController != myQuestionsVC {
+            counselingView?.myQuestionsButton.sendActions(for: .touchUpInside)
+        }
     }
 }
