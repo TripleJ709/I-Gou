@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import KakaoSDKAuth
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
@@ -13,31 +14,27 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // 1. 네비게이션 바 외형(Appearance) 객체 생성
-        let appearance = UINavigationBarAppearance()
-        
-        // 2. 배경색을 검은색으로 설정
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = .black
-        
-        // 3. 타이틀 텍스트 색상을 흰색으로 설정
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-        
-        // 4. 모든 네비게이션바에 적용
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-        UINavigationBar.appearance().compactAppearance = appearance
-        
-        // 5. 틴트 색상(아이템 색상)을 흰색으로 설정
-        UINavigationBar.appearance().tintColor = .white
-        
-        // --- 기존 뷰 컨트롤러 설정 코드
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         
-        let mainTabBarController = MainTabBarController()
-        window?.rootViewController = mainTabBarController
+        setupGlobalNavigationBarAppearance()
+        
+        let rootViewController = LoginViewController()
+        
+        window?.rootViewController = rootViewController
         window?.makeKeyAndVisible()
+    }
+    
+    private func setupGlobalNavigationBarAppearance() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .black
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        UINavigationBar.appearance().compactAppearance = appearance
+        UINavigationBar.appearance().tintColor = .white
     }
     
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -68,6 +65,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
     
-    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        if let url = URLContexts.first?.url {
+            if (AuthApi.isKakaoTalkLoginUrl(url)) {
+                _ = AuthController.handleOpenUrl(url: url)
+            }
+        }
+    }
 }
 
