@@ -15,8 +15,6 @@ struct UniversityItem {
     let requiredScore: Float
     let deadline: String
     let status: MyUniversitiesView.Status
-    
-    // 상세 페이지에 보여줄 추가 정보
     let location: String
     let competitionRate: String
 }

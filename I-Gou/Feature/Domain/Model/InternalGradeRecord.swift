@@ -8,7 +8,7 @@
 import Foundation
 
 struct InternalGradeRecord {
-    let examName: String // 예: "1학년 1학기 중간고사"
+    let examName: String 
     let koreanScore: Int
     let mathScore: Int
     let englishScore: Int

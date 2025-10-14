@@ -19,9 +19,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         setupGlobalNavigationBarAppearance()
         
-        let rootViewController = LoginViewController()
-        
-        window?.rootViewController = rootViewController
+        if let accessToken = UserDefaults.standard.string(forKey: "accessToken") {
+            window?.rootViewController = MainTabBarController()
+        } else {
+            window?.rootViewController = LoginViewController()
+        }
         window?.makeKeyAndVisible()
     }
     
