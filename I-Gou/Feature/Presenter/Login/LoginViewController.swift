@@ -17,12 +17,11 @@ class LoginViewController: UIViewController {
     private let kakaoLoginButton: UIButton = {
         let button = UIButton(type: .system)
         var config = UIButton.Configuration.filled()
-        config.title = "카카오로 시작하기"
         config.attributedTitle?.font = .systemFont(ofSize: 17, weight: .semibold)
         config.baseBackgroundColor = UIColor(red: 254/255, green: 229/255, blue: 0/255, alpha: 1.0)
         config.baseForegroundColor = .black
         config.cornerStyle = .medium
-        config.image = UIImage(named: "kakao_logo")
+        config.image = UIImage(named: "kakao_login_large_wide")
         config.imagePadding = 8
         
         button.configuration = config

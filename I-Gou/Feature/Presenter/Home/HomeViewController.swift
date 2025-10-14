@@ -30,6 +30,22 @@ class HomeViewController: UIViewController {
         homeView?.delegate = self
         bindViewModel()
         viewModel.fetchHomeData()
+        
+        //임시 로그아웃
+        let logoutButton = UIBarButtonItem(title: "로그아웃", style: .plain, target: self, action: #selector(logoutButtonTapped))
+        self.navigationItem.leftBarButtonItem = logoutButton
+    }
+    
+    @objc private func logoutButtonTapped() {
+        UserDefaults.standard.removeObject(forKey: "accessToken")
+        print("토큰 삭제, 로그아웃")
+    
+        guard let window = self.view.window else { return }
+        
+        let loginViewController = LoginViewController()
+        window.rootViewController = loginViewController
+        
+        UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve, animations: nil, completion: nil)
     }
     
     // MARK: - Private Methods
