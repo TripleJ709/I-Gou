@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "await": "^0.2.6",
     "axios": "^1.12.2",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",

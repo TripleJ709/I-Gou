@@ -110,15 +110,14 @@ extension HomeViewController: HomeViewDelegate {
 
 extension HomeViewController: AddScheduleDelegate, AddGradeDelegate {
     func didAddGrade(record: InternalGradeRecord) {
-        print("홈 탭에서 새로운 내신 성적 추가됨:")
-        print("- 시험명: \(record.examName)")
-        print("- 국어: \(record.koreanScore), 수학: \(record.mathScore), 영어: \(record.englishScore)")
         viewModel.fetchHomeData()
     }
     
+    func didAddDailySchedule(title: String, time: Date) {
+        viewModel.fetchHomeData()
+    }
     
-    func didAddSchedule(title: String, date: Date) {
-        print("홈 탭에서 새로운 일정 추가: \(title)")
+    func didAddDeadline(title: String, date: Date) {
         viewModel.fetchHomeData()
     }
 }

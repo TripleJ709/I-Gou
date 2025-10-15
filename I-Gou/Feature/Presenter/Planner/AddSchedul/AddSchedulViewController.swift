@@ -21,6 +21,8 @@ class AddScheduleViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupButtonActions()
+        addScheduleView?.typeSegmentedControl.addTarget(self, action: #selector(typeChanged), for: .valueChanged)
+
     }
 
     private func setupButtonActions() {
@@ -33,14 +35,29 @@ class AddScheduleViewController: UIViewController {
     }
 
     @objc private func saveButtonTapped() {
-        guard let title = addScheduleView?.titleTextField.text, !title.isEmpty,
-              let date = addScheduleView?.datePicker.date else { return }
-        delegate?.didAddSchedule(title: title, date: date)
+        guard let view = addScheduleView, let title = view.titleTextField.text, !title.isEmpty else {
+            print("제목을 입력하세요.")
+            return
+        }
+        
+        // 어떤 종류의 일정을 추가할지 결정
+        if view.typeSegmentedControl.selectedSegmentIndex == 0 { // 일일 일정
+            let time = view.startTimePicker.date
+            delegate?.didAddDailySchedule(title: title, time: time)
+        } else { // 마감일
+            let date = view.deadlineDatePicker.date
+            delegate?.didAddDeadline(title: title, date: date)
+        }
         
         self.dismiss(animated: true)
     }
+    
+    @objc private func typeChanged(_ sender: UISegmentedControl) {
+            addScheduleView?.switchForm(to: sender.selectedSegmentIndex)
+        }
 }
 
 protocol AddScheduleDelegate: AnyObject {
-    func didAddSchedule(title: String, date: Date)
+    func didAddDailySchedule(title: String, time: Date)
+    func didAddDeadline(title: String, date: Date)
 }

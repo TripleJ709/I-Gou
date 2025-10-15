@@ -12,7 +12,7 @@ app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-let users = [{ id: 1, name: '김학생12345', kakaoId: '12345' }];
+let users = [{ id: 1, name: 'OOO', kakaoId: '12345' }];
 
 app.post('/api/auth/kakao', async (req, res) => {
     const { accessToken } = req.body; 
@@ -101,29 +101,82 @@ app.get('/api/home', (req, res) => {
     });
 });
 
+app.get('/api/planner', async (req, res) => {
+// 1. JWT 토큰으로 사용자 인증 (홈 탭과 동일)
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
 
-let plannerData = {
-  todaySchedules: [
-    { id: 1, time: "09:00", title: "수학 문제집 풀이", subtitle: "미적분 연습문제 10문제", tag: "학습", color: "blue" },
-    { id: 2, time: "14:00", title: "영어 단어 암기", subtitle: "고등어휘 50개", tag: "학습", color: "blue" }
-  ],
-  deadlines: [
-    { id: 1, title: "수학 과제 제출", date: "2025-10-15", priority: "높음", color: "red" },
-    { id: 2, title: "영어 발표 준비", date: "2025-10-18", priority: "보통", color: "yellow" }
-  ]
-};
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
 
-app.get('/api/planner', (req, res) => {
-  console.log("iOS 앱에서 플래너 데이터 요청이 들어왔습니다!");
-  res.json(plannerData);
+        // 2. DB에서 해당 사용자의 일정 데이터 조회
+        // '오늘의 일정'과 '다가오는 마감일'을 구분하기 위해 쿼리를 나눕니다.
+        // (참고: UI에 있던 '마감일'은 별도 테이블 대신, 일종의 '일정'으로 간주하여 schedules 테이블에 함께 저장합니다.)
+        
+        const [todaySchedules] = await db.query(
+            'SELECT schedule_id as id, DATE_FORMAT(start_time, "%H:%i") as time, title, "새로 추가된 일정" as subtitle, type as tag, "blue" as color FROM schedules WHERE user_id = ? AND DATE(start_time) = CURDATE() ORDER BY start_time ASC',
+            [userId]
+        );
+
+        const [deadlines] = await db.query(
+            'SELECT schedule_id as id, title, DATE_FORMAT(start_time, "%Y-%m-%d") as date, "높음" as priority, "red" as color FROM schedules WHERE user_id = ? AND DATE(start_time) > CURDATE() ORDER BY start_time ASC LIMIT 5',
+            [userId]
+        );
+        
+        // 3. 조회된 데이터를 JSON 형식으로 조합하여 응답
+        const plannerData = {
+            todaySchedules: todaySchedules,
+            deadlines: deadlines
+        };
+        res.json(plannerData);
+
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') {
+            return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
+        }
+        console.error("플래너 데이터 조회 중 DB 오류:", error);
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
 });
 
-app.post('/api/schedules', (req, res) => {
-  const newSchedule = req.body;
-  console.log("새로운 일정 추가됨:", newSchedule);
-  plannerData.todaySchedules.push({ id: Date.now(), ...newSchedule });
-  res.status(201).json({ message: "일정이 성공적으로 추가되었습니다." });
+
+// server.js
+
+// [수정] 새 일정 추가 API
+app.post('/api/schedules', async (req, res) => {
+    // 1. JWT 토큰으로 사용자 인증
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+        
+        // 2. iOS 앱이 보낸 새로운 일정 데이터
+        const { title, date, type, priority } = req.body;
+        
+        // 3. DB에 새로운 일정 INSERT
+        // 클라이언트가 보낸 데이터를 기반으로 쿼리를 실행합니다.
+        // end_time은 사용하지 않으므로 쿼리에서 제외합니다.
+        await db.query(
+            'INSERT INTO schedules (user_id, title, start_time, type, priority) VALUES (?, ?, ?, ?, ?)',
+            [userId, title, date, type, priority] // priority는 '일일 일정'일 경우 null로 들어옵니다.
+        );
+
+        res.status(201).json({ message: "일정이 성공적으로 추가되었습니다." });
+
+    } catch (error) {
+         if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+            return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
+        }
+        console.error("일정 추가 중 DB 오류:", error);
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
 });
+
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`I-Gou 서버가 http://localhost:${port} 에서 실행 중입니다.`);
