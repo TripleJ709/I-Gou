@@ -10,17 +10,16 @@ import SwiftUI
 
 class InternalGradesView: UIView {
     
-    private var chartDataStore: ChartDataStore
+    private var viewModel: InternalGradesViewModel
     
     // MARK: - UI Components
     private let mainStackView = UIStackView()
     
     // MARK: - Initializer
-    init(chartDataStore: ChartDataStore) {
-        self.chartDataStore = chartDataStore
+    init(viewModel: InternalGradesViewModel) {
+        self.viewModel = viewModel
         super.init(frame: .zero)
         setupUI()
-        setupLayout()
     }
     
     required init?(coder: NSCoder) {
@@ -55,7 +54,7 @@ class InternalGradesView: UIView {
     private func createLineChartCard() -> CardView {
         let card = CardView()
         let header = createCardHeader(title: "과목별 성적 현황", subtitle: "최근 3학기 성적 변화")
-        let lineChartView = GradeLineChartView(dataStore: self.chartDataStore)
+        let lineChartView = GradeLineChartView(viewModel: self.viewModel)
         let chartHostView = addSwiftUIView(lineChartView)
         
         let stack = UIStackView(arrangedSubviews: [header, chartHostView])
@@ -77,12 +76,18 @@ class InternalGradesView: UIView {
         let card = CardView()
         let header = createCardHeader(title: "과목별 상세 성적", subtitle: nil)
         
-        let grade1 = createGradeItem(subject: "국어", score: "88", grade: "2등급", goal: "92", trend: .down)
-        let grade2 = createGradeItem(subject: "수학", score: "85", grade: "2등급", goal: "90", trend: .up)
-        let grade3 = createGradeItem(subject: "영어", score: "89", grade: "2등급", goal: "93", trend: .up)
-        let grade4 = createGradeItem(subject: "한국사", score: "96", grade: "1등급", goal: "98", trend: .up)
+        // TODO: 이 부분은 ViewModel의 데이터를 기반으로 동적으로 생성해야 합니다.
+        // viewModel.performances 데이터를 사용하여 createGradeItem 호출
+        let gradeItems: [UIView] = viewModel.performances.flatMap { subjectData -> [UIView] in
+            // 각 과목의 가장 최근 성적만 표시하는 예시 (더 복잡한 로직 필요)
+            if let latestScore = subjectData.scores.last {
+                // Grade 모델이 없으므로 임시 데이터 사용
+                return [createGradeItem(subject: subjectData.subject, score: "\(latestScore.score)", grade: "N/A", goal: "N/A", trend: .up)]
+            }
+            return []
+        }
         
-        let stack = UIStackView(arrangedSubviews: [header, grade1, grade2, grade3, grade4])
+        let stack = UIStackView(arrangedSubviews: [header] + gradeItems)
         stack.axis = .vertical
         stack.spacing = 12
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -100,7 +105,9 @@ class InternalGradesView: UIView {
     private func createPieChartCard() -> CardView {
         let card = CardView()
         let header = createCardHeader(title: "등급 분포", subtitle: nil)
-        let pieChartView = GradePieChartView()
+        
+        // TODO: ViewModel의 데이터를 기반으로 GradeDistribution 데이터를 계산하고 PieChartView에 전달
+        let pieChartView = GradePieChartView() // 지금은 하드코딩된 데이터 사용
         let chartHostView = addSwiftUIView(pieChartView)
         
         let stack = UIStackView(arrangedSubviews: [header, chartHostView])

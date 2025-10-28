@@ -10,10 +10,11 @@ import UIKit
 class GradesViewController: UIViewController {
     
     private var gradesView: GradesView?
+    private var activeViewController: UIViewController?
+    
     private lazy var internalGradesVC = InternalGradesViewController()
     private lazy var mockExamVC = MockExamViewController()
     private lazy var extraCurricularVC = ExtraCurricularViewController()
-    private var activeViewController: UIViewController?
     
     override func loadView() {
         let view = GradesView()
@@ -90,17 +91,13 @@ class GradesViewController: UIViewController {
 extension GradesViewController: GradesViewDelegate {
     func didTapAddGradeButton() {
         let addGradeVC = AddGradeViewController()
-        addGradeVC.delegate = self
+        if let targetDelegate = self.activeViewController as? AddGradeDelegate {
+                    addGradeVC.delegate = targetDelegate
+                    print("✅ AddGradeVC의 Delegate를 \(type(of: targetDelegate))로 설정했습니다.")
+                } else {
+                    print("⚠️ 현재 활성화된 뷰 컨트롤러가 AddGradeDelegate를 따르지 않습니다.")
+                    // 이 경우, InternalGradesViewController가 AddGradeDelegate를 채택했는지 다시 확인해야 합니다.
+                }
         self.present(addGradeVC, animated: true)
-    }
-}
-
-extension GradesViewController: AddGradeDelegate {
-    func didAddGrade(record: InternalGradeRecord) {
-        internalGradesVC.addNewGrade(record: record)
-        
-        if self.activeViewController != internalGradesVC {
-            didTapSegmentButton(gradesView!.internalGradesButton)
-        }
     }
 }

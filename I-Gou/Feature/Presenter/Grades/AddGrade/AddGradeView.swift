@@ -5,27 +5,31 @@
 //  Created by 장주진 on 10/6/25.
 //
 
+// AddGradeView.swift
 import UIKit
 
 class AddGradeView: UIView {
+
     let cancelButton = UIButton(type: .system)
     let saveButton = UIButton(type: .system)
     
+    let examTypeSegmentedControl = UISegmentedControl(items: ["내신", "모의고사"])
     let examNameTextField = UITextField()
-    let koreanScoreTextField = UITextField()
-    let mathScoreTextField = UITextField()
-    let englishScoreTextField = UITextField()
+    let examDatePicker = UIDatePicker()
     
+    let tableView = UITableView() // 과목 입력 테이블
+    let addSubjectButton = UIButton(type: .system) // 과목 추가 버튼
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .systemGroupedBackground
+        backgroundColor = .systemBackground
         setupUI()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func setupUI() {
         // Navigation Bar Items
         cancelButton.setTitle("취소", for: .normal)
@@ -33,59 +37,62 @@ class AddGradeView: UIView {
         saveButton.titleLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         let navStack = UIStackView(arrangedSubviews: [cancelButton, UIView(), saveButton])
         
-        // Input Fields
+        // Exam Info Inputs
+        examTypeSegmentedControl.selectedSegmentIndex = 0
+        
         examNameTextField.placeholder = "예: 1학년 1학기 중간고사"
-        koreanScoreTextField.placeholder = "점수 입력"
-        koreanScoreTextField.keyboardType = .numberPad
-        mathScoreTextField.placeholder = "점수 입력"
-        mathScoreTextField.keyboardType = .numberPad
-        englishScoreTextField.placeholder = "점수 입력"
-        englishScoreTextField.keyboardType = .numberPad
+        examNameTextField.borderStyle = .roundedRect
         
-        let examNameStack = createInputStack(label: "시험명", textField: examNameTextField)
-        let koreanStack = createInputStack(label: "국어", textField: koreanScoreTextField)
-        let mathStack = createInputStack(label: "수학", textField: mathScoreTextField)
-        let englishStack = createInputStack(label: "영어", textField: englishScoreTextField)
+        examDatePicker.datePickerMode = .date
+        examDatePicker.preferredDatePickerStyle = .compact
+        examDatePicker.locale = Locale(identifier: "ko_KR")
         
-        let formStack = UIStackView(arrangedSubviews: [examNameStack, koreanStack, mathStack, englishStack])
-        formStack.axis = .vertical
-        formStack.spacing = 1
+        let dateStack = createHorizontalStack(label: "시험 날짜", view: examDatePicker)
         
-        let formContainer = UIView()
-        formContainer.backgroundColor = .systemBackground
-        formContainer.layer.cornerRadius = 10
-        formContainer.clipsToBounds = true
-        formContainer.addSubview(formStack)
-        formStack.translatesAutoresizingMaskIntoConstraints = false
+        // Table View for Subjects
+        tableView.backgroundColor = .clear // 배경색 제거
+        tableView.separatorStyle = .none    // 구분선 제거
+        tableView.register(GradeInputCell.self, forCellReuseIdentifier: GradeInputCell.identifier)
         
-        let mainStack = UIStackView(arrangedSubviews: [navStack, formContainer])
+        // Add Subject Button
+        addSubjectButton.setTitle("+ 더 입력하기", for: .normal)
+        addSubjectButton.titleLabel?.font = .systemFont(ofSize: 15)
+        addSubjectButton.tintColor = .systemGray
+
+        // Main Stack View
+        let mainStack = UIStackView(arrangedSubviews: [
+            navStack,
+            examTypeSegmentedControl,
+            examNameTextField,
+            dateStack,
+            tableView, // 테이블 뷰 추가
+            addSubjectButton // 버튼 추가
+        ])
         mainStack.axis = .vertical
-        mainStack.spacing = 20
+        mainStack.spacing = 16
+        mainStack.setCustomSpacing(24, after: examTypeSegmentedControl) // 그룹 간 간격 조절
+        mainStack.setCustomSpacing(10, after: tableView)
         mainStack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(mainStack)
         
+        // Layout
         NSLayoutConstraint.activate([
             mainStack.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 16),
             mainStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             mainStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             
-            formStack.topAnchor.constraint(equalTo: formContainer.topAnchor),
-            formStack.leadingAnchor.constraint(equalTo: formContainer.leadingAnchor),
-            formStack.trailingAnchor.constraint(equalTo: formContainer.trailingAnchor),
-            formStack.bottomAnchor.constraint(equalTo: formContainer.bottomAnchor)
+            // 테이블 뷰 높이 제약조건 (중요: 내용에 따라 늘어나도록 설정 필요)
+            tableView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100) // 최소 높이 지정
         ])
     }
     
-    private func createInputStack(label: String, textField: UITextField) -> UIStackView {
+    // 간단한 라벨 + 뷰 가로 배치 헬퍼
+    private func createHorizontalStack(label: String, view: UIView) -> UIStackView {
         let labelView = UILabel()
         labelView.text = label
         labelView.font = .systemFont(ofSize: 17)
-        labelView.widthAnchor.constraint(equalToConstant: 80).isActive = true
-        
-        let stack = UIStackView(arrangedSubviews: [labelView, textField])
+        let stack = UIStackView(arrangedSubviews: [labelView, view])
         stack.spacing = 8
-        stack.isLayoutMarginsRelativeArrangement = true
-        stack.layoutMargins = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
         return stack
     }
 }

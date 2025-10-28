@@ -12,6 +12,8 @@ app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
+// -----------------------------------API라우트------------------------------------------- //
+
 let users = [{ id: 1, name: 'OOO', kakaoId: '12345' }];
 
 app.post('/api/auth/kakao', async (req, res) => {
@@ -102,7 +104,6 @@ app.get('/api/home', (req, res) => {
 });
 
 app.get('/api/planner', async (req, res) => {
-// 1. JWT 토큰으로 사용자 인증 (홈 탭과 동일)
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) return res.sendStatus(401);
@@ -110,11 +111,6 @@ app.get('/api/planner', async (req, res) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         const userId = decoded.userId;
-
-        // 2. DB에서 해당 사용자의 일정 데이터 조회
-        // '오늘의 일정'과 '다가오는 마감일'을 구분하기 위해 쿼리를 나눕니다.
-        // (참고: UI에 있던 '마감일'은 별도 테이블 대신, 일종의 '일정'으로 간주하여 schedules 테이블에 함께 저장합니다.)
-        
         const [todaySchedules] = await db.query(
             'SELECT schedule_id as id, DATE_FORMAT(start_time, "%H:%i") as time, title, "새로 추가된 일정" as subtitle, type as tag, "blue" as color FROM schedules WHERE user_id = ? AND DATE(start_time) = CURDATE() ORDER BY start_time ASC',
             [userId]
@@ -125,7 +121,6 @@ app.get('/api/planner', async (req, res) => {
             [userId]
         );
         
-        // 3. 조회된 데이터를 JSON 형식으로 조합하여 응답
         const plannerData = {
             todaySchedules: todaySchedules,
             deadlines: deadlines
@@ -141,12 +136,7 @@ app.get('/api/planner', async (req, res) => {
     }
 });
 
-
-// server.js
-
-// [수정] 새 일정 추가 API
 app.post('/api/schedules', async (req, res) => {
-    // 1. JWT 토큰으로 사용자 인증
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) return res.sendStatus(401);
@@ -154,16 +144,11 @@ app.post('/api/schedules', async (req, res) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         const userId = decoded.userId;
-        
-        // 2. iOS 앱이 보낸 새로운 일정 데이터
         const { title, date, type, priority } = req.body;
         
-        // 3. DB에 새로운 일정 INSERT
-        // 클라이언트가 보낸 데이터를 기반으로 쿼리를 실행합니다.
-        // end_time은 사용하지 않으므로 쿼리에서 제외합니다.
         await db.query(
             'INSERT INTO schedules (user_id, title, start_time, type, priority) VALUES (?, ?, ?, ?, ?)',
-            [userId, title, date, type, priority] // priority는 '일일 일정'일 경우 null로 들어옵니다.
+            [userId, title, date, type, priority] 
         );
 
         res.status(201).json({ message: "일정이 성공적으로 추가되었습니다." });
@@ -174,6 +159,104 @@ app.post('/api/schedules', async (req, res) => {
         }
         console.error("일정 추가 중 DB 오류:", error);
         res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+});
+
+app.post('/api/grades', async (req, res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+        const { examName, subjectName, score, gradeLevel, examDate, examType } = req.body;
+        
+        await db.query(
+            'INSERT INTO grades (user_id, exam_type, exam_name, subject_name, score, grade_level, exam_date) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [userId, examType, examName, subjectName, score, gradeLevel, examDate]
+        );
+
+        res.status(201).json({ message: "성적이 성공적으로 추가되었습니다." });
+
+    } catch (error) {
+         if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+            return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
+        }
+        console.error("성적 추가 중 DB 오류:", error);
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+});
+
+app.get('/api/grades/internal', async (req, res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+        const [rows] = await db.query(
+            'SELECT exam_name, subject_name, score, exam_date FROM grades WHERE user_id = ? AND exam_type = ? ORDER BY exam_date ASC',
+            [userId, '내신']
+        );
+
+        const gradesBySubject = {};
+        rows.forEach(row => {
+            if (!gradesBySubject[row.subject_name]) {
+                gradesBySubject[row.subject_name] = [];
+            }
+            gradesBySubject[row.subject_name].push({ 
+                month: row.exam_name, 
+                score: row.score,
+                date: row.exam_date
+            });
+        });
+
+        const chartData = Object.keys(gradesBySubject).map(subject => ({
+            subject: subject,
+            scores: gradesBySubject[subject]
+        }));
+        
+        res.json(chartData);
+
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+            return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
+        }
+        console.error("내신 성적 조회 중 DB 오류:", error);
+        res.status(500).json({ message: '내신 성적 조회 중 서버 오류가 발생했습니다.' });
+    }
+});
+
+app.get('/api/grades/mock', async (req, res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+        const [rows] = await db.query(
+            'SELECT DATE_FORMAT(exam_date, "%Y-%m") as month, subject_name, score FROM grades WHERE user_id = ? AND exam_type = ? ORDER BY exam_date ASC',
+            [userId, '모의고사']
+        );
+        
+        const mockExamScores = rows.map(row => ({
+            month: row.month,
+            subject: row.subject_name,
+            score: row.score,
+            color: row.subject_name === "국어" ? "orange" : (row.subject_name === "수학" ? "blue" : "green")
+        }));
+        
+        res.json(mockExamScores);
+
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+            return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
+        }
+        console.error("모의고사 성적 조회 중 DB 오류:", error);
+        res.status(500).json({ message: '모의고사 성적 조회 중 서버 오류가 발생했습니다.' });
     }
 });
 

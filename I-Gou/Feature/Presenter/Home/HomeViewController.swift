@@ -109,7 +109,7 @@ extension HomeViewController: HomeViewDelegate {
 }
 
 extension HomeViewController: AddScheduleDelegate, AddGradeDelegate {
-    func didAddGrade(record: InternalGradeRecord) {
+    func didAddGrades(examType: String, examName: String, examDate: Date, grades: [GradeInputData]) {
         viewModel.fetchHomeData()
     }
     
