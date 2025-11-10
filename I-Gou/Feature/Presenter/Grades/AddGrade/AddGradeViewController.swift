@@ -97,6 +97,7 @@ class AddGradeViewController: UIViewController, UITableViewDataSource, UITableVi
 
     // MARK: - UITableViewDataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print("Number of rows: \(gradeInputs.count)")
         return gradeInputs.count
     }
 

@@ -9,7 +9,7 @@
 import UIKit
 
 class AddGradeView: UIView {
-
+    
     let cancelButton = UIButton(type: .system)
     let saveButton = UIButton(type: .system)
     
@@ -19,17 +19,17 @@ class AddGradeView: UIView {
     
     let tableView = UITableView() // 과목 입력 테이블
     let addSubjectButton = UIButton(type: .system) // 과목 추가 버튼
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .systemBackground
+        backgroundColor = .systemGroupedBackground
         setupUI()
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     private func setupUI() {
         // Navigation Bar Items
         cancelButton.setTitle("취소", for: .normal)
@@ -49,17 +49,16 @@ class AddGradeView: UIView {
         
         let dateStack = createHorizontalStack(label: "시험 날짜", view: examDatePicker)
         
-        // Table View for Subjects
-        tableView.backgroundColor = .clear // 배경색 제거
-        tableView.separatorStyle = .none    // 구분선 제거
+        tableView.backgroundColor = .clear
+        tableView.separatorStyle = .none
         tableView.register(GradeInputCell.self, forCellReuseIdentifier: GradeInputCell.identifier)
+        tableView.isScrollEnabled = false
+        tableView.translatesAutoresizingMaskIntoConstraints = false // Auto Layout 사용 명시
         
-        // Add Subject Button
         addSubjectButton.setTitle("+ 더 입력하기", for: .normal)
         addSubjectButton.titleLabel?.font = .systemFont(ofSize: 15)
         addSubjectButton.tintColor = .systemGray
 
-        // Main Stack View
         let mainStack = UIStackView(arrangedSubviews: [
             navStack,
             examTypeSegmentedControl,
@@ -82,7 +81,7 @@ class AddGradeView: UIView {
             mainStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
             
             // 테이블 뷰 높이 제약조건 (중요: 내용에 따라 늘어나도록 설정 필요)
-            tableView.heightAnchor.constraint(greaterThanOrEqualToConstant: 100) // 최소 높이 지정
+            tableView.heightAnchor.constraint(greaterThanOrEqualToConstant: 500) // 최소 높이 지정
         ])
     }
     
