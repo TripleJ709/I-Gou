@@ -36,4 +36,31 @@ class AddGradeUseCase {
     }
 }
 
-// TODO: 모의고사 성적 조회 UseCase 등 추가
+class FetchGradeDistributionUseCase {
+    private let repository: GradeRepository
+    
+    init(repository: GradeRepository) {
+        self.repository = repository
+    }
+    
+    func execute() async throws -> [GradeDistributionResponse] {
+        try await repository.fetchGradeDistribution()
+    }
+}
+
+class FetchMockGradesUseCase {
+    private let repository: GradeRepository
+    init(repository: GradeRepository) { self.repository = repository }
+    func execute() async throws -> [MockExamScoreData] {
+        try await repository.fetchMockGradesForChart()
+    }
+}
+
+// --- [신규] 최근 모의고사 결과 조회 (목록용) ---
+class FetchMockRecentResultsUseCase {
+    private let repository: GradeRepository
+    init(repository: GradeRepository) { self.repository = repository }
+    func execute() async throws -> [MockExamRecentResult] {
+        try await repository.fetchMockRecentResults()
+    }
+}

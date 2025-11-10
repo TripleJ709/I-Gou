@@ -5,44 +5,61 @@
 //  Created by 장주진 on 10/28/25.
 //
 
+import Foundation
 import Combine
 import SwiftUI
 
 class InternalGradesViewModel: ObservableObject {
-    @Published var performances: [SubjectPerformance] = []
+    
+    // MARK: - Published Properties (UI가 구독할 상태)
+    @Published var performances: [SubjectPerformance] = [] // 라인 차트용
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var gradeDistribution: [GradeDistribution] = [] // 파이 차트용
     
+    // MARK: - Use Cases (비즈니스 로직)
     private let fetchInternalGradesUseCase: FetchInternalGradesUseCase
     private let addGradeUseCase: AddGradeUseCase
+    private let fetchGradeDistributionUseCase: FetchGradeDistributionUseCase
     
+    // MARK: - Initializer (의존성 주입)
     init(
         fetchInternalGradesUseCase: FetchInternalGradesUseCase,
-        addGradeUseCase: AddGradeUseCase
+        addGradeUseCase: AddGradeUseCase,
+        fetchGradeDistributionUseCase: FetchGradeDistributionUseCase
     ) {
         self.fetchInternalGradesUseCase = fetchInternalGradesUseCase
         self.addGradeUseCase = addGradeUseCase
+        self.fetchGradeDistributionUseCase = fetchGradeDistributionUseCase
     }
     
-    @MainActor // UI 관련 프로퍼티를 직접 업데이트하므로 @MainActor 지정
+    // MARK: - Public Methods
+    
+    // DB에서 성적 데이터를 가져와 라인 차트와 파이 차트 데이터를 모두 업데이트합니다.
+    @MainActor
     func fetchGrades() {
         isLoading = true
         errorMessage = nil
         
         Task {
-            defer { isLoading = false } // 함수 종료 시 항상 isLoading = false 되도록 보장
+            // 함수가 어떤 경로로든 종료될 때 isLoading을 false로 설정
+            defer { isLoading = false }
             
             do {
-                let fetchedData = try await fetchInternalGradesUseCase.execute()
-                print("✅ 서버에서 받은 데이터:", fetchedData)
+                // [수정] 1. 두 개의 API를 동시에 비동기적으로 호출
+                async let fetchedLineChartData = fetchInternalGradesUseCase.execute()
+                async let fetchedPieChartData = fetchGradeDistributionUseCase.execute()
                 
-                // ISO 8601 날짜 형식 처리
+                // --- 2. 라인 차트 데이터 가공 ---
+                let lineChartData = try await fetchedLineChartData
+                print("✅ 서버에서 받은 라인 차트 데이터:", lineChartData)
+                
+                // ISO 8601 날짜 형식 처리 (T와 Z, 밀리초 포함)
                 let isoFormatter = ISO8601DateFormatter()
                 isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
                 
                 // 서버 데이터([SubjectScoreData]) -> 차트 데이터([SubjectPerformance]) 변환
-                // compactMap을 사용하여 날짜 변환 실패 시 해당 점수/과목 데이터를 안전하게 제외
-                self.performances = fetchedData.compactMap { subjectData -> SubjectPerformance? in
+                self.performances = lineChartData.compactMap { subjectData -> SubjectPerformance? in
                     let scores = subjectData.scores.compactMap { scoreData -> ExamChartData? in
                         guard let date = isoFormatter.date(from: scoreData.date) else {
                             print("⚠️ 날짜 변환 실패: \(scoreData.date) for \(subjectData.subject)")
@@ -51,14 +68,26 @@ class InternalGradesViewModel: ObservableObject {
                         return ExamChartData(examName: scoreData.month, score: scoreData.score, examDate: date)
                     }
                     
-                    // 유효한 점수가 하나도 없으면 해당 과목은 차트에서 제외
                     guard !scores.isEmpty else { return nil }
                     
                     let color = colorForSubject(subjectData.subject)
                     return SubjectPerformance(subject: subjectData.subject, scores: scores, color: color)
                 }
                 
-                print("📊 차트에 사용할 변환된 데이터:", self.performances)
+                // --- 3. 파이 차트 데이터 가공 ---
+                let pieChartData = try await fetchedPieChartData
+                print("✅ 서버에서 받은 파이 차트 데이터:", pieChartData)
+                
+                self.gradeDistribution = pieChartData.map { data in
+                    return GradeDistribution(
+                        grade: data.grade_level,
+                        count: data.count,
+                        color: colorForGrade(data.grade_level) // 등급별 색상 매핑
+                    )
+                }
+                
+                print("📊 라인 차트 데이터:", self.performances)
+                print("🥧 파이 차트 데이터:", self.gradeDistribution)
                 
             } catch {
                 print("❌ 성적 데이터 로딩 실패:", error)
@@ -67,7 +96,67 @@ class InternalGradesViewModel: ObservableObject {
         }
     }
     
-    // 과목 이름에 따라 색상을 반환하는 헬퍼 함수
+    // '성적 추가' 화면에서 호출되는 함수
+    func addGradeRecord(examType: String, examName: String, subject: String, score: Int, gradeLevel: String?, examDate: Date) {
+        isLoading = true // 로딩 시작
+        Task {
+            do {
+                // UseCase를 통해 서버에 데이터 전송 (이 부분은 이전 답변에서 완성함)
+                try await addGradeUseCase.execute(
+                    examType: examType,
+                    examName: examName,
+                    subject: subject,
+                    score: score,
+                    gradeLevel: gradeLevel,
+                    examDate: examDate
+                )
+                
+                // 성공 시 데이터 새로고침
+                await fetchGrades()
+            } catch {
+                await MainActor.run {
+                    self.errorMessage = "성적 추가에 실패했습니다."
+                    self.isLoading = false // 에러 발생 시 로딩 종료
+                }
+            }
+        }
+    }
+    
+    func findScores(at date: Date) -> (String, [(subject: String, score: Int, color: Color)])? {
+        
+        let allScores = performances.flatMap { $0.scores }
+        
+        guard let closestScore = allScores.min(by: { abs($0.examDate.timeIntervalSince(date)) < abs($1.examDate.timeIntervalSince(date)) }) else {
+            return nil
+        }
+        
+        var scoresAtDate: [(subject: String, score: Int, color: Color)] = []
+        let examName = closestScore.examName
+        
+        for performance in performances {
+            if let score = performance.scores.first(where: { $0.examName == examName }) {
+                scoresAtDate.append((subject: performance.subject, score: score.score, color: performance.colorForSubject()))
+            }
+        }
+        
+        guard !scoresAtDate.isEmpty else { return nil }
+        
+        return (examName, scoresAtDate.sorted(by: { $0.subject < $1.subject }))
+    }
+    
+    // [⭐️ 추가] X축 레이블을 위한 헬퍼 함수
+    func examName(for date: Date) -> String? {
+        for performance in performances {
+            if let score = performance.scores.first(where: { Calendar.current.isDate($0.examDate, inSameDayAs: date) }) {
+                return score.examName
+            }
+        }
+        return nil
+    }
+    
+    // MARK: - Private Helper Methods
+    
+    // 라인 차트용 과목별 색상 헬퍼
     private func colorForSubject(_ subject: String) -> Color {
         switch subject {
         case "국어": return .orange
@@ -78,40 +167,15 @@ class InternalGradesViewModel: ObservableObject {
         }
     }
     
-    // [삭제] colorFromString 함수는 colorForSubject로 통일되었으므로 삭제
-    
-    // 성적 추가 함수
-    func addGradeRecord(
-        examType: String,
-        examName: String, // InternalGradeRecord 대신 examName 직접 받음
-        subject: String,  // 개별 과목 정보 받음
-        score: Int,       // 개별 과목 정보 받음
-        gradeLevel: String?,// 개별 과목 정보 받음
-        examDate: Date
-    ) {
-        // isLoading = true // 필요 시 로딩 시작
-        Task {
-            do {
-                // UseCase를 호출할 때도 개별 파라미터를 사용해야 합니다.
-                // UseCase execute 함수는 InternalGradeRecord를 받으므로,
-                // UseCase 자체를 수정하거나 ViewModel에서 임시 객체를 만들어야 합니다.
-                // 여기서는 UseCase가 이미 수정되었다고 가정하고 진행합니다.
-                
-                // --- UseCase가 InternalGradeRecord를 받는 경우 (임시 해결) ---
-                let tempRecord = InternalGradeRecord(examName: examName, koreanScore: 0, mathScore: 0, englishScore: 0) // 임시 객체 생성
-                // 실제로는 UseCase/Repository/APIService가 개별 파라미터를 받도록 수정하는 것이 더 좋습니다.
-                
-                // --- UseCase가 개별 파라미터를 받는 이상적인 경우 ---
-                try await addGradeUseCase.execute(examType: examType, examName: examName, subject: subject, score: score, gradeLevel: gradeLevel, examDate: examDate)
-                
-                // 성공 시 데이터 새로고침
-                await fetchGrades()
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = "성적 추가에 실패했습니다."
-                    // isLoading = false // 필요 시 로딩 해제
-                }
-            }
+    // 파이 차트용 등급별 색상 헬퍼
+    private func colorForGrade(_ grade: String) -> Color {
+        switch grade {
+        case "1": return .green
+        case "2": return .blue
+        case "3": return .orange
+        case "4": return .red
+            // TODO: 나머지 등급 색상 추가 필요
+        default: return .gray
         }
     }
 }

@@ -35,7 +35,6 @@ class InternalGradesView: UIView {
         self.addSubview(mainStackView)
         
         mainStackView.addArrangedSubview(createLineChartCard())
-        mainStackView.addArrangedSubview(createDetailedGradesCard())
         mainStackView.addArrangedSubview(createPieChartCard())
         
         setupLayout()
@@ -72,42 +71,12 @@ class InternalGradesView: UIView {
         return card
     }
     
-    private func createDetailedGradesCard() -> CardView {
-        let card = CardView()
-        let header = createCardHeader(title: "과목별 상세 성적", subtitle: nil)
-        
-        // TODO: 이 부분은 ViewModel의 데이터를 기반으로 동적으로 생성해야 합니다.
-        // viewModel.performances 데이터를 사용하여 createGradeItem 호출
-        let gradeItems: [UIView] = viewModel.performances.flatMap { subjectData -> [UIView] in
-            // 각 과목의 가장 최근 성적만 표시하는 예시 (더 복잡한 로직 필요)
-            if let latestScore = subjectData.scores.last {
-                // Grade 모델이 없으므로 임시 데이터 사용
-                return [createGradeItem(subject: subjectData.subject, score: "\(latestScore.score)", grade: "N/A", goal: "N/A", trend: .up)]
-            }
-            return []
-        }
-        
-        let stack = UIStackView(arrangedSubviews: [header] + gradeItems)
-        stack.axis = .vertical
-        stack.spacing = 12
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        
-        card.addSubview(stack)
-        NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
-            stack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
-            stack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
-        ])
-        return card
-    }
-    
     private func createPieChartCard() -> CardView {
         let card = CardView()
         let header = createCardHeader(title: "등급 분포", subtitle: nil)
         
         // TODO: ViewModel의 데이터를 기반으로 GradeDistribution 데이터를 계산하고 PieChartView에 전달
-        let pieChartView = GradePieChartView() // 지금은 하드코딩된 데이터 사용
+        let pieChartView = GradePieChartView(viewModel: self.viewModel)
         let chartHostView = addSwiftUIView(pieChartView)
         
         let stack = UIStackView(arrangedSubviews: [header, chartHostView])

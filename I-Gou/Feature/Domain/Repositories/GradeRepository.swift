@@ -16,4 +16,8 @@ protocol GradeRepository {
     
     // 새로운 성적 추가 (내신/모의고사 공통)
     func addGrade(examType: String, examName: String, subject: String, score: Int, gradeLevel: String?, examDate: Date) async throws
+    
+    func fetchGradeDistribution() async throws -> [GradeDistributionResponse]
+    
+    func fetchMockRecentResults() async throws -> [MockExamRecentResult]
 }

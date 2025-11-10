@@ -15,23 +15,10 @@ struct MonthlyScore: Identifiable {
     var score: Int
 }
 
-struct SubjectPerformance: Identifiable {
-    var id = UUID()
-    var subject: String
-    var scores: [ExamChartData]
-    var color: Color
-}
-
-struct GradeDistribution: Identifiable {
-    var id = UUID()
-    var grade: String
-    var count: Int
-    var color: Color
-}
-
 // MARK: - Line Chart View
 struct GradeLineChartView: View {
     @ObservedObject var viewModel: InternalGradesViewModel
+    // @State private var selectedDate: Date? // <-- 터치 기능 삭제
 
     var body: some View {
         Chart(viewModel.performances) { performance in
@@ -39,18 +26,23 @@ struct GradeLineChartView: View {
                 LineMark(
                     x: .value("Date", score.examDate),
                     y: .value("Score", score.score)
-                    // [⭐️ 핵심 수정 1 ⭐️] by 파라미터 추가: 과목별로 선을 분리합니다.
                 )
-                .foregroundStyle(by: .value("Subject", performance.subject)) // [수정] by 사용
+                // [수정] .foregroundStyle(by:)를 LineMark에만 적용
+                .foregroundStyle(by: .value("Subject", performance.subject))
                 
                 PointMark(
                     x: .value("Date", score.examDate),
                     y: .value("Score", score.score)
-                    // [⭐️ 핵심 수정 2 ⭐️] by 파라미터 추가: 과목별로 점을 분리합니다.
                 )
-                .foregroundStyle(by: .value("Subject", performance.subject)) // [수정] by 사용
+                // [수정] PointMark는 ViewModel의 color를 사용
+                .foregroundStyle(performance.color)
             }
         }
+        // [수정] 색상 범위를 수동으로 지정
+        .chartForegroundStyleScale(
+            domain: viewModel.performances.map { $0.subject },
+            range: viewModel.performances.map { $0.colorForSubject() }
+        )
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 5))
         }
@@ -67,10 +59,11 @@ struct GradeLineChartView: View {
                 }
             }
         }
-        // [⭐️ 핵심 수정 3 ⭐️] 차트 범례 추가 (자동으로 생성됩니다)
         .chartLegend(position: .bottom, alignment: .center)
-        
         .frame(height: 250)
+        
+        // [삭제] .chartOverlay { ... }
+        
         .overlay { // 로딩 및 빈 상태 표시
             if viewModel.isLoading {
                 ProgressView()
@@ -80,17 +73,20 @@ struct GradeLineChartView: View {
                     .foregroundColor(.secondary)
             }
         }
+        
+        // [삭제] .annotation(...) { ... }
+        // [삭제] .animation(...)
     }
-}// MARK: - Pie Chart View
+}
+
+// MARK: - Pie Chart View
 struct GradePieChartView: View {
-    let distribution: [GradeDistribution] = [
-        .init(grade: "1등급", count: 2, color: .green),
-        .init(grade: "2등급", count: 3, color: .blue),
-        .init(grade: "3등급", count: 1, color: .orange)
-    ]
-    
+    // [수정] @ObservedObject로 ViewModel을 받습니다.
+    @ObservedObject var viewModel: InternalGradesViewModel
+
     var body: some View {
-        Chart(distribution) { data in
+        // [수정] viewModel.gradeDistribution 데이터를 사용합니다.
+        Chart(viewModel.gradeDistribution) { data in
             SectorMark(
                 angle: .value("Count", data.count),
                 angularInset: 2.0
@@ -104,6 +100,14 @@ struct GradePieChartView: View {
             }
         }
         .frame(height: 250)
+        // [추가] 데이터가 없을 때 안내 문구 표시
+        .overlay {
+            if viewModel.gradeDistribution.isEmpty && !viewModel.isLoading {
+                Text("등급 분포 데이터가 없습니다.")
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+            }
+        }
     }
 }
 
@@ -116,36 +120,35 @@ struct MockExamScore: Identifiable {
     var color: Color
 }
 
+// MARK: - Mock Exam Bar Chart View
 struct MockExamBarChartView: View {
-    let mockExamScores: [MockExamScore] = [
-        .init(month: "3월", subject: "국어", score: 85, color: .orange),
-        .init(month: "3월", subject: "수학", score: 78, color: .blue),
-        .init(month: "3월", subject: "영어", score: 90, color: .green),
-        
-        .init(month: "6월", subject: "국어", score: 88, color: .orange),
-        .init(month: "6월", subject: "수학", score: 78, color: .blue),
-        .init(month: "6월", subject: "영어", score: 88, color: .green),
-        
-        .init(month: "9월", subject: "국어", score: 90, color: .orange),
-        .init(month: "9월", subject: "수학", score: 80, color: .blue),
-        .init(month: "9월", subject: "영어", score: 90, color: .green),
-        
-        .init(month: "11월", subject: "국어", score: 92, color: .orange),
-        .init(month: "11월", subject: "수학", score: 82, color: .blue),
-        .init(month: "11월", subject: "영어", score: 93, color: .green),
-    ]
-
+    
+    @ObservedObject var viewModel: MockExamViewModel
+    
     var body: some View {
-        Chart {
-            ForEach(mockExamScores) { scoreData in
-                BarMark(
-                    x: .value("Month", scoreData.month),
-                    y: .value("Score", scoreData.score)
-                )
-                .foregroundStyle(scoreData.color)
-                .position(by: .value("Subject", scoreData.subject))
-            }
+        Chart(viewModel.barChartData) { scoreData in
+            BarMark(
+                x: .value("Month", scoreData.month),
+                y: .value("Score", scoreData.score)
+            )
+            // [⭐️ 핵심 수정 1 ⭐️]
+            // 수동으로 색을 칠하는 대신, 'subject'별로 색을 자동 할당하도록 'by:'를 사용합니다.
+            // 이것이 범례를 만드는 핵심입니다.
+            .foregroundStyle(by: .value("Subject", scoreData.subject))
+            .position(by: .value("Subject", scoreData.subject))
         }
+        // [⭐️ 핵심 수정 2 ⭐️]
+        // 차트가 각 'subject' 이름에 어떤 색을 매핑할지 수동으로 지정해줍니다.
+        // (ViewModel의 colorForSubject 헬퍼 로직과 동일하게)
+        .chartForegroundStyleScale([
+            "국어": Color.orange,
+            "수학": Color.blue,
+            "영어": Color.green,
+            "탐구(1)": Color.purple, // 예시: 다른 과목 색상 추가
+            "탐구(2)": Color.pink,
+            "한국사": Color.brown
+            // TODO: DB에 저장된 모든 과목명에 대해 색상 지정
+        ])
         .chartYAxis {
             AxisMarks(position: .leading, values: .automatic(desiredCount: 5))
         }
@@ -155,18 +158,18 @@ struct MockExamBarChartView: View {
                 AxisValueLabel()
             }
         }
+        // [⭐️ 핵심 수정 3 ⭐️]
+        // 이 줄은 이미 있었지만, .foregroundStyle(by:)와 함께 작동하여 범례를 표시합니다.
+        .chartLegend(position: .bottom, alignment: .center)
         .frame(height: 250)
-    }
-}
-
-extension InternalGradesViewModel {
-    func examName(for date: Date) -> String? {
-        // performances 배열을 순회하며 해당 날짜를 가진 score를 찾아 examName 반환
-        for performance in performances {
-            if let score = performance.scores.first(where: { Calendar.current.isDate($0.examDate, inSameDayAs: date) }) {
-                return score.examName
+        .overlay {
+            if viewModel.isLoading {
+                ProgressView()
+            } else if viewModel.barChartData.isEmpty {
+                Text("모의고사 성적 추이 데이터가 없습니다.")
+                    .font(.callout)
+                    .foregroundColor(.secondary)
             }
         }
-        return nil // 못 찾으면 nil 반환 (레이블 표시 안 함)
     }
 }

@@ -191,17 +191,32 @@ class HomeView: UIView {
         let card = CardView()
         let header = createHeaderView(iconName: "chart.bar.fill", title: "최근 성적", actionButtonTitle: "상세보기")
         
+        // '상세보기' 버튼에 액션 연결
         if let headerStack = header as? UIStackView,
            let actionButton = headerStack.arrangedSubviews.last as? UIButton {
             actionButton.addTarget(self, action: #selector(viewAllGradesTapped), for: .touchUpInside)
         }
         
+        // 서버에서 받은 'Grade' 데이터 배열을 'gradeItem' 뷰 배열로 변환
         let gradeItems = grades.map { grade in
-            createGradeItem(subject: grade.subjectName, score: "\(grade.score)점", grade: grade.gradeLevel, isHighlight: grade.gradeLevel == "1등급")
+            // [⭐️ 핵심 수정 1 ⭐️]
+            // grade.gradeLevel이 nil일 경우, nil-coalescing operator(??)를 사용해
+            // 기본값으로 "-" (하이픈)을 사용하도록 합니다.
+            createGradeItem(
+                subject: grade.subjectName,
+                score: "\(grade.score)점",
+                grade: grade.gradeLevel ?? "-", // nil이면 "-" 표시
+                isHighlight: grade.gradeLevel == "1등급" // nil과 "1등급"을 비교하면 false가 되므로 안전합니다.
+            )
         }
         
         let stackView = UIStackView(arrangedSubviews: [header] + gradeItems)
-        stackView.axis = .vertical
+        
+        // [⭐️ 핵심 수정 2 ⭐️]
+        // 컴파일러가 .vertical의 타입을 추론하지 못하는 문제를 해결하기 위해
+        // NSLayoutConstraint.Axis.vertical 이라고 전체 경로를 적어줍니다.
+        stackView.axis = NSLayoutConstraint.Axis.vertical
+        
         stackView.spacing = 16
         stackView.translatesAutoresizingMaskIntoConstraints = false
         

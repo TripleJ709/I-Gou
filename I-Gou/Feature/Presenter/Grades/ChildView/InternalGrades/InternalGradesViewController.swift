@@ -13,7 +13,7 @@ class InternalGradesViewController: UIViewController {
     private var internalGradesView: InternalGradesView?
     private var viewModel: InternalGradesViewModel!
     private var cancellables = Set<AnyCancellable>()
-
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,7 +28,15 @@ class InternalGradesViewController: UIViewController {
         let gradeRepository = DefaultGradeRepository(apiService: apiService)
         let fetchUseCase = FetchInternalGradesUseCase(repository: gradeRepository)
         let addUseCase = AddGradeUseCase(repository: gradeRepository) // AddGradeUseCase 추가
-        self.viewModel = InternalGradesViewModel(fetchInternalGradesUseCase: fetchUseCase, addGradeUseCase: addUseCase) // ViewModel 초기화
+        let fetchDistributionUseCase = FetchGradeDistributionUseCase(repository: gradeRepository)
+        
+        // Presentation Layer
+        // [⭐️ 핵심 수정 ⭐️] ViewModel 초기화 시 fetchDistributionUseCase를 전달합니다.
+        self.viewModel = InternalGradesViewModel(
+            fetchInternalGradesUseCase: fetchUseCase,
+            addGradeUseCase: addUseCase,
+            fetchGradeDistributionUseCase: fetchDistributionUseCase
+        )
         
         // View 생성 시 ViewModel 전달
         let view = InternalGradesView(viewModel: viewModel)
@@ -37,8 +45,6 @@ class InternalGradesViewController: UIViewController {
         self.view.backgroundColor = .clear
     }
     // MARK: - Setup
-    
-    // [추가] 의존성 주입
     private func setupDependencies() {
         // Data Layer
         let apiService = APIService()
@@ -47,7 +53,15 @@ class InternalGradesViewController: UIViewController {
         let fetchUseCase = FetchInternalGradesUseCase(repository: gradeRepository)
         let addUseCase = AddGradeUseCase(repository: gradeRepository)
         // Presentation Layer
-        self.viewModel = InternalGradesViewModel(fetchInternalGradesUseCase: fetchUseCase, addGradeUseCase: addUseCase)
+        let fetchDistributionUseCase = FetchGradeDistributionUseCase(repository: gradeRepository)
+        
+        // Presentation Layer
+        // [⭐️ 핵심 수정 ⭐️] ViewModel 초기화 시 fetchDistributionUseCase를 전달합니다.
+        self.viewModel = InternalGradesViewModel(
+            fetchInternalGradesUseCase: fetchUseCase,
+            addGradeUseCase: addUseCase,
+            fetchGradeDistributionUseCase: fetchDistributionUseCase
+        )
     }
     
     private func setupView() {

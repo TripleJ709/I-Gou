@@ -38,7 +38,7 @@ struct Grade: Codable, Identifiable {
     let id = UUID()
     let subjectName: String
     let score: Int
-    let gradeLevel: String
+    let gradeLevel: String?
 
     enum CodingKeys: String, CodingKey {
         case subjectName, score, gradeLevel

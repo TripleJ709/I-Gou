@@ -6,35 +6,66 @@
 //
 
 import UIKit
-import SwiftUI // SwiftUI Charts를 사용하기 위해 필요
+import SwiftUI
 
 class MockExamView: UIView {
-
-    // MARK: - UI Components
+    
+    private var viewModel: MockExamViewModel
     private let mainStackView = UIStackView()
+    // [추가] "최근 모의고사 결과"를 동적으로 담을 스택뷰
+    private let resultsStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 16
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
 
-    // MARK: - Initializer
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(viewModel: MockExamViewModel) {
+        self.viewModel = viewModel
+        super.init(frame: .zero)
         setupUI()
+        setupLayout() // setupUI에서 호출하지 않고 분리
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: - Private Methods
+    
+    // ViewModel에서 데이터가 오면 이 함수를 호출하여 리스트를 업데이트
+    func updateResultsList(with data: [MockExamRecentResult]) {
+        // 기존 결과 삭제 (헤더는 남겨야 함)
+        resultsStackView.arrangedSubviews.dropFirst().forEach { $0.removeFromSuperview() }
+        
+        // 새 결과 추가
+        if data.isEmpty {
+            let emptyLabel = UILabel()
+            emptyLabel.text = "최근 모의고사 결과가 없습니다."
+            emptyLabel.font = .systemFont(ofSize: 15)
+            emptyLabel.textColor = .gray
+            resultsStackView.addArrangedSubview(emptyLabel)
+        } else {
+            for result in data {
+                // 서버에서 받은 데이터로 뷰 생성
+                let itemView = createMockExamResultItem(
+                    title: result.examName,
+                    korean: result.scores["국어"],
+                    math: result.scores["수학"],
+                    english: result.scores["영어"]
+                )
+                resultsStackView.addArrangedSubview(itemView)
+            }
+        }
+    }
+    
     private func setupUI() {
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
         mainStackView.axis = .vertical
         mainStackView.spacing = 20
-        
         self.addSubview(mainStackView)
         
         mainStackView.addArrangedSubview(createMockExamTrendCard())
         mainStackView.addArrangedSubview(createRecentMockExamResultsCard())
-        
-        setupLayout()
     }
 
     private func setupLayout() {
@@ -45,12 +76,13 @@ class MockExamView: UIView {
             mainStackView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         ])
     }
-
-    // MARK: - View Factory Methods
+    
+    // 막대 그래프 카드
     private func createMockExamTrendCard() -> CardView {
         let card = CardView()
         let header = createCardHeader(title: "모의고사 성적 추이", subtitle: "전국연합학력평가 결과")
-        let barChartView = MockExamBarChartView()
+        // [수정] barChartView에 ViewModel 전달
+        let barChartView = MockExamBarChartView(viewModel: self.viewModel)
         let chartHostView = addSwiftUIView(barChartView)
         
         let stack = UIStackView(arrangedSubviews: [header, chartHostView])
@@ -68,29 +100,26 @@ class MockExamView: UIView {
         return card
     }
     
+    // 최근 결과 목록 카드
     private func createRecentMockExamResultsCard() -> CardView {
         let card = CardView()
         let header = createCardHeader(title: "최근 모의고사 결과", subtitle: nil)
 
-        let result1 = createMockExamResultItem(month: "9월", totalScore: "264", korean: "90점", math: "85점", english: "89점")
-        let result2 = createMockExamResultItem(month: "11월", totalScore: "270", korean: "92점", math: "87점", english: "91점")
+        // [수정] resultsStackView에 헤더를 미리 추가
+        resultsStackView.addArrangedSubview(header)
         
-        let stack = UIStackView(arrangedSubviews: [header, result1, result2])
-        stack.axis = .vertical
-        stack.spacing = 16
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        
-        card.addSubview(stack)
+        card.addSubview(resultsStackView)
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
-            stack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
-            stack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
+            resultsStackView.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
+            resultsStackView.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
+            resultsStackView.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
+            resultsStackView.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
         ])
         return card
     }
 
     // MARK: - Helper Methods
+    
     private func addSwiftUIView<V: View>(_ swiftUIView: V) -> UIView {
         let hostingController = UIHostingController(rootView: swiftUIView)
         hostingController.view.backgroundColor = .clear
@@ -116,39 +145,21 @@ class MockExamView: UIView {
         }
         return stack
     }
-
-    private func createMockExamResultItem(month: String, totalScore: String, korean: String, math: String, english: String) -> UIView {
+    
+    // [수정] 파라미터를 서버 데이터 모델(옵셔널 Int)에 맞게 변경
+    private func createMockExamResultItem(title: String, korean: Int?, math: Int?, english: Int?) -> UIView {
         let container = UIView()
         container.backgroundColor = .systemGray6
         container.layer.cornerRadius = 10
-        container.translatesAutoresizingMaskIntoConstraints = false
         
-        let monthLabel = UILabel()
-        monthLabel.text = "\(month)월 전국연합학력평가"
-        monthLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         
-        let totalScoreLabel = UILabel()
-        totalScoreLabel.text = "총점 \(totalScore)"
-        totalScoreLabel.font = .systemFont(ofSize: 14, weight: .bold)
-        totalScoreLabel.textColor = .white
-
-        let totalScoreContainer = UIView()
-        totalScoreContainer.backgroundColor = .systemGray
-        totalScoreContainer.layer.cornerRadius = 8
-        totalScoreContainer.clipsToBounds = true
-        totalScoreContainer.addSubview(totalScoreLabel)
+        let (total, totalColor) = calculateTotalScore(korean: korean, math: math, english: english)
+        let totalScoreLabel = createTagView(text: "총점 \(total)", color: totalColor)
         
-        totalScoreLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            totalScoreLabel.topAnchor.constraint(equalTo: totalScoreContainer.topAnchor, constant: 4),
-            totalScoreLabel.bottomAnchor.constraint(equalTo: totalScoreContainer.bottomAnchor, constant: -4),
-            totalScoreLabel.leadingAnchor.constraint(equalTo: totalScoreContainer.leadingAnchor, constant: 8),
-            totalScoreLabel.trailingAnchor.constraint(equalTo: totalScoreContainer.trailingAnchor, constant: -8)
-        ])
-        
-        let headerStack = UIStackView(arrangedSubviews: [monthLabel, UIView(), totalScoreContainer])
-        headerStack.spacing = 8
-        headerStack.alignment = .center
+        let headerStack = UIStackView(arrangedSubviews: [titleLabel, UIView(), totalScoreLabel])
         
         let subjectStack = UIStackView()
         subjectStack.axis = .horizontal
@@ -174,14 +185,16 @@ class MockExamView: UIView {
         
         return container
     }
-    private func createSubjectScoreView(subject: String, score: String) -> UIView {
+    
+    // [수정] score 파라미터를 옵셔널 Int로 변경
+    private func createSubjectScoreView(subject: String, score: Int?) -> UIView {
         let subjectLabel = UILabel()
         subjectLabel.text = subject
         subjectLabel.font = .systemFont(ofSize: 14)
         subjectLabel.textColor = .gray
         
         let scoreLabel = UILabel()
-        scoreLabel.text = score
+        scoreLabel.text = score != nil ? "\(score!)점" : "- 점" // nil일 경우 "- 점" 표시
         scoreLabel.font = .systemFont(ofSize: 18, weight: .bold)
         
         let stack = UIStackView(arrangedSubviews: [subjectLabel, scoreLabel])
@@ -189,5 +202,40 @@ class MockExamView: UIView {
         stack.alignment = .leading
         stack.spacing = 4
         return stack
+    }
+    
+    private func createTagView(text: String, color: UIColor) -> UIView {
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: 12, weight: .semibold)
+        label.textColor = color
+        
+        let view = UIView()
+        view.backgroundColor = color.withAlphaComponent(0.15)
+        view.layer.cornerRadius = 8
+        
+        view.addSubview(label)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            label.topAnchor.constraint(equalTo: view.topAnchor, constant: 5),
+            label.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -5),
+            label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10)
+        ])
+        
+        return view
+    }
+    
+    // [수정] 파라미터를 옵셔널 Int로 변경
+    private func calculateTotalScore(korean: Int?, math: Int?, english: Int?) -> (String, UIColor) {
+        let k = korean ?? 0
+        let m = math ?? 0
+        let e = english ?? 0
+        let total = k + m + e
+        
+        if total == 0 { return ("-", .gray) }
+        
+        let color: UIColor = total >= 270 ? .systemGreen : (total >= 240 ? .systemBlue : .systemRed)
+        return ("\(total)", color)
     }
 }

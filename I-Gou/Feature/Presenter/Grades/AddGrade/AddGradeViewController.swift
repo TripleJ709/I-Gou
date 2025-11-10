@@ -30,9 +30,8 @@ class AddGradeViewController: UIViewController, UITableViewDataSource, UITableVi
         super.viewDidLoad()
         setupTableView()
         setupButtonActions()
-        
-        // 키보드 관련 설정 (옵션)
         setupKeyboardDismissal()
+        addGradeView?.examTypeSegmentedControl.addTarget(self, action: #selector(examTypeChanged), for: .valueChanged)
     }
     
     private func setupTableView() {
@@ -49,6 +48,10 @@ class AddGradeViewController: UIViewController, UITableViewDataSource, UITableVi
     }
 
     @objc private func cancelButtonTapped() { self.dismiss(animated: true) }
+    
+    @objc private func examTypeChanged(_ sender: UISegmentedControl) {
+        addGradeView?.switchForm(to: sender.selectedSegmentIndex)
+    }
 
     @objc private func addSubjectButtonTapped() {
         // 데이터 배열에 빈 항목 추가하고 테이블 뷰 갱신
@@ -58,32 +61,50 @@ class AddGradeViewController: UIViewController, UITableViewDataSource, UITableVi
         addGradeView?.tableView.beginUpdates()
         addGradeView?.tableView.endUpdates()
     }
-
+    
     @objc private func saveButtonTapped() {
-        // 시험 정보 유효성 검사
+        // 시험 정보 유효성 검사 (날짜 검사는 밖으로 이동)
         guard let view = self.addGradeView,
-              let examName = view.examNameTextField.text,
-            !examName.isEmpty
+              let examName = view.examNameTextField.text, !examName.isEmpty
         else {
-            print("시험명과 날짜를 입력하세요.")
+            print("시험명을 입력하세요.")
+            // TODO: 사용자에게 알림창 띄우기
             return
         }
+        
+        // [⭐️ 수정] examDate는 옵셔널이 아니므로 guard let 밖에서 바로 가져옵니다.
         let examDate = view.examDatePicker.date
         
         // 내신/모의고사 구분
         let selectedIndex = view.examTypeSegmentedControl.selectedSegmentIndex
         let examType = (selectedIndex == 0) ? "내신" : "모의고사"
-
-        // 테이블 뷰 데이터 유효성 검사 (모든 과목 정보가 입력되었는지 등)
-        let validGrades = gradeInputs.filter { $0.subject != nil && !$0.subject!.isEmpty && $0.score != nil && !$0.score!.isEmpty }
         
-        guard !validGrades.isEmpty else {
+        // [수정] 내신/모의고사에 따라 다른 데이터 수집 로직 수행
+        var gradesToSave: [GradeInputData] = []
+        
+        if examType == "내신" {
+            // '내신' 탭일 경우, 테이블 뷰에서 데이터 수집
+            gradesToSave = gradeInputs.filter { $0.subject != nil && !$0.subject!.isEmpty && $0.score != nil && !$0.score!.isEmpty }
+        } else {
+            // '모의고사' 탭일 경우, 고정된 필드에서 데이터 수집
+            gradesToSave = [
+                GradeInputData(subject: "국어", score: view.mockKoreanScoreField.text, gradeLevel: nil),
+                GradeInputData(subject: "수학", score: view.mockMathScoreField.text, gradeLevel: nil),
+                GradeInputData(subject: "영어", score: view.mockEnglishScoreField.text, gradeLevel: nil),
+                GradeInputData(subject: "탐구(1)", score: view.mockSearch1ScoreField.text, gradeLevel: nil),
+                GradeInputData(subject: "탐구(2)", score: view.mockSearch2ScoreField.text, gradeLevel: nil),
+                GradeInputData(subject: "한국사", score: view.mockHistoryScoreField.text, gradeLevel: nil)
+            ].filter { $0.score != nil && !$0.score!.isEmpty } // 입력된 값만 필터링
+        }
+        
+        guard !gradesToSave.isEmpty else {
             print("성적 정보를 하나 이상 올바르게 입력하세요.")
+            // TODO: 사용자에게 알림창 띄우기
             return
         }
         
         // Delegate를 통해 모든 데이터 전달
-        delegate?.didAddGrades(examType: examType, examName: examName, examDate: examDate, grades: validGrades)
+        delegate?.didAddGrades(examType: examType, examName: examName, examDate: examDate, grades: gradesToSave)
         self.dismiss(animated: true)
     }
     
