@@ -9,8 +9,18 @@ import UIKit
 
 class MyUniversitiesView: UIView {
     
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
     private let mainStackView = UIStackView()
     weak var delegate: MyUniversitiesViewDelegate?
+    
+    private let analysisItemStackView = UIStackView()
+    
+    enum Status: String {
+        case challenging = "challenging"
+        case appropriate = "appropriate"
+        case safe = "safe"
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -21,17 +31,42 @@ class MyUniversitiesView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private let universityItems: [UniversityItem] = [
-        .init(universityName: "서울대학교", department: "경영학과", major: "학생부종합", myScore: 88.5, requiredScore: 92, deadline: "2024-09-15", status: .challenging, location: "서울 관악구", competitionRate: "10.2:1"),
-        .init(universityName: "연세대학교", department: "경제학과", major: "학생부교과", myScore: 88.5, requiredScore: 89, deadline: "2024-09-18", status: .appropriate, location: "서울 서대문구", competitionRate: "6.7:1"),
-        .init(universityName: "고려대학교", department: "경영학과", major: "학생부교과", myScore: 88.5, requiredScore: 87, deadline: "2024-09-20", status: .safe, location: "서울 성북구", competitionRate: "7.1:1")
-    ]
+    func updateAnalysisCard(with items: [UniversityItem]) {
+        // 1. 스택뷰를 비웁니다.
+        analysisItemStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        
+        // 2. 데이터가 없으면 '없음' 라벨을 추가
+        if items.isEmpty {
+            let emptyLabel = UILabel()
+            emptyLabel.text = "추가된 대학이 없습니다.\n대학을 추가하고 합격 가능성을 분석해보세요."
+            emptyLabel.textColor = .secondaryLabel
+            emptyLabel.textAlignment = .center
+            emptyLabel.numberOfLines = 0
+            emptyLabel.font = .systemFont(ofSize: 14)
+            analysisItemStackView.addArrangedSubview(emptyLabel)
+        } else {
+            // 3. 데이터가 있으면 뷰를 생성하여 스택뷰에 추가
+            let universityItemViews = items.map { createUniversityItem(data: $0) }
+            universityItemViews.forEach { analysisItemStackView.addArrangedSubview($0) }
+        }
+    }
     
     private func setupUI() {
+        // 3. ⭐️ 스크롤뷰와 콘텐츠 뷰 설정
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
         mainStackView.axis = .vertical
         mainStackView.spacing = 20
-        self.addSubview(mainStackView)
+        
+        // 4. ⭐️ 뷰 계층: self > scrollView > contentView > mainStackView
+        self.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        contentView.addSubview(mainStackView)
+        
+        analysisItemStackView.axis = .vertical
+        analysisItemStackView.spacing = 16
         
         mainStackView.addArrangedSubview(createAnalysisCard())
         mainStackView.addArrangedSubview(createSuggestionCard())
@@ -39,12 +74,29 @@ class MyUniversitiesView: UIView {
         setupLayout()
     }
     
+    // 5. [수정] ⭐️ setupLayout 수정
     private func setupLayout() {
         NSLayoutConstraint.activate([
-            mainStackView.topAnchor.constraint(equalTo: self.topAnchor),
-            mainStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            mainStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            mainStackView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+            // 6. ⭐️ ScrollView: self(MyUniversitiesView)의 전체를 채움
+            scrollView.topAnchor.constraint(equalTo: self.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            
+            // 7. ⭐️ ContentView: ScrollView의 전체를 채움
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            
+            // 8. ⭐️ (중요) ContentView의 가로폭 = self의 가로폭 (세로 스크롤)
+            contentView.widthAnchor.constraint(equalTo: self.widthAnchor),
+            
+            // 9. ⭐️ mainStackView: ContentView의 전체를 채움 (패딩 20)
+            mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            mainStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            mainStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
         ])
     }
     
@@ -54,9 +106,9 @@ class MyUniversitiesView: UIView {
         let card = CardView()
         let header = createCardHeader(title: "합격 가능성 분석", subtitle: "현재 성적 기준 예상 합격 가능성")
         
-        let universityItemViews = universityItems.map { createUniversityItem(data: $0) }
+        // 8. [수정] 하드코딩된 뷰 대신, 비어있는 analysisItemStackView를 추가
+        let stack = UIStackView(arrangedSubviews: [header, analysisItemStackView]) // 9. [수정]
         
-        let stack = UIStackView(arrangedSubviews: [header] + universityItemViews)
         stack.axis = .vertical
         stack.spacing = 16
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -130,8 +182,8 @@ class MyUniversitiesView: UIView {
         
         return mainStack
     }
-
-    enum Status { case challenging, appropriate, safe }
+    
+    // [수정] createUniversityItem 함수
     private func createUniversityItem(data: UniversityItem) -> UIView {
         let container = UniversityItemView()
         container.universityData = data
@@ -148,11 +200,13 @@ class MyUniversitiesView: UIView {
         let starIcon = UIImageView(image: UIImage(systemName: "star.fill"))
         starIcon.tintColor = .systemYellow
         
-        let statusTag = createStatusTag(status: data.status)
+        
+        let status = Status(rawValue: data.status) ?? .appropriate
+        let statusTag = createStatusTag(status: status)
         
         let headerStack = UIStackView(arrangedSubviews: [uniLabel, starIcon, UIView(), statusTag])
         headerStack.spacing = 4
-        headerStack.alignment = .center
+        headerStack.alignment = .center // 이제 에러가 나지 않습니다.
         
         let deptLabel = UILabel()
         deptLabel.text = data.department
@@ -177,10 +231,11 @@ class MyUniversitiesView: UIView {
         
         let scoreLabelStack = UIStackView(arrangedSubviews: [myScoreLabel, requiredScoreLabel])
         
+        // 2. [수정] progressView를 사용하기 전에 먼저 선언합니다.
         let progressView = UIProgressView()
-        progressView.progress = data.myScore / data.requiredScore
-        progressView.progressTintColor = (data.status == .safe) ? .systemGreen : .systemYellow
-        progressView.trackTintColor = .systemGray4
+        let progress = (data.requiredScore > 0) ? (data.myScore / data.requiredScore) : 0
+        progressView.progress = progress
+        progressView.progressTintColor = (status == .safe) ? .systemGreen : ((status == .challenging) ? .systemYellow : .systemBlue)
         
         let deadlineLabel = UILabel()
         deadlineLabel.text = "마감일: \(data.deadline)"
@@ -189,20 +244,14 @@ class MyUniversitiesView: UIView {
         
         let detailButton = UIButton(type: .system)
         detailButton.setTitle("상세 정보", for: .normal)
-        detailButton.titleLabel?.font = .systemFont(ofSize: 13, weight: .semibold)
-        detailButton.tintColor = .gray
-        detailButton.layer.cornerRadius = 12
-        detailButton.layer.borderColor = UIColor.systemGray4.cgColor
-        detailButton.layer.borderWidth = 1
-        detailButton.isUserInteractionEnabled = false
-        detailButton.widthAnchor.constraint(equalToConstant: 80).isActive = true
-        detailButton.heightAnchor.constraint(equalToConstant: 24).isActive = true
+        // ... (detailButton 나머지 설정) ...
         
         let footerStack = UIStackView(arrangedSubviews: [deadlineLabel, UIView(), detailButton])
         footerStack.alignment = .center
         
+        // 3. [수정] 'progressView'가 위에서 선언되었으므로 이제 에러가 나지 않습니다.
         let mainStack = UIStackView(arrangedSubviews: [headerStack, detailStack, scoreLabelStack, progressView, footerStack])
-        mainStack.axis = .vertical
+        mainStack.axis = .vertical // 이제 에러가 나지 않습니다.
         mainStack.spacing = 8
         mainStack.translatesAutoresizingMaskIntoConstraints = false
         

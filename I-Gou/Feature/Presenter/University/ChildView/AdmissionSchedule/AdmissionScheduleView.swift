@@ -8,67 +8,121 @@
 import UIKit
 
 class AdmissionsScheduleView: UIView {
-
-    // MARK: - UI Components
+    
+    private var viewModel: AdmissionsScheduleViewModel
+    
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
     private let mainStackView = UIStackView()
-
-    // MARK: - Initializer
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    private let scheduleStackView = UIStackView()
+    private let dDayStackView = UIStackView()
+    
+    init(viewModel: AdmissionsScheduleViewModel) {
+        self.viewModel = viewModel
+        super.init(frame: .zero)
         setupUI()
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
-    // MARK: - Private Methods
+    
+    // ViewModel 데이터로 UI를 업데이트
+    func updateUI(with data: AdmissionsScheduleData) {
+        // 1. 주요 일정 업데이트 (이 로직은 올바릅니다)
+        scheduleStackView.arrangedSubviews.dropFirst().forEach { $0.removeFromSuperview() } // 헤더 제외 삭제
+        if data.mainSchedule.isEmpty {
+            scheduleStackView.addArrangedSubview(createEmptyLabel("주요 입시 일정이 없습니다."))
+        } else {
+            data.mainSchedule.forEach { item in
+                scheduleStackView.addArrangedSubview(
+                    createScheduleItem(date: item.dateLabel, title: item.title, tag: item.tag, color: colorFromString(item.color))
+                )
+            }
+        }
+        
+        // 2. D-Day 알림 업데이트
+        // [수정] .dropFirst()를 제거해야 합니다.
+        dDayStackView.arrangedSubviews.forEach { $0.removeFromSuperview() } // 모든 자식 뷰 삭제
+        if data.dDayAlerts.isEmpty {
+            dDayStackView.addArrangedSubview(createEmptyLabel("D-Day 알림이 없습니다."))
+        } else {
+            data.dDayAlerts.forEach { item in
+                dDayStackView.addArrangedSubview(
+                    createDdayItem(dday: item.dDay, title: item.title, color: colorFromString(item.color))
+                )
+            }
+        }
+    }
+    
     private func setupUI() {
+        // 3. ⭐️ 스크롤뷰와 콘텐츠 뷰 설정
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
         mainStackView.axis = .vertical
         mainStackView.spacing = 20
-        self.addSubview(mainStackView)
+        
+        // 4. ⭐️ 뷰 계층: self > scrollView > contentView > mainStackView
+        self.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        contentView.addSubview(mainStackView)
+        
+        scheduleStackView.axis = .vertical
+        scheduleStackView.spacing = 12
+        dDayStackView.axis = .horizontal
+        dDayStackView.distribution = .fillEqually
+        dDayStackView.spacing = 12
         
         mainStackView.addArrangedSubview(createMainScheduleCard())
         mainStackView.addArrangedSubview(createDdayCard())
         
         setupLayout()
     }
-
+    
+    // 5. [수정] ⭐️ setupLayout 수정
     private func setupLayout() {
         NSLayoutConstraint.activate([
-            mainStackView.topAnchor.constraint(equalTo: self.topAnchor),
-            mainStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            mainStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            mainStackView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+            // 6. ⭐️ ScrollView: self(AdmissionsScheduleView)의 전체를 채움
+            scrollView.topAnchor.constraint(equalTo: self.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            
+            // 7. ⭐️ ContentView: ScrollView의 전체를 채움
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            
+            // 8. ⭐️ (중요) ContentView의 가로폭 = self의 가로폭 (세로 스크롤)
+            contentView.widthAnchor.constraint(equalTo: self.widthAnchor),
+            
+            // 9. ⭐️ mainStackView: ContentView의 전체를 채움 (패딩 20)
+            mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            mainStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            mainStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
         ])
     }
-
+    
     // MARK: - View Factory Methods
     
     private func createMainScheduleCard() -> CardView {
         let card = CardView()
         let header = createCardHeader(iconName: "calendar", title: "주요 입시 일정", subtitle: "놓치면 안 되는 중요한 날짜들")
         
-        let item1 = createScheduleItem(date: "9/15", title: "수시 원서접수 시작", tag: "접수", color: .systemBlue)
-        let item2 = createScheduleItem(date: "9/18", title: "서류 제출 마감", tag: "서류", color: .systemGreen)
-        let item3 = createScheduleItem(date: "10/15", title: "1차 합격자 발표", tag: "발표", color: .systemRed)
-        let item4 = createScheduleItem(date: "11/10", title: "면접 시험", tag: "면접", color: .systemPurple)
-        let item5 = createScheduleItem(date: "12/15", title: "최종 합격자 발표", tag: "발표", color: .systemRed)
+        scheduleStackView.addArrangedSubview(header)
         
-        let stack = UIStackView(arrangedSubviews: [header, item1, item2, item3, item4, item5])
-        stack.axis = .vertical
-        stack.spacing = 12
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        
-        card.addSubview(stack)
+        card.addSubview(scheduleStackView)
+        scheduleStackView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
-            stack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
-            stack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
+            scheduleStackView.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
+            scheduleStackView.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
+            scheduleStackView.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
+            scheduleStackView.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
         ])
-        
         return card
     }
     
@@ -76,14 +130,8 @@ class AdmissionsScheduleView: UIView {
         let card = CardView()
         let header = createCardHeader(iconName: nil, title: "D-Day 알림", subtitle: nil)
         
-        let ddayItem1 = createDdayItem(dday: "D-7", title: "수시 원서접수", color: .systemRed)
-        let ddayItem2 = createDdayItem(dday: "D-10", title: "서류 제출", color: .systemBlue)
-        
-        let itemStack = UIStackView(arrangedSubviews: [ddayItem1, ddayItem2])
-        itemStack.distribution = .fillEqually
-        itemStack.spacing = 12
-        
-        let mainStack = UIStackView(arrangedSubviews: [header, itemStack])
+        // D-Day 아이템은 dDayStackView가 관리
+        let mainStack = UIStackView(arrangedSubviews: [header, dDayStackView])
         mainStack.axis = .vertical
         mainStack.spacing = 16
         mainStack.translatesAutoresizingMaskIntoConstraints = false
@@ -95,11 +143,19 @@ class AdmissionsScheduleView: UIView {
             mainStack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
             mainStack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
         ])
-        
         return card
     }
-
+    
     // MARK: - Helper Methods
+    private func colorFromString(_ color: String) -> UIColor {
+        switch color {
+        case "red": return .systemRed
+        case "blue": return .systemBlue
+        case "green": return .systemGreen
+        case "purple": return .systemPurple
+        default: return .gray
+        }
+    }
     
     private func createCardHeader(iconName: String?, title: String, subtitle: String?) -> UIView {
         let titleLabel = UILabel()
@@ -144,7 +200,7 @@ class AdmissionsScheduleView: UIView {
         dateLabel.text = date
         dateLabel.font = .systemFont(ofSize: 14, weight: .semibold)
         dateLabel.widthAnchor.constraint(equalToConstant: 40).isActive = true
-
+        
         let titleLabel = UILabel()
         titleLabel.text = title
         titleLabel.font = .systemFont(ofSize: 16, weight: .medium)
@@ -222,5 +278,20 @@ class AdmissionsScheduleView: UIView {
         ])
         
         return container
+    }
+    
+    private func createEmptyLabel(_ text: String) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: 16)
+        label.textColor = .secondaryLabel // 내용이 없을 때 흐린 색상
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        
+        // 스택뷰가 이 라벨을 늘리지 않도록 높이를 적절히 잡아줍니다.
+        // D-Day 아이템(90)이나 Schedule 아이템(50)과 비슷한 높이를 줍니다.
+        label.heightAnchor.constraint(equalToConstant: 70).isActive = true
+        
+        return label
     }
 }

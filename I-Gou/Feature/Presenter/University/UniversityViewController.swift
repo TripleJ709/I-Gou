@@ -11,9 +11,42 @@ class UniversityViewController: UIViewController {
     
     private var universityView: UniversityView?
     private var activeViewController: UIViewController?
-    private lazy var myUniversitiesVC = MyUniversitiesViewController()
-    private lazy var admissionsNewsVC = AdmissionsNewsViewController()
-    private lazy var admissionsScheduleVC = AdmissionsScheduleViewController()
+    private let apiService = APIService()
+    private lazy var universityRepository: UniversityRepository = DefaultUniversityRepository(apiService: self.apiService)
+    
+    private lazy var myUniversitiesViewModel: MyUniversitiesViewModel = {
+        let fetchMyUniversitiesUseCase = FetchMyUniversitiesUseCase(repository: self.universityRepository)
+        let searchUseCase = SearchUniversitiesUseCase(repository: self.universityRepository)
+        let fetchDepartmentsUseCase = FetchDepartmentsUseCase(repository: self.universityRepository)
+        let saveMyUniversityUseCase = SaveMyUniversityUseCase(repository: self.universityRepository)
+        
+        let viewModel = MyUniversitiesViewModel(
+            fetchMyUniversitiesUseCase: fetchMyUniversitiesUseCase,
+            searchUseCase: searchUseCase,
+            fetchDepartmentsUseCase: fetchDepartmentsUseCase,
+            saveMyUniversityUseCase: saveMyUniversityUseCase
+        )
+        return viewModel
+    }()
+    
+    private lazy var myUniversitiesVC: MyUniversitiesViewController = {
+        let vc = MyUniversitiesViewController(viewModel: self.myUniversitiesViewModel)
+        return vc
+    }()
+    
+    private lazy var admissionsNewsVC: AdmissionsNewsViewController = {
+        let fetchNewsUseCase = FetchNewsUseCase(repository: self.universityRepository)
+        let viewModel = AdmissionsNewsViewModel(fetchNewsUseCase: fetchNewsUseCase)
+        let vc = AdmissionsNewsViewController(viewModel: viewModel)
+        return vc
+    }()
+    
+    private lazy var admissionsScheduleVC: AdmissionsScheduleViewController = {
+        let fetchUseCase = FetchAdmissionsScheduleUseCase(repository: self.universityRepository)
+        let viewModel = AdmissionsScheduleViewModel(fetchUseCase: fetchUseCase)
+        let vc = AdmissionsScheduleViewController(viewModel: viewModel)
+        return vc
+    }()
     
     override func loadView() {
         let view = UniversityView()
@@ -28,7 +61,6 @@ class UniversityViewController: UIViewController {
         displayChildController(myUniversitiesVC)
         setupKeyboardDismissal()
         setupAddButtonAction()
-        universityView?.keyboardDismissMode = .onDrag
     }
     
     private func setupKeyboardDismissal() {
@@ -105,7 +137,7 @@ class UniversityViewController: UIViewController {
     }
     
     @objc private func addFavoriteButtonTapped() {
-        let addVC = AddUniversityViewController()
+        let addVC = AddUniversityViewController(viewModel: self.myUniversitiesViewModel)
         
         let navController = UINavigationController(rootViewController: addVC)
         

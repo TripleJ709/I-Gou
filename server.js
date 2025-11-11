@@ -11,10 +11,14 @@ const db = require('./db')
 app.use(express.json());
 
 const JWT_SECRET = process.env.JWT_SECRET;
+const CAREERNET_API_KEY = process.env.CAREERNET_API_KEY;
+const DATA_GO_KR_API_KEY = process.env.DATA_GO_KR_API_KEY;
+const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID;
+const NAVER_CLIENT_SECRET = process.env.NAVER_CLIENT_SECRET;
 
 // -----------------------------------API라우트------------------------------------------- //
 
-let users = [{ id: 1, name: 'OOO', kakaoId: '12345' }];
+// let users = [{ id: 1, name: 'OOO', kakaoId: '12345' }];
 
 app.post('/api/auth/kakao', async (req, res) => {
     const { accessToken } = req.body; 
@@ -478,6 +482,353 @@ app.post('/api/reading', async (req, res) => {
     }
 });
 
+app.get('/api/university/schedule', async (req, res) => {
+    // 1. JWT 인증
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+
+        const sql = `
+            SELECT 
+                id, 
+                DATE_FORMAT(event_date, '%m/%d') AS dateLabel, 
+                title, 
+                tag, 
+                color,
+                DATEDIFF(event_date, CURDATE()) AS dDayNum
+            FROM 
+                common_schedules
+            WHERE 
+                event_date >= CURDATE()
+            ORDER BY 
+                event_date ASC;
+        `;
+        
+        const [rows] = await db.query(sql);
+
+        // 4. iOS 앱이 기대하는 JSON 구조로 가공
+        
+        // 4-1. '주요 입시 일정' 목록 생성
+        const mainSchedule = rows.map(row => ({
+            id: row.id,
+            dateLabel: row.dateLabel,
+            title: row.title,
+            tag: row.tag,
+            color: row.color
+        }));
+
+        // 4-2. 'D-Day 알림' 목록 생성 (가장 가까운 2개만 선택)
+        const dDayAlerts = rows
+            .filter(row => row.dDayNum >= 0) // D-Day가 0일 이상 남은 것만
+            .slice(0, 2) // 그 중 상위 2개만
+            .map(row => ({
+                id: row.id,
+                dDay: `D-${row.dDayNum}`,
+                title: row.title,
+                color: row.color
+            }));
+
+        // 5. 최종 데이터 조합하여 응답
+        const responseData = {
+            mainSchedule: mainSchedule,
+            dDayAlerts: dDayAlerts
+        };
+        
+        res.json(responseData);
+    } catch (error) {
+        // ... (JWT 에러 및 DB 에러 처리) ...
+        console.error("입시 일정 조회 중 오류:", error);
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+});
+
+app.get('/api/university/search', async (req, res) => {
+
+    // 1. JWT 인증 (공통)
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    // 2. iOS 앱에서 보낸 검색어(query)를 받습니다.
+    const { query } = req.query;
+    if (!query) {
+        return res.status(400).json({ message: '검색어(query)가 필요합니다.' });
+    }
+
+    // 3. data.go.kr '대학정보' API 호출 URL 및 파라미터 설정
+    
+    // ⚠️ [필수] 이 URL은 API 명세서의 '요청 URL' 또는 '엔드포인트'로 변경해야 합니다.
+    const apiUrl = 'http://openapi.academyinfo.go.kr/openapi/service/rest/SchoolInfoService/getSchoolInfo';
+    
+    const params = {
+        serviceKey: DATA_GO_KR_API_KEY, // 서비스키
+        pageNo: 1,
+        numOfRows: 20,                  // 20개 정도만
+        svyYr: '2023',                  // [수정] 명세서의 '조사년도' (필수)
+        sch1KrNm: query,                // [수정] 명세서의 '학교명' 검색어
+        type: 'json'                    // [가정] JSON 응답 요청
+    };
+
+    try {
+        jwt.verify(token, JWT_SECRET); // 토큰 유효성 검사
+
+        // 4. axios로 data.go.kr API를 호출합니다.
+        const response = await axios.get(apiUrl, { params });
+
+        // 5. 응답 데이터 가공
+        // (data.go.kr의 JSON 응답 구조는 복잡할 수 있습니다.)
+        // (가정: response.data.response.body.items.item)
+        const items = response.data.response.body.items.item || []; 
+        
+        const universities = items.map(item => {
+            return {
+                name: item.schNm,         // [수정] '학교명' (schNm)
+                location: item.postNoAdrs // [수정] '소재지도로명주소' (postNoAdrs)
+            };
+        });
+
+        // 6. 가공된 대학 목록을 iOS 앱에 전송
+        res.json(universities);
+
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') {
+                    return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
+                }
+                console.error("data.go.kr API 호출 중 오류:", error.message);
+                res.status(500).json({ message: '대학 정보 조회 중 서버 오류가 발생했습니다.' });
+    }
+});
+
+app.get('/api/university/departments', async (req, res) => {
+    
+    // 1. JWT 인증 (공통)
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    // 2. iOS 앱에서 보낸 검색어(대학 이름)를 받습니다.
+    const { univName } = req.query; 
+    if (!univName) {
+        return res.status(400).json({ message: '대학 이름(univName)이 필요합니다.' });
+    }
+
+    // 3. 커리어넷 API 호출 URL을 만듭니다.
+    const apiUrl = 'http://www.career.go.kr/cnet/openapi/getOpenApi.json';
+    const params = {
+        apiKey: CAREERNET_API_KEY,
+        svcType: 'api',      // API 타입 (고정)
+        svcCode: 'MAJOR',    // 서비스 코드 (학과정보)
+        contentType: 'json', // JSON 요청
+        gubun: 'univ_list',  // 'univ_list' (대학별 학과)
+        searchTitle: univName // iOS 앱에서 받은 대학 이름으로 검색
+    };
+
+    try {
+        jwt.verify(token, JWT_SECRET); // 토큰 유효성 검사
+
+        // 4. axios로 커리어넷 API를 호출합니다.
+        const response = await axios.get(apiUrl, { params });
+        
+        // 5. 응답 데이터 가공
+        // (커리어넷 응답 구조: response.data.dataSearch.content)
+        const departments = response.data.dataSearch.content.map(item => {
+            return {
+                schoolName: item.schoolName, // 대학명
+                majorName: item.majorName, // 학과명
+                majorSeq: item.majorSeq    // 학과 고유번호
+            };
+        });
+        
+        // 6. 가공된 학과 목록을 iOS 앱에 전송
+        res.json(departments);
+
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') {
+            return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
+        }
+        console.error("커리어넷 API 호출 중 오류:", error.message);
+        res.status(500).json({ message: '학과 정보 조회 중 서버 오류가 발생했습니다.' });
+    }
+});
+
+app.get('/api/university/news', async (req, res) => {
+
+    // 1. JWT 인증으로 사용자 ID 가져오기
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    let userId;
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        userId = decoded.userId; // 3. JWT에 userId가 있다고 가정
+    } catch (error) {
+        return res.status(401).json({ message: '유효하지 않은 토큰입니다.' });
+    }
+
+    try {
+        // 4. DB에서 '내 대학' 목록 가져오기
+        // (DB 테이블과 컬럼명은 실제에 맞게 수정 필요)
+        const [myUniversities] = await db.query(
+            'SELECT universityName FROM user_universities WHERE userId = ?', 
+            [userId]
+        );
+        
+        // 5. '내 대학' + '공통 키워드'로 전체 검색 목록 생성
+        const commonKeywords = ['입시', '수능', '대입'];
+        const userKeywords = myUniversities.map(uni => uni.universityName);
+        
+        // (예: ['서울대학교', '연세대학교', '입시', '수능', '대입'])
+        const allKeywords = [...userKeywords, ...commonKeywords];
+
+        // 6. 모든 키워드로 네이버 뉴스 API를 '병렬' 호출
+        const searchPromises = allKeywords.map(keyword => 
+            searchNaverNews(keyword)
+        );
+        const allResults = await Promise.all(searchPromises);
+
+        // 7. 모든 결과(2D 배열)를 1개의 배열로 합치기
+        const allItems = allResults.flat();
+
+        // 8. 'link' 기준으로 중복 제거 (중요)
+        const uniqueItems = Array.from(
+            new Map(allItems.map(item => [item.link, item])).values()
+        );
+
+        // 9. 최종 목록을 앱에 응답
+        res.json(uniqueItems);
+
+    } catch (error) {
+        console.error("뉴스 조회 중 오류:", error.message);
+        res.status(500).json({ message: '뉴스 조회 중 서버 오류가 발생했습니다.' });
+    }
+});
+
+// [신규] 네이버 뉴스 API 호출 헬퍼 함수
+async function searchNaverNews(query) {
+    const apiUrl = 'https://openapi.naver.com/v1/search/news.json';
+    
+    // [추가] 1. 서버 콘솔에 어떤 키워드를 검색하는지 출력
+    console.log(`[네이버 API] "${query} 입시" 키워드로 검색 시도...`);
+
+    try {
+        const response = await axios.get(apiUrl, {
+            params: {
+                query: query + " 입시",
+                display: 10, 
+                sort: 'sim'  
+            },
+            headers: {
+                'X-Naver-Client-Id': NAVER_CLIENT_ID,
+                'X-Naver-Client-Secret': NAVER_CLIENT_SECRET
+            }
+        });
+        
+        // [추가] 2. ⭐️ 성공 시, 네이버가 보낸 '원본 데이터'를 서버 콘솔에 출력
+        console.log(`[네이버 API] "${query}" 검색 성공:`, response.data);
+        
+        return response.data.items || [];
+
+    } catch (error) {
+        // [수정] 3. ⭐️ 실패 시, 네이버가 보낸 '에러 메시지'를 서버 콘솔에 자세히 출력
+        if (error.response) {
+            // 네이버 서버가 (401, 400, 500 등) 에러를 응답한 경우
+            console.error(`[네이버 API] "${query}" 검색 실패 (HTTP ${error.response.status}):`, error.response.data);
+        } else {
+            // 요청 자체가 실패한 경우 (예: 인터넷 연결)
+            console.error(`[네이버 API] "${query}" 요청 실패:`, error.message);
+        }
+        return []; // 실패 시 빈 배열 반환
+    }
+}
+
+app.get('/api/university/my', async (req, res) => {
+    // 1. JWT 인증
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId; // JWT에 userId가 있다고 가정
+
+        // 2. DB에서 이 사용자의 대학 목록 조회
+        const [rows] = await db.query(
+            'SELECT * FROM user_universities WHERE userId = ?',
+            [userId]
+        );
+        
+        // 3. iOS 앱의 'UniversityItem' 모델 형식에 맞게 키 이름을 변경
+        const myUniversities = rows.map(row => ({
+            id: row.id,
+            universityName: row.universityName,
+            department: row.department,
+            major: row.major || "",
+            myScore: row.myScore || 0,
+            requiredScore: row.requiredScore || 0,
+            deadline: row.deadline || "N/A",
+            status: row.status || "appropriate",
+            location: row.location || "",
+            competitionRate: row.competitionRate || ""
+        }));
+
+        res.json(myUniversities);
+
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') {
+            return res.status(401).json({ message: '유효하지 않은 토큰입니다.' });
+        }
+        console.error("'내 대학' 조회 중 DB 오류:", error);
+        res.status(500).json({ message: "서버 오류" });
+    }
+});
+
+//
+// [신규] '내 대학' 탭 - '관심 대학' 추가 (POST)
+// (AddUniversityViewController의 '완료' 버튼이 호출할 API)
+//
+app.post('/api/university/my', async (req, res) => {
+    // 1. JWT 인증
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    // 2. 앱에서 보낸 대학/학과 정보 받기
+    // (APIService.swift에서 이 형식으로 body를 보내야 함)
+    const { universityName, location, department, majorSeq } = req.body;
+    
+    if (!universityName || !department) {
+        return res.status(400).json({ message: '대학명과 학과명은 필수입니다.' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+
+        // 3. DB에 '내 대학' 정보 삽입
+        const [result] = await db.query(
+            `INSERT INTO user_universities 
+             (userId, universityName, location, department) 
+             VALUES (?, ?, ?, ?)`,
+            [userId, universityName, location, department]
+        );
+
+        res.status(201).json({ 
+            message: '대학 추가 성공', 
+            insertedId: result.insertId 
+        });
+
+    } catch (error) {
+         if (error.name === 'JsonWebTokenError') {
+            return res.status(401).json({ message: '유효하지 않은 토큰입니다.' });
+        }
+        console.error("'내 대학' 추가 중 DB 오류:", error);
+        res.status(500).json({ message: "서버 오류" });
+    }
+});
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`I-Gou 서버가 http://localhost:${port} 에서 실행 중입니다.`);

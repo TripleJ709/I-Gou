@@ -13,7 +13,6 @@
 		890E6D292E8012E80037EEB9 /* PlannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890E6D282E8012E80037EEB9 /* PlannerView.swift */; };
 		890E6D2B2E80130D0037EEB9 /* PlannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890E6D2A2E80130D0037EEB9 /* PlannerViewController.swift */; };
 		890E6D2E2E8013D70037EEB9 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890E6D2D2E8013D70037EEB9 /* CardView.swift */; };
-		890F087F2E951ACA00B47FCE /* UniversityItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890F087E2E951ACA00B47FCE /* UniversityItem.swift */; };
 		890F08822E951B4900B47FCE /* UniversityDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890F08812E951B4900B47FCE /* UniversityDetailViewController.swift */; };
 		890F08872E951EEB00B47FCE /* AddUniversityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890F08862E951EEB00B47FCE /* AddUniversityView.swift */; };
 		890F08892E951F1100B47FCE /* AddUniversityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 890F08882E951F1100B47FCE /* AddUniversityViewController.swift */; };
@@ -82,6 +81,15 @@
 		89CBA1B12E8265360075941D /* AdmissionNewsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBA1B02E8265360075941D /* AdmissionNewsViewController.swift */; };
 		89CBA1B42E82656E0075941D /* AdmissionScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBA1B32E82656E0075941D /* AdmissionScheduleView.swift */; };
 		89CBA1B62E82657F0075941D /* AdmissionScheduleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89CBA1B52E82657F0075941D /* AdmissionScheduleViewController.swift */; };
+		89FC03B52EC33D04004EB55F /* UniversityDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC03B42EC33D04004EB55F /* UniversityDataModel.swift */; };
+		89FC03B72EC33D99004EB55F /* UniversityRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC03B62EC33D99004EB55F /* UniversityRepository.swift */; };
+		89FC03B92EC33DC1004EB55F /* DefaultUniversityRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC03B82EC33DC1004EB55F /* DefaultUniversityRepository.swift */; };
+		89FC03BB2EC33E07004EB55F /* UniversityUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC03BA2EC33E07004EB55F /* UniversityUseCase.swift */; };
+		89FC03BD2EC33E5B004EB55F /* AdmissionSchedulViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC03BC2EC33E5B004EB55F /* AdmissionSchedulViewModel.swift */; };
+		89FC03BF2EC3637F004EB55F /* MyUniversitiesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC03BE2EC3637F004EB55F /* MyUniversitiesViewModel.swift */; };
+		89FC03C12EC38CB7004EB55F /* AdmissionsNewsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC03C02EC38CB7004EB55F /* AdmissionsNewsViewModel.swift */; };
+		89FC03C42EC39544004EB55F /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 89FC03C32EC39544004EB55F /* KeychainAccess */; };
+		89FC03C62EC39553004EB55F /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FC03C52EC39553004EB55F /* KeychainService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -91,7 +99,6 @@
 		890E6D282E8012E80037EEB9 /* PlannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlannerView.swift; sourceTree = "<group>"; };
 		890E6D2A2E80130D0037EEB9 /* PlannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlannerViewController.swift; sourceTree = "<group>"; };
 		890E6D2D2E8013D70037EEB9 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
-		890F087E2E951ACA00B47FCE /* UniversityItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityItem.swift; sourceTree = "<group>"; };
 		890F08812E951B4900B47FCE /* UniversityDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityDetailViewController.swift; sourceTree = "<group>"; };
 		890F08862E951EEB00B47FCE /* AddUniversityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddUniversityView.swift; sourceTree = "<group>"; };
 		890F08882E951F1100B47FCE /* AddUniversityViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddUniversityViewController.swift; sourceTree = "<group>"; };
@@ -160,6 +167,14 @@
 		89CBA1B02E8265360075941D /* AdmissionNewsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdmissionNewsViewController.swift; sourceTree = "<group>"; };
 		89CBA1B32E82656E0075941D /* AdmissionScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdmissionScheduleView.swift; sourceTree = "<group>"; };
 		89CBA1B52E82657F0075941D /* AdmissionScheduleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdmissionScheduleViewController.swift; sourceTree = "<group>"; };
+		89FC03B42EC33D04004EB55F /* UniversityDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityDataModel.swift; sourceTree = "<group>"; };
+		89FC03B62EC33D99004EB55F /* UniversityRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityRepository.swift; sourceTree = "<group>"; };
+		89FC03B82EC33DC1004EB55F /* DefaultUniversityRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultUniversityRepository.swift; sourceTree = "<group>"; };
+		89FC03BA2EC33E07004EB55F /* UniversityUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityUseCase.swift; sourceTree = "<group>"; };
+		89FC03BC2EC33E5B004EB55F /* AdmissionSchedulViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdmissionSchedulViewModel.swift; sourceTree = "<group>"; };
+		89FC03BE2EC3637F004EB55F /* MyUniversitiesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyUniversitiesViewModel.swift; sourceTree = "<group>"; };
+		89FC03C02EC38CB7004EB55F /* AdmissionsNewsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdmissionsNewsViewModel.swift; sourceTree = "<group>"; };
+		89FC03C52EC39553004EB55F /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -167,6 +182,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				89FC03C42EC39544004EB55F /* KeychainAccess in Frameworks */,
 				8956A74A2E9D4992004678F0 /* KakaoSDK in Frameworks */,
 				8956A74C2E9D4992004678F0 /* KakaoSDKAuth in Frameworks */,
 				8956A74E2E9D49BD004678F0 /* KakaoSDKUser in Frameworks */,
@@ -217,7 +233,7 @@
 			isa = PBXGroup;
 			children = (
 				89CBA1A72E8263860075941D /* MyUniversity */,
-				8997E9D72E8C25A100E572E7 /* UniversityNewsDetail */,
+				89CBA1AC2E8264C80075941D /* AdmissionsNews */,
 				89CBA1AD2E8264EC0075941D /* AdmissionSchedule */,
 			);
 			path = ChildView;
@@ -275,6 +291,7 @@
 				8956A75B2E9E4FF9004678F0 /* PlannerUseCase.swift */,
 				8926FC1E2EB09ED800C5CB80 /* GradeUseCase.swift */,
 				890F70EC2EC2246F0043F56A /* ExtraCurricularUseCase.swift */,
+				89FC03BA2EC33E07004EB55F /* UniversityUseCase.swift */,
 			);
 			path = UseCases;
 			sourceTree = "<group>";
@@ -285,6 +302,7 @@
 				8956A7532E9E4DCB004678F0 /* ScheduleRepository.swift */,
 				8926FC1C2EB09E6E00C5CB80 /* GradeRepository.swift */,
 				890F70EA2EC2243B0043F56A /* ExtraCurricularRepository.swift */,
+				89FC03B62EC33D99004EB55F /* UniversityRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -295,6 +313,7 @@
 				8956A7582E9E4F0D004678F0 /* DefaultSchedulRepository.swift */,
 				8926FC202EB09F1500C5CB80 /* DefaultGradeRepository.swift */,
 				890F70EE2EC224AD0043F56A /* DefaultExtraCurricularRepository.swift */,
+				89FC03B82EC33DC1004EB55F /* DefaultUniversityRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -338,6 +357,7 @@
 		896E3C042E7EFF4900AC49CF /* Application */ = {
 			isa = PBXGroup;
 			children = (
+				89FC03C52EC39553004EB55F /* KeychainService.swift */,
 				896E3C012E7EFF4900AC49CF /* AppDelegate.swift */,
 				896E3C032E7EFF4900AC49CF /* SceneDelegate.swift */,
 			);
@@ -467,9 +487,9 @@
 			children = (
 				8997E9D32E8BF6F900E572E7 /* HomeData.swift */,
 				8997E9E12E8C5A6500E572E7 /* PlannerData.swift */,
-				890F087E2E951ACA00B47FCE /* UniversityItem.swift */,
 				8926FC242EB0A1FA00C5CB80 /* GradeDataModel.swift */,
 				890F70E82EC223DC0043F56A /* ExtraCurricularData.swift */,
+				89FC03B42EC33D04004EB55F /* UniversityDataModel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -568,9 +588,9 @@
 		89CBA1A72E8263860075941D /* MyUniversity */ = {
 			isa = PBXGroup;
 			children = (
+				89FC03BE2EC3637F004EB55F /* MyUniversitiesViewModel.swift */,
 				89CBA1A82E82639E0075941D /* MyUniversitiesView.swift */,
 				89CBA1AA2E8264AC0075941D /* MyUniversitiesViewController.swift */,
-				89CBA1AC2E8264C80075941D /* AdmissionsNews */,
 			);
 			path = MyUniversity;
 			sourceTree = "<group>";
@@ -578,8 +598,10 @@
 		89CBA1AC2E8264C80075941D /* AdmissionsNews */ = {
 			isa = PBXGroup;
 			children = (
+				8997E9D72E8C25A100E572E7 /* UniversityNewsDetail */,
 				89CBA1AE2E8265270075941D /* AdmissionNewsView.swift */,
 				89CBA1B02E8265360075941D /* AdmissionNewsViewController.swift */,
+				89FC03C02EC38CB7004EB55F /* AdmissionsNewsViewModel.swift */,
 			);
 			path = AdmissionsNews;
 			sourceTree = "<group>";
@@ -589,6 +611,7 @@
 			children = (
 				89CBA1B32E82656E0075941D /* AdmissionScheduleView.swift */,
 				89CBA1B52E82657F0075941D /* AdmissionScheduleViewController.swift */,
+				89FC03BC2EC33E5B004EB55F /* AdmissionSchedulViewModel.swift */,
 			);
 			path = AdmissionSchedule;
 			sourceTree = "<group>";
@@ -613,6 +636,7 @@
 				8956A7492E9D4992004678F0 /* KakaoSDK */,
 				8956A74B2E9D4992004678F0 /* KakaoSDKAuth */,
 				8956A74D2E9D49BD004678F0 /* KakaoSDKUser */,
+				89FC03C32EC39544004EB55F /* KeychainAccess */,
 			);
 			productName = "I-Gou";
 			productReference = 896E3BD62E7ECFA200AC49CF /* I-Gou.app */;
@@ -644,6 +668,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				8956A7482E9D4992004678F0 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
+				89FC03C22EC39544004EB55F /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 896E3BD72E7ECFA200AC49CF /* Products */;
@@ -676,6 +701,7 @@
 				890F70ED2EC2246F0043F56A /* ExtraCurricularUseCase.swift in Sources */,
 				890F70F42EC2313A0043F56A /* AddActivityView.swift in Sources */,
 				8997E9CF2E8BE1B900E572E7 /* FaqView.swift in Sources */,
+				89FC03B92EC33DC1004EB55F /* DefaultUniversityRepository.swift in Sources */,
 				89C6275A2E80E6E100CAB833 /* GradeChart.swift in Sources */,
 				89C6276A2E811A3400CAB833 /* ExtraCurricularView.swift in Sources */,
 				8997E9CD2E8BE16F00E572E7 /* NotificationViewController.swift in Sources */,
@@ -689,7 +715,7 @@
 				8926FC232EB09F5000C5CB80 /* InternalGradeViewModel.swift in Sources */,
 				89C627662E80E9B600CAB833 /* InternalGradesView.swift in Sources */,
 				890F70EB2EC2243B0043F56A /* ExtraCurricularRepository.swift in Sources */,
-				890F087F2E951ACA00B47FCE /* UniversityItem.swift in Sources */,
+				89FC03BD2EC33E5B004EB55F /* AdmissionSchedulViewModel.swift in Sources */,
 				89C627612E80E8E000CAB833 /* ExtraCurricularViewController.swift in Sources */,
 				8997E9CB2E8BE16400E572E7 /* NotificationView.swift in Sources */,
 				8997E9DB2E8C25C800E572E7 /* UniversityNewsDetailViewController.swift in Sources */,
@@ -702,14 +728,17 @@
 				896E3C062E7EFF4900AC49CF /* AppDelegate.swift in Sources */,
 				89C627552E80E6B200CAB833 /* GradesViewController.swift in Sources */,
 				8997E9E22E8C5A6500E572E7 /* PlannerData.swift in Sources */,
+				89FC03BB2EC33E07004EB55F /* UniversityUseCase.swift in Sources */,
 				8997E9C52E8BDF8600E572E7 /* MyQuestionView.swift in Sources */,
 				890F70E92EC223DC0043F56A /* ExtraCurricularData.swift in Sources */,
+				89FC03C62EC39553004EB55F /* KeychainService.swift in Sources */,
 				8956A7502E9D4AA9004678F0 /* LoginViewController.swift in Sources */,
 				890F08872E951EEB00B47FCE /* AddUniversityView.swift in Sources */,
 				8956A75F2E9E5032004678F0 /* APIService.swift in Sources */,
 				8926FC1D2EB09E6E00C5CB80 /* GradeRepository.swift in Sources */,
 				890E6D252E7FF38D0037EEB9 /* HomeView.swift in Sources */,
 				8997E9E42E8C5A8000E572E7 /* PlannerViewModel.swift in Sources */,
+				89FC03C12EC38CB7004EB55F /* AdmissionsNewsViewModel.swift in Sources */,
 				8997E9D62E8BF9A100E572E7 /* HomeViewModel.swift in Sources */,
 				8956A7542E9E4DCB004678F0 /* ScheduleRepository.swift in Sources */,
 				8956A7422E9CCDF8004678F0 /* AddQuestionView.swift in Sources */,
@@ -717,9 +746,11 @@
 				890F08822E951B4900B47FCE /* UniversityDetailViewController.swift in Sources */,
 				8997E9DE2E8C4F2400E572E7 /* AddScheduleView.swift in Sources */,
 				8956A7592E9E4F0D004678F0 /* DefaultSchedulRepository.swift in Sources */,
+				89FC03B72EC33D99004EB55F /* UniversityRepository.swift in Sources */,
 				8997E9D12E8BE1C200E572E7 /* FaqViewController.swift in Sources */,
 				890E6D1F2E7FD8A60037EEB9 /* MainTabBarController.swift in Sources */,
 				89CBA1B42E82656E0075941D /* AdmissionScheduleView.swift in Sources */,
+				89FC03BF2EC3637F004EB55F /* MyUniversitiesViewModel.swift in Sources */,
 				890F70F12EC224E50043F56A /* ExtraCurricularViewModel.swift in Sources */,
 				89C627572E80E6BB00CAB833 /* GradesView.swift in Sources */,
 				8926FC1F2EB09ED800C5CB80 /* GradeUseCase.swift in Sources */,
@@ -728,6 +759,7 @@
 				890E6D2B2E80130D0037EEB9 /* PlannerViewController.swift in Sources */,
 				897667902E9382D6009ECEFC /* AddGradeViewController.swift in Sources */,
 				89C6275D2E80E8B100CAB833 /* InternalGradesViewController.swift in Sources */,
+				89FC03B52EC33D04004EB55F /* UniversityDataModel.swift in Sources */,
 				896E3C072E7EFF4900AC49CF /* SceneDelegate.swift in Sources */,
 				890F70E72EC1DD970043F56A /* MockExamViewModel.swift in Sources */,
 				89C627682E8118CE00CAB833 /* MockExamView.swift in Sources */,
@@ -980,6 +1012,14 @@
 				minimumVersion = 2.25.0;
 			};
 		};
+		89FC03C22EC39544004EB55F /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -997,6 +1037,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8956A7482E9D4992004678F0 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */;
 			productName = KakaoSDKUser;
+		};
+		89FC03C32EC39544004EB55F /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 89FC03C22EC39544004EB55F /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

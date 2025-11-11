@@ -264,4 +264,140 @@ class APIService {
             throw URLError(.badServerResponse)
         }
     }
+    
+    // [신규] 입시 일정 조회
+    func fetchAdmissionsSchedule() async throws -> AdmissionsScheduleData {
+        guard let url = URL(string: "\(baseUrl)/university/schedule") else {
+            throw URLError(.badURL)
+        }
+        var request = URLRequest(url: url)
+        addAuthHeader(to: &request) // JWT 추가
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        return try JSONDecoder().decode(AdmissionsScheduleData.self, from: data)
+    }
+    
+    func searchUniversities(query: String) async throws -> [UniversitySearchResult] {
+        guard let url = URL(string: "http://localhost:3000/api/university/search") else {
+            throw URLError(.badURL)
+        }
+        
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
+        components.queryItems = [URLQueryItem(name: "query", value: query)]
+        
+        let request = createRequest(with: components.url!) // 4. JWT 헤더 포함
+        
+        let (data, _) = try await URLSession.shared.data(for: request)
+        return try JSONDecoder().decode([UniversitySearchResult].self, from: data)
+    }
+    
+    // 5. [추가] 학과 검색 API 호출 함수
+    func fetchDepartments(univName: String) async throws -> [DepartmentSearchResult] {
+        guard let url = URL(string: "http://localhost:3000/api/university/departments") else {
+            throw URLError(.badURL)
+        }
+        
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
+        components.queryItems = [URLQueryItem(name: "univName", value: univName)]
+        
+        let request = createRequest(with: components.url!) // 4. JWT 헤더 포함
+        
+        let (data, _) = try await URLSession.shared.data(for: request)
+        return try JSONDecoder().decode([DepartmentSearchResult].self, from: data)
+    }
+    
+    func fetchMyUniversities() async throws -> [UniversityItem] {
+        // 3. 백엔드에 새로 만들 '내 대학' 목록 API 엔드포인트
+        guard let url = URL(string: "http://localhost:3000/api/university/my") else {
+            throw URLError(.badURL)
+        }
+        
+        // 4. JWT 토큰을 포함한 요청 생성
+        let request = createRequest(with: url)
+        
+        let (data, _) = try await URLSession.shared.data(for: request)
+        
+        // 5. 서버에서 받은 '내 대학' 목록(JSON)을 'UniversityItem' 배열로 디코딩
+        return try JSONDecoder().decode([UniversityItem].self, from: data)
+    }
+    
+    // 4. [추가] '입시 소식' 탭 - 뉴스 API 호출 함수
+    func fetchNews() async throws -> [NewsItem] {
+        guard let url = URL(string: "http://localhost:3000/api/university/news") else {
+            throw URLError(.badURL)
+        }
+        
+        let request = createRequest(with: url)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        // [추가] 1. ⭐️ 서버에서 받은 원본 데이터를 Xcode 콘솔에 출력
+        if let dataString = String(data: data, encoding: .utf8) {
+            print("--- ⭐️ [APIService] /api/university/news가 받은 원본 데이터 ⭐️ ---")
+            print(dataString)
+            print("-------------------------------------------------------------")
+        }
+        
+        // [추가] 2. ⭐️ HTTP 상태 코드도 확인 (200이 아닐 경우)
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+            print("🚨 [APIService] 서버가 200 OK가 아닌 상태 코드 반환: \(httpResponse.statusCode)")
+            throw URLError(.badServerResponse)
+        }
+        
+        do {
+            // 3. 디코딩 시도
+            return try JSONDecoder().decode([NewsItem].self, from: data)
+        } catch {
+            // 4. ⭐️ 디코딩 실패 시, '정확한' 에러 사유를 출력
+            print("🚨🚨🚨 [APIService] 'NewsItem' 디코딩 실패! 🚨🚨🚨")
+            print("에러: \(error)")
+            throw error // 에러를 ViewModel로 다시 던짐
+        }
+    }
+    
+    func saveMyUniversity(university: UniversitySearchResult, department: DepartmentSearchResult) async throws -> SaveUniversityResponse {
+        
+        guard let url = URL(string: "http://localhost:3000/api/university/my") else {
+            throw URLError(.badURL)
+        }
+        
+        // 4. 서버로 보낼 Request Body 객체 생성
+        let body = SaveUniversityRequest(
+            universityName: university.name,
+            location: university.location,
+            department: department.majorName,
+            majorSeq: department.majorSeq
+        )
+        
+        // 5. POST 요청 생성
+        var request = createRequest(with: url) // createRequest가 JWT 헤더를 넣어준다고 가정
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(body) // body를 JSON으로 인코딩
+        
+        let (data, _) = try await URLSession.shared.data(for: request)
+        
+        return try JSONDecoder().decode(SaveUniversityResponse.self, from: data)
+    }
+    
+    // 6. [추가] JWT 토큰을 포함한 URLRequest 생성 헬퍼
+    // (이 함수가 이미 있다면, 기존 함수를 재사용하세요)
+    private func createRequest(with url: URL) -> URLRequest {
+        var request = URLRequest(url: url)
+        
+        // 1. [수정] 키체인 서비스에서 저장된 토큰을 가져옵니다.
+        //    토큰이 없으면 빈 문자열("")이 됩니다.
+        let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc2Mjg3NzU4NiwiZXhwIjoxNzYyODgxMTg2fQ.Vd1_MONlF0iaspScn6KGYJXiiCJDFvsUv9hTWb860HQ"
+        
+        // 2. [수정] "YOUR_JWT_TOKEN" 대신 실제 토큰을 헤더에 삽입
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        // 3. (POST 요청을 위해) httpMethod 설정은 여기서 제거합니다.
+        // request.httpMethod = "GET"  <-- 이 줄 삭제
+        
+        return request
+    }
 }
