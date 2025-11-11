@@ -7,14 +7,31 @@
 
 import UIKit
 
+protocol ExtraCurricularViewDelegate: AnyObject {
+    func didTapAddActivity()
+    func didTapAddReading()
+}
+
 class ExtraCurricularView: UIView {
+    
+    private var viewModel: ExtraCurricularViewModel
+    weak var delegate: ExtraCurricularViewDelegate?
     
     // MARK: - UI Components
     private let mainStackView = UIStackView()
     
+    // [수정] 각 카드 내부의 콘텐츠 스택뷰
+    private let activitiesStackView = UIStackView()
+    private let readingStatsStackView = UIStackView()
+    private let readingListStackView = UIStackView()
+    
+    private let addActivityButton = ExtraCurricularView.createAddButton(title: "+ 활동 추가하기")
+    private let addReadingButton = ExtraCurricularView.createAddButton(title: "+ 독서 기록 추가")
+
     // MARK: - Initializer
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(viewModel: ExtraCurricularViewModel) {
+        self.viewModel = viewModel
+        super.init(frame: .zero)
         setupUI()
     }
     
@@ -22,16 +39,77 @@ class ExtraCurricularView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // [수정] ViewModel 데이터로 UI를 업데이트하는 함수
+    func updateUI(with data: ExtraCurricularData) {
+        
+        // --- 1. 창의적 체험활동 업데이트 ---
+        // activitiesStackView에서 헤더(첫 번째)와 버튼(마지막)을 제외한 모든 것을 제거
+        let activityContent = activitiesStackView.arrangedSubviews.dropFirst().dropLast()
+        activityContent.forEach { $0.removeFromSuperview() }
+
+        if data.activities.isEmpty {
+            let emptyLabel = ExtraCurricularView.createEmptyLabel("활동 내역이 없습니다.")
+            activitiesStackView.insertArrangedSubview(emptyLabel, at: 1) // 헤더 뒤에 추가
+        } else {
+            var index = 1
+            data.activities.forEach { activity in
+                let itemView = ExtraCurricularView.createActivityItem(title: activity.type, category: "총 시간", hours: "\(activity.totalHours)시간")
+                activitiesStackView.insertArrangedSubview(itemView, at: index)
+                index += 1
+            }
+        }
+        
+        // --- 2. 독서 활동 통계 업데이트 ---
+        readingStatsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        let readCount = ExtraCurricularView.createStatusItem(value: "\(data.readingStats.totalBooks)", label: "읽은 책")
+        let reportCount = ExtraCurricularView.createStatusItem(value: "\(data.readingStats.totalReports)", label: "독서 감상문")
+        readingStatsStackView.addArrangedSubview(readCount)
+        readingStatsStackView.addArrangedSubview(reportCount)
+        
+        // --- 3. 독서 목록 업데이트 ---
+        // readingListStackView에서 헤더(첫 번째), 통계(두 번째), 버튼(마지막)을 제외하고 모두 제거
+        let readingContent = readingListStackView.arrangedSubviews.dropFirst(2).dropLast()
+        readingContent.forEach { $0.removeFromSuperview() }
+
+        if data.readingList.isEmpty {
+            readingListStackView.insertArrangedSubview(ExtraCurricularView.createEmptyLabel("독서 기록이 없습니다."), at: 2) // 헤더, 통계 뒤에 추가
+        } else {
+            var index = 2
+            data.readingList.forEach { book in
+                let itemView = ExtraCurricularView.createBookLogItem(title: book.title, details: "\(book.author ?? "") | \(book.readDate ?? "")")
+                readingListStackView.insertArrangedSubview(itemView, at: index)
+                index += 1
+            }
+        }
+    }
+    
     // MARK: - Private Methods
     private func setupUI() {
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
         mainStackView.axis = .vertical
         mainStackView.spacing = 20
-        
         self.addSubview(mainStackView)
         
+        // [수정] 스택뷰 기본 설정을 create...Card 함수 내부로 이동하거나 여기서 설정
+        activitiesStackView.axis = .vertical
+        activitiesStackView.spacing = 12
+        activitiesStackView.translatesAutoresizingMaskIntoConstraints = false // Auto Layout 명시
+
+        readingStatsStackView.distribution = .fillEqually
+        readingStatsStackView.spacing = 12
+        readingStatsStackView.translatesAutoresizingMaskIntoConstraints = false
+
+        readingListStackView.axis = .vertical
+        readingListStackView.spacing = 12
+        readingListStackView.translatesAutoresizingMaskIntoConstraints = false
+
+        // 각 카드 생성
         mainStackView.addArrangedSubview(createCreativeActivitiesCard())
         mainStackView.addArrangedSubview(createReadingActivitiesCard())
+        
+        // 버튼 액션 연결
+        addActivityButton.addTarget(self, action: #selector(addActivityTapped), for: .touchUpInside)
+        addReadingButton.addTarget(self, action: #selector(addReadingTapped), for: .touchUpInside)
         
         setupLayout()
     }
@@ -49,60 +127,78 @@ class ExtraCurricularView: UIView {
     
     private func createCreativeActivitiesCard() -> CardView {
         let card = CardView()
-        let header = createCardHeader(iconName: "figure.walk", title: "창의적 체험활동", subtitle: "봉사활동, 동아리, 진로활동 현황")
+        let header = ExtraCurricularView.createCardHeader(iconName: "figure.walk", title: "창의적 체험활동", subtitle: "봉사활동, 동아리, 진로활동 현황")
         
-        let item1 = createActivityItem(title: "학생회 활동", category: "자율활동", hours: "45시간")
-        let item2 = createActivityItem(title: "과학실험동아리", category: "동아리활동", hours: "32시간")
-        let item3 = createActivityItem(title: "사회복지관 봉사", category: "봉사활동", hours: "24시간")
-        let item4 = createActivityItem(title: "진로탐색 프로그램", category: "진로활동", hours: "18시간")
+        // [수정] activitiesStackView에 헤더와 버튼을 미리 추가
+        activitiesStackView.addArrangedSubview(header)
+        activitiesStackView.addArrangedSubview(addActivityButton)
         
-        let stack = UIStackView(arrangedSubviews: [header, item1, item2, item3, item4])
-        stack.axis = .vertical
-        stack.spacing = 12
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        
-        card.addSubview(stack)
+        card.addSubview(activitiesStackView)
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
-            stack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
-            stack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
+            activitiesStackView.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
+            activitiesStackView.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
+            activitiesStackView.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
+            activitiesStackView.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
         ])
         return card
     }
     
     private func createReadingActivitiesCard() -> CardView {
         let card = CardView()
-        let header = createCardHeader(iconName: "book.closed.fill", title: "독서 활동", subtitle: nil)
+        let header = ExtraCurricularView.createCardHeader(iconName: "book.closed.fill", title: "독서 활동", subtitle: nil)
         
-        let readCount = createStatusItem(value: "24", label: "읽은 책")
-        let reportCount = createStatusItem(value: "12", label: "독서 감상문")
+        // [수정] readingListStackView에 헤더, 통계 뷰, 버튼을 미리 추가
+        readingListStackView.addArrangedSubview(header)
+        readingListStackView.addArrangedSubview(readingStatsStackView)
+        readingListStackView.addArrangedSubview(addReadingButton)
         
-        let summaryStack = UIStackView(arrangedSubviews: [readCount, reportCount])
-        summaryStack.distribution = .fillEqually
-        summaryStack.spacing = 12
-        
-        let book1 = createBookLogItem(title: "사피엔스", details: "유발 하라리 | 2024.09.01")
-        let book2 = createBookLogItem(title: "코스모스", details: "칼 세이건 | 2024.08.15")
-        
-        let mainStack = UIStackView(arrangedSubviews: [header, summaryStack, book1, book2])
-        mainStack.axis = .vertical
-        mainStack.spacing = 16
-        mainStack.translatesAutoresizingMaskIntoConstraints = false
-        
-        card.addSubview(mainStack)
+        card.addSubview(readingListStackView)
         NSLayoutConstraint.activate([
-            mainStack.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
-            mainStack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
-            mainStack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
-            mainStack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
+            readingListStackView.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
+            readingListStackView.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
+            readingListStackView.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
+            readingListStackView.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
         ])
         return card
     }
     
-    // MARK: - Helper Methods
+    // MARK: - @objc Methods
     
-    private func createCardHeader(iconName: String, title: String, subtitle: String?) -> UIView {
+    @objc private func addActivityTapped() {
+        delegate?.didTapAddActivity()
+    }
+    
+    @objc private func addReadingTapped() {
+        delegate?.didTapAddReading()
+    }
+    
+    // MARK: - Helper Methods (static으로 변경)
+    
+    // [수정] static으로 변경
+    private static func createAddButton(title: String) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(title, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .semibold)
+        button.tintColor = .systemGray
+        button.backgroundColor = .systemGray6
+        button.layer.cornerRadius = 10
+        button.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        return button
+    }
+    
+    // [수정] static으로 변경
+    private static func createEmptyLabel(_ text: String) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.font = .systemFont(ofSize: 15)
+        label.textColor = .gray
+        label.textAlignment = .center
+        label.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        return label
+    }
+    
+    // [수정] static으로 변경
+    private static func createCardHeader(iconName: String, title: String, subtitle: String?) -> UIView {
         let iconImageView = UIImageView(image: UIImage(systemName: iconName))
         iconImageView.tintColor = .label
         
@@ -140,7 +236,8 @@ class ExtraCurricularView: UIView {
         return mainStack
     }
     
-    private func createActivityItem(title: String, category: String, hours: String) -> UIView {
+    // [수정] static으로 변경
+    private static func createActivityItem(title: String, category: String, hours: String) -> UIView {
         let container = UIView()
         container.backgroundColor = .systemGray6
         container.layer.cornerRadius = 10
@@ -178,7 +275,8 @@ class ExtraCurricularView: UIView {
         return container
     }
     
-    private func createStatusItem(value: String, label: String) -> UIView {
+    // [수정] static으로 변경
+    private static func createStatusItem(value: String, label: String) -> UIView {
         let container = UIView()
         container.backgroundColor = .systemGray6
         container.layer.cornerRadius = 10
@@ -209,7 +307,8 @@ class ExtraCurricularView: UIView {
         return container
     }
     
-    private func createBookLogItem(title: String, details: String) -> UIView {
+    // [수정] static으로 변경
+    private static func createBookLogItem(title: String, details: String) -> UIView {
         let container = UIView()
         container.backgroundColor = .systemGray6
         container.layer.cornerRadius = 10

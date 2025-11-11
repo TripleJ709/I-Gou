@@ -350,6 +350,134 @@ app.get('/api/grades/mock/recent', async (req, res) => {
     }
 });
 
+// [신규] 비교과 탭 전체 데이터 조회 API
+app.get('/api/extracurricular', async (req, res) => {
+    // 1. JWT 토큰으로 사용자 인증
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+
+        // 2. 창의적 체험활동 조회 (유형별 시간 합계)
+        const [activityStats] = await db.query(
+            'SELECT type, SUM(hours) as totalHours FROM activities WHERE user_id = ? GROUP BY type',
+            [userId]
+        );
+        
+        // 3. 독서 활동 통계 조회 (읽은 책, 감상문 개수)
+        const [readingStatsResult] = await db.query(
+            'SELECT COUNT(*) as totalBooks, COALESCE(SUM(has_report = 1), 0) as totalReports FROM reading_activities WHERE user_id = ?',
+            [userId]
+        );
+        
+        // 4. 최근 독서 목록 조회
+        const [readingList] = await db.query(
+            'SELECT title, author, DATE_FORMAT(read_date, "%Y.%m.%d") as readDate FROM reading_activities WHERE user_id = ? ORDER BY read_date DESC LIMIT 2',
+            [userId]
+        );
+
+        // --- [⭐️ 핵심 수정 ⭐️] ---
+        // 5. 데이터 조합 및 타입 변환
+        
+        // DB에서 가져온 값이 문자열("0")일 수 있으므로, parseInt를 사용해 숫자로 변환합니다.
+        let readingStats = { totalBooks: 0, totalReports: 0 }; // 기본값
+        if (readingStatsResult[0]) {
+            readingStats = {
+                totalBooks: parseInt(readingStatsResult[0].totalBooks, 10),
+                totalReports: parseInt(readingStatsResult[0].totalReports, 10)
+            };
+        }
+        
+        // totalHours도 문자열일 수 있으므로 숫자로 변환합니다.
+        const formattedActivities = activityStats.map(activity => ({
+            type: activity.type,
+            totalHours: parseInt(activity.totalHours, 10)
+        }));
+
+        const responseData = {
+            activities: formattedActivities, // 숫자로 변환된 데이터
+            readingStats: readingStats,      // 숫자로 변환된 데이터
+            readingList: readingList
+        };
+        // --- [수정 끝] ---
+        
+        res.json(responseData);
+
+    } catch (error) {
+        // 6. 에러 처리
+        if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+            return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
+        }
+        console.error("비교과 데이터 조회 중 DB 오류:", error);
+        res.status(500).json({ message: '비교과 데이터 조회 중 서버 오류가 발생했습니다.' });
+    }
+});
+
+// [신규] 창의적 체험활동 추가 API
+app.post('/api/activities', async (req, res) => {
+    // 1. JWT 토큰으로 사용자 인증
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+        
+        // 2. iOS 앱이 보낸 데이터
+        const { type, title, hours, activityDate } = req.body;
+        
+        // 3. DB에 INSERT
+        await db.query(
+            'INSERT INTO activities (user_id, type, title, hours, activity_date) VALUES (?, ?, ?, ?, ?)',
+            [userId, type, title, hours, activityDate] // activityDate는 'YYYY-MM-DD' 형식이어야 함
+        );
+        res.status(201).json({ message: "활동이 추가되었습니다." });
+
+    } catch (error) {
+        // 4. 에러 처리
+         if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+            return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
+        }
+        console.error("활동 추가 중 DB 오류:", error);
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+});
+
+// [신규] 독서 활동 추가 API
+app.post('/api/reading', async (req, res) => {
+    // 1. JWT 토큰으로 사용자 인증
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+        
+        // 2. iOS 앱이 보낸 데이터
+        const { title, author, readDate, hasReport } = req.body;
+        
+        // 3. DB에 INSERT
+        await db.query(
+            'INSERT INTO reading_activities (user_id, title, author, read_date, has_report) VALUES (?, ?, ?, ?, ?)',
+            [userId, title, author, readDate, hasReport]
+        );
+        res.status(201).json({ message: "독서 기록이 추가되었습니다." });
+
+    } catch (error) {
+        // 4. 에러 처리
+         if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+            return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
+        }
+        console.error("독서 기록 추가 중 DB 오류:", error);
+        res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    }
+});
+
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`I-Gou 서버가 http://localhost:${port} 에서 실행 중입니다.`);

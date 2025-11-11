@@ -203,16 +203,65 @@ class APIService {
     }
     
     func fetchMockRecentResults() async throws -> [MockExamRecentResult] {
-            guard let url = URL(string: "\(baseUrl)/grades/mock/recent") else {
-                throw URLError(.badURL)
-            }
-            var request = URLRequest(url: url)
-            addAuthHeader(to: &request) // JWT 추가
-
-            let (data, response) = try await URLSession.shared.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                throw URLError(.badServerResponse)
-            }
-            return try JSONDecoder().decode([MockExamRecentResult].self, from: data)
+        guard let url = URL(string: "\(baseUrl)/grades/mock/recent") else {
+            throw URLError(.badURL)
         }
+        var request = URLRequest(url: url)
+        addAuthHeader(to: &request) // JWT 추가
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        return try JSONDecoder().decode([MockExamRecentResult].self, from: data)
+    }
+    
+    func fetchExtraCurricularData() async throws -> ExtraCurricularData {
+        guard let url = URL(string: "\(baseUrl)/extracurricular") else {
+            throw URLError(.badURL)
+        }
+        var request = URLRequest(url: url)
+        addAuthHeader(to: &request) // JWT 추가
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        return try JSONDecoder().decode(ExtraCurricularData.self, from: data)
+    }
+    
+    func addActivity(requestBody: AddActivityRequest) async throws {
+        guard let url = URL(string: "\(baseUrl)/activities") else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        addAuthHeader(to: &request)
+        request.httpBody = try JSONEncoder().encode(requestBody)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 201 else {
+            throw URLError(.badServerResponse)
+        }
+    }
+    
+    // [신규] 독서 기록 추가
+    func addReading(requestBody: AddReadingRequest) async throws {
+        guard let url = URL(string: "\(baseUrl)/reading") else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        addAuthHeader(to: &request)
+        request.httpBody = try JSONEncoder().encode(requestBody)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 201 else {
+            throw URLError(.badServerResponse)
+        }
+    }
 }
