@@ -11,18 +11,14 @@ import Combine
 @MainActor
 class MyUniversitiesViewModel: ObservableObject {
     
-    // [추가] 1. '내 대학' 목록을 게시(Publish)
     @Published var myUniversities: [UniversityItem] = []
-    
-    // (기존) '검색' 관련
     @Published var searchResults: [UniversitySearchResult] = []
     @Published var departmentResults: [DepartmentSearchResult] = []
-    
     @Published var isLoading = false
     @Published var errorMessage: String?
     
     let didSaveUniversity = PassthroughSubject<Void, Never>()
-    
+    private var allDepartments: [DepartmentSearchResult] = []
     private let fetchMyUniversitiesUseCase: FetchMyUniversitiesUseCase
     private let searchUseCase: SearchUniversitiesUseCase
     private let fetchDepartmentsUseCase: FetchDepartmentsUseCase
@@ -32,12 +28,12 @@ class MyUniversitiesViewModel: ObservableObject {
         fetchMyUniversitiesUseCase: FetchMyUniversitiesUseCase,
         searchUseCase: SearchUniversitiesUseCase,
         fetchDepartmentsUseCase: FetchDepartmentsUseCase,
-        saveMyUniversityUseCase: SaveMyUniversityUseCase // [추가]
+        saveMyUniversityUseCase: SaveMyUniversityUseCase
     ) {
         self.fetchMyUniversitiesUseCase = fetchMyUniversitiesUseCase
         self.searchUseCase = searchUseCase
         self.fetchDepartmentsUseCase = fetchDepartmentsUseCase
-        self.saveMyUniversityUseCase = saveMyUniversityUseCase // [추가]
+        self.saveMyUniversityUseCase = saveMyUniversityUseCase
     }
     
     // [추가] 4. '내 대학' 목록을 불러오는 함수 (VC가 호출)
@@ -84,15 +80,29 @@ class MyUniversitiesViewModel: ObservableObject {
         Task {
             defer { isLoading = false }
             do {
-                self.departmentResults = try await fetchDepartmentsUseCase.execute(univName: university.name)
+                let departments = try await fetchDepartmentsUseCase.execute(univName: university.name)
+                
+                // [수정] 2. 전체 목록과 표시 목록 모두 업데이트
+                self.allDepartments = departments
+                self.departmentResults = departments
+                
             } catch {
                 self.errorMessage = "학과 검색에 실패했습니다."
             }
         }
     }
     
+    func filterDepartments(query: String) {
+        if query.isEmpty {
+            self.departmentResults = self.allDepartments
+        } else {
+            self.departmentResults = self.allDepartments.filter {
+                $0.majorName.localizedCaseInsensitiveContains(query)
+            }
+        }
+    }
+    
     func saveMyUniversity(university: UniversitySearchResult, department: DepartmentSearchResult) {
-        // (AddUniversityVC에서 이 isLoading을 구독해서 로딩 인디케이터 표시)
         isLoading = true
         errorMessage = nil
         
@@ -100,8 +110,6 @@ class MyUniversitiesViewModel: ObservableObject {
             defer { isLoading = false }
             do {
                 try await saveMyUniversityUseCase.execute(university: university, department: department)
-                
-                // [추가] 6. 저장 성공! '내 대학' 탭(MyUniversitiesVC)에 새로고침 신호 전송
                 didSaveUniversity.send()
                 
             } catch {

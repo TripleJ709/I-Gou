@@ -11,24 +11,27 @@ class UniversityViewController: UIViewController {
     
     private var universityView: UniversityView?
     private var activeViewController: UIViewController?
+    
+    // 1. 공통 의존성 (API Service, Repository)
     private let apiService = APIService()
     private lazy var universityRepository: UniversityRepository = DefaultUniversityRepository(apiService: self.apiService)
     
+    // 2. [수정] ViewModel을 UniversityViewController의 프로퍼티로 선언 (공유 목적)
     private lazy var myUniversitiesViewModel: MyUniversitiesViewModel = {
         let fetchMyUniversitiesUseCase = FetchMyUniversitiesUseCase(repository: self.universityRepository)
         let searchUseCase = SearchUniversitiesUseCase(repository: self.universityRepository)
         let fetchDepartmentsUseCase = FetchDepartmentsUseCase(repository: self.universityRepository)
         let saveMyUniversityUseCase = SaveMyUniversityUseCase(repository: self.universityRepository)
         
-        let viewModel = MyUniversitiesViewModel(
+        return MyUniversitiesViewModel(
             fetchMyUniversitiesUseCase: fetchMyUniversitiesUseCase,
             searchUseCase: searchUseCase,
             fetchDepartmentsUseCase: fetchDepartmentsUseCase,
             saveMyUniversityUseCase: saveMyUniversityUseCase
         )
-        return viewModel
     }()
     
+    // 3. [수정] myUniversitiesVC는 위에서 만든 myUniversitiesViewModel을 사용
     private lazy var myUniversitiesVC: MyUniversitiesViewController = {
         let vc = MyUniversitiesViewController(viewModel: self.myUniversitiesViewModel)
         return vc
@@ -61,6 +64,7 @@ class UniversityViewController: UIViewController {
         displayChildController(myUniversitiesVC)
         setupKeyboardDismissal()
         setupAddButtonAction()
+        // [삭제] universityView?.keyboardDismissMode = .onDrag (UniversityView 수정으로 인해 삭제 필요)
     }
     
     private func setupKeyboardDismissal() {
@@ -137,6 +141,7 @@ class UniversityViewController: UIViewController {
     }
     
     @objc private func addFavoriteButtonTapped() {
+        // [수정] 4. AddUniversityViewController 생성 시 공유된 viewModel 주입
         let addVC = AddUniversityViewController(viewModel: self.myUniversitiesViewModel)
         
         let navController = UINavigationController(rootViewController: addVC)

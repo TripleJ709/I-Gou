@@ -3,6 +3,9 @@ require('dotenv').config();
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
+const fs = require('fs');
+const csv = require('csv-parser');
+const iconv = require('iconv-lite'); // 한글 깨짐 방지
 const app = express();
 const port = 3000;
 
@@ -16,6 +19,7 @@ const DATA_GO_KR_API_KEY = process.env.DATA_GO_KR_API_KEY;
 const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID;
 const NAVER_CLIENT_SECRET = process.env.NAVER_CLIENT_SECRET;
 
+let allUniversities = [];
 // -----------------------------------API라우트------------------------------------------- //
 
 // let users = [{ id: 1, name: 'OOO', kakaoId: '12345' }];
@@ -49,7 +53,7 @@ app.post('/api/auth/kakao', async (req, res) => {
             user = newRows[0];
         }
 
-        const appToken = jwt.sign({ userId: user.user_id }, JWT_SECRET, { expiresIn: '1h' });
+        const appToken = jwt.sign({ userId: user.user_id }, JWT_SECRET, { expiresIn: '365d' });
         res.status(200).json({ token: appToken });
 
     } catch (error) {
@@ -545,112 +549,129 @@ app.get('/api/university/schedule', async (req, res) => {
     }
 });
 
-app.get('/api/university/search', async (req, res) => {
+function loadCsvData() {
+    const results = [];
+    
+    // [수정] 인코딩 변환(.pipe(iconv...))을 제거했습니다.
+    // csv-parser는 기본적으로 UTF-8을 지원합니다.
+    fs.createReadStream('university_data.csv')
+        .pipe(csv()) 
+        .on('data', (data) => {
+            // 디버깅용 로그 (처음 한 번만 출력)
+            if (results.length === 0) {
+                console.log("🔍 [UTF-8 확인] 첫 번째 데이터:", data);
+                
+                // [추가] 혹시 BOM(파일 앞의 특수문자) 때문에 첫 컬럼명이 깨질 경우를 대비
+                // 첫 번째 키(Key)가 '조사년도'가 아니라 이상한 특수문자가 붙어있다면?
+                const firstKey = Object.keys(data)[0];
+                if (firstKey.includes('조사년도') && firstKey !== '조사년도') {
+                     console.log("⚠️ BOM 문자 발견. 키 이름을 수정합니다.");
+                     data['조사년도'] = data[firstKey]; // 올바른 키로 복사
+                }
+            }
+            results.push(data);
+        })
+        .on('end', () => {
+            allUniversities = results
+                .filter(row => {
+                    // 데이터가 유효한지 확인
+                    return row['학교명'] && row['학과상태'] !== '폐지';
+                })
+                .map(row => ({
+                    univName: row['학교명'],       
+                    deptName: row['학부_과(전공)명'], 
+                    location: row['지역'],         
+                    category: row['학교구분']       
+                }));
+            
+            console.log(`✅ CSV 데이터 로드 완료! 유효한 학과 정보: ${allUniversities.length}개`);
+            
+            if (allUniversities.length > 0) {
+                console.log("✅ 매핑 성공 (첫 번째 데이터):", allUniversities[0]);
+            }
+        });
+}
 
-    // 1. JWT 인증 (공통)
+// 서버 시작 시 데이터 로드 실행
+loadCsvData();
+
+// --------------------------------------------------------------------------
+// 1. 대학 검색 API (CSV 기반) - 최종 수정본
+// --------------------------------------------------------------------------
+app.get('/api/university/search', (req, res) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) return res.sendStatus(401);
 
-    // 2. iOS 앱에서 보낸 검색어(query)를 받습니다.
     const { query } = req.query;
+    console.log(`🔍 [CSV 검색] 요청: ${query}`);
+
     if (!query) {
-        return res.status(400).json({ message: '검색어(query)가 필요합니다.' });
+        return res.json([]);
     }
 
-    // 3. data.go.kr '대학정보' API 호출 URL 및 파라미터 설정
-    
-    // ⚠️ [필수] 이 URL은 API 명세서의 '요청 URL' 또는 '엔드포인트'로 변경해야 합니다.
-    const apiUrl = 'http://openapi.academyinfo.go.kr/openapi/service/rest/SchoolInfoService/getSchoolInfo';
-    
-    const params = {
-        serviceKey: DATA_GO_KR_API_KEY, // 서비스키
-        pageNo: 1,
-        numOfRows: 20,                  // 20개 정도만
-        svyYr: '2023',                  // [수정] 명세서의 '조사년도' (필수)
-        sch1KrNm: query,                // [수정] 명세서의 '학교명' 검색어
-        type: 'json'                    // [가정] JSON 응답 요청
-    };
-
     try {
-        jwt.verify(token, JWT_SECRET); // 토큰 유효성 검사
+        jwt.verify(token, JWT_SECRET);
 
-        // 4. axios로 data.go.kr API를 호출합니다.
-        const response = await axios.get(apiUrl, { params });
-
-        // 5. 응답 데이터 가공
-        // (data.go.kr의 JSON 응답 구조는 복잡할 수 있습니다.)
-        // (가정: response.data.response.body.items.item)
-        const items = response.data.response.body.items.item || []; 
+        // 1. 검색어(query)가 포함된 학교 필터링 (안전하게 u.univName 확인)
+        const matched = allUniversities.filter(u => u.univName && u.univName.includes(query));
         
-        const universities = items.map(item => {
-            return {
-                name: item.schNm,         // [수정] '학교명' (schNm)
-                location: item.postNoAdrs // [수정] '소재지도로명주소' (postNoAdrs)
-            };
+        // 2. 중복 제거 (학교명 기준)
+        const uniqueList = []; // 변수명을 uniqueList로 짧게 변경했습니다.
+        const seenNames = new Set();
+
+        matched.forEach(u => {
+            if (!seenNames.has(u.univName)) {
+                seenNames.add(u.univName);
+                uniqueList.push({
+                    name: u.univName,
+                    location: u.location
+                });
+            }
         });
 
-        // 6. 가공된 대학 목록을 iOS 앱에 전송
-        res.json(universities);
+        // 3. 결과 반환 (최대 30개)
+        // ⭐️ [수정] 위에서 만든 uniqueList 변수를 사용
+        res.json(uniqueList.slice(0, 30));
 
     } catch (error) {
-        if (error.name === 'JsonWebTokenError') {
-                    return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
-                }
-                console.error("data.go.kr API 호출 중 오류:", error.message);
-                res.status(500).json({ message: '대학 정보 조회 중 서버 오류가 발생했습니다.' });
+        console.error("검색 중 오류:", error);
+        res.status(500).json({ message: "서버 오류" });
     }
 });
 
-app.get('/api/university/departments', async (req, res) => {
-    
-    // 1. JWT 인증 (공통)
+
+// --------------------------------------------------------------------------
+// 2. 학과 검색 API (CSV 기반)
+// --------------------------------------------------------------------------
+app.get('/api/university/departments', (req, res) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) return res.sendStatus(401);
 
-    // 2. iOS 앱에서 보낸 검색어(대학 이름)를 받습니다.
-    const { univName } = req.query; 
-    if (!univName) {
-        return res.status(400).json({ message: '대학 이름(univName)이 필요합니다.' });
-    }
-
-    // 3. 커리어넷 API 호출 URL을 만듭니다.
-    const apiUrl = 'http://www.career.go.kr/cnet/openapi/getOpenApi.json';
-    const params = {
-        apiKey: CAREERNET_API_KEY,
-        svcType: 'api',      // API 타입 (고정)
-        svcCode: 'MAJOR',    // 서비스 코드 (학과정보)
-        contentType: 'json', // JSON 요청
-        gubun: 'univ_list',  // 'univ_list' (대학별 학과)
-        searchTitle: univName // iOS 앱에서 받은 대학 이름으로 검색
-    };
+    const { univName } = req.query;
+    if (!univName) return res.status(400).json({ message: '대학 이름이 필요합니다.' });
 
     try {
-        jwt.verify(token, JWT_SECRET); // 토큰 유효성 검사
+        jwt.verify(token, JWT_SECRET);
 
-        // 4. axios로 커리어넷 API를 호출합니다.
-        const response = await axios.get(apiUrl, { params });
+        // 해당 대학의 학과 목록을 필터링합니다.
+        const departments = allUniversities
+            .filter(u => u.univName === univName)
+            .map((u, index) => ({
+                schoolName: u.univName,
+                majorName: u.deptName,
+                majorSeq: String(index) // 고유 ID가 따로 없으니 임시로 인덱스 사용
+            }));
         
-        // 5. 응답 데이터 가공
-        // (커리어넷 응답 구조: response.data.dataSearch.content)
-        const departments = response.data.dataSearch.content.map(item => {
-            return {
-                schoolName: item.schoolName, // 대학명
-                majorName: item.majorName, // 학과명
-                majorSeq: item.majorSeq    // 학과 고유번호
-            };
-        });
-        
-        // 6. 가공된 학과 목록을 iOS 앱에 전송
+        // 가나다순 정렬
+        departments.sort((a, b) => a.majorName.localeCompare(b.majorName));
+
         res.json(departments);
 
     } catch (error) {
-        if (error.name === 'JsonWebTokenError') {
-            return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
-        }
-        console.error("커리어넷 API 호출 중 오류:", error.message);
-        res.status(500).json({ message: '학과 정보 조회 중 서버 오류가 발생했습니다.' });
+        console.error("학과 조회 오류:", error);
+        res.status(500).json({ message: "서버 오류" });
     }
 });
 

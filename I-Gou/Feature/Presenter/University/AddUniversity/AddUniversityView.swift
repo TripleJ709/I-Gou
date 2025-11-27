@@ -14,51 +14,61 @@ protocol AddUniversityViewDelegate: AnyObject {
 }
 
 class AddUniversityView: UIView {
-
+    
     let searchBar = UISearchBar()
     let resultsStackView = UIStackView()
+    let tableView = UITableView()
     
     // 2. [추가] ⭐️ 델리게이트 프로퍼티
     weak var delegate: AddUniversityViewDelegate?
-
+    
     // 3. [추가] ⭐️ 현재 결과 목록을 저장 (탭 이벤트 처리를 위해)
     private var currentUniversities: [UniversitySearchResult] = []
     private var currentDepartments: [DepartmentSearchResult] = []
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .systemGroupedBackground
         setupUI()
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     private func setupUI() {
+        // 1. 서치바 설정
         searchBar.placeholder = "대학 이름으로 검색"
-        searchBar.searchBarStyle = .prominent
-         
-        resultsStackView.axis = .vertical
-        resultsStackView.spacing = 10
-         
-        // 4. [제거] ⭐️ 가짜 검색 결과 제거
-        // let result1 = createResultButton(title: "서울대학교")
-        // ...
-         
-        let mainStack = UIStackView(arrangedSubviews: [searchBar, resultsStackView, UIView()])
-        mainStack.axis = .vertical
-        mainStack.spacing = 20
-        mainStack.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(mainStack)
-         
+        searchBar.searchBarStyle = .minimal
+        searchBar.backgroundColor = .clear
+        
+        // 2. 테이블뷰 설정
+        tableView.backgroundColor = .clear
+        tableView.separatorStyle = .none // 필요에 따라 변경
+        // 셀 등록 (기본 셀 사용 또는 커스텀 셀 등록)
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        
+        // 3. 뷰 계층 구조 설정
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        
+        addSubview(searchBar)
+        addSubview(tableView)
+        
+        // 4. 제약조건 설정
         NSLayoutConstraint.activate([
-            mainStack.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 16), // 상단 여백
-            mainStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            mainStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16)
+            // 서치바 (상단 고정)
+            searchBar.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            searchBar.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            
+            // 테이블뷰 (서치바 아래부터 바닥까지)
+            tableView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 10),
+            tableView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
-    
     // 5. [추가] ⭐️ 대학 검색 결과로 UI 업데이트
     func updateResults(universities: [UniversitySearchResult]) {
         self.currentUniversities = universities
@@ -99,7 +109,7 @@ class AddUniversityView: UIView {
             }
         }
     }
-
+    
     // 7. [수정] ⭐️ createResultButton (대학/학과 공용)
     private func createResultButton(title: String, subtitle: String?) -> UIButton {
         let button = UIButton(type: .system)

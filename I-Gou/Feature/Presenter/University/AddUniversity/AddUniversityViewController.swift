@@ -11,12 +11,8 @@ import Combine // 1. [추가] Combine 임포트
 class AddUniversityViewController: UIViewController {
 
     private var addUniversityView: AddUniversityView?
-    
-    // 2. [추가] ⭐️ 에러의 원인: 이 프로퍼티들이 누락되었습니다.
     private var viewModel: MyUniversitiesViewModel
     private var cancellables = Set<AnyCancellable>()
-    
-    // 3. [추가] 현재 검색 단계 (대학/학과)
     private enum SearchStep {
         case university
         case department(university: UniversitySearchResult)
@@ -44,73 +40,52 @@ class AddUniversityViewController: UIViewController {
     }
 
     override func viewDidLoad() {
-        super.viewDidLoad()
-        self.title = "관심 대학 추가"
-        setupNavigationBar()
-        
-        // 6. [추가] 델리게이트 연결
-        addUniversityView?.searchBar.delegate = self
-        addUniversityView?.delegate = self // AddUniversityView에 델리게이트 프로토콜 선언 필요
-        
-        bindViewModel() // 7. [추가] ViewModel 바인딩
-    }
+            super.viewDidLoad()
+            self.title = "관심 대학 추가"
+            setupNavigationBar()
+            
+            // 델리게이트 연결
+            addUniversityView?.searchBar.delegate = self
+            // 테이블뷰 델리게이트/데이터소스 연결
+            addUniversityView?.tableView.delegate = self
+            addUniversityView?.tableView.dataSource = self
+            
+            bindViewModel()
+            
+            // 화면 진입 시 서치바에 포커스
+            addUniversityView?.searchBar.becomeFirstResponder()
+        }
      
     private func setupNavigationBar() {
         let doneButton = UIBarButtonItem(title: "완료", style: .done, target: self, action: #selector(doneButtonTapped))
         self.navigationItem.rightBarButtonItem = doneButton
-        // 8. [추가] 처음에는 '완료' 버튼 비활성화
         doneButton.isEnabled = false
     }
 
-    // 9. [수정] 이제 'viewModel' 등을 찾을 수 있습니다.
     @objc private func doneButtonTapped() {
         guard let university = selectedUniversity, let department = selectedDepartment else { return }
-        
-        // 1. ViewModel의 저장 함수 호출
         viewModel.saveMyUniversity(university: university, department: department)
-        
-        // 2. (옵션) ViewModel의 isLoading을 구독하여 로딩 스피너를 보여줄 수 있습니다.
-        // 3. (옵션) ViewModel의 didSaveUniversity 신호를 구독하여
-        //    저장이 '성공'했을 때만 dismiss 하도록 변경할 수 있습니다.
-        
-        // 4. (우선) 저장을 요청하고 바로 모달을 닫습니다.
-        self.dismiss(animated: true)
     }
     
-    // 10. [추가] ViewModel 바인딩 함수
     private func bindViewModel() {
-        // 대학 검색 결과 구독
         viewModel.$searchResults
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] results in
-                // 대학 검색 단계일 때만 UI 업데이트
+            .sink { [weak self] _ in
                 if case .university = self?.currentStep {
-                    self?.addUniversityView?.updateResults(universities: results)
+                    self?.addUniversityView?.tableView.reloadData()
                 }
             }
             .store(in: &cancellables)
-            
-        // 학과 검색 결과 구독
+        
         viewModel.$departmentResults
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] results in
-                // 학과 검색 단계일 때만 UI 업데이트
+            .sink { [weak self] _ in
                 if case .department = self?.currentStep {
-                    self?.addUniversityView?.updateResults(departments: results)
+                    self?.addUniversityView?.tableView.reloadData()
                 }
             }
             .store(in: &cancellables)
-            
-        // 로딩 상태 구독 (isLoading을 구독하여 로딩 인디케이터 표시)
-        viewModel.$isLoading
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isLoading in
-                // TODO: 로딩 인디케이터 표시/숨김
-                print("Loading: \(isLoading)")
-            }
-            .store(in: &cancellables)
-            
-        // (옵션) 저장이 완료되면 자동으로 dismiss
+        
         viewModel.didSaveUniversity
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
@@ -120,14 +95,14 @@ class AddUniversityViewController: UIViewController {
     }
 }
 
-// 11. [추가] SearchBar 델리게이트
 extension AddUniversityViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        // 텍스트가 변할 때마다 대학 검색 실행
+        // [추가] 1번 로그: 서치바 입력이 인식되는지 확인
+        print("1️⃣ [iOS] 서치바 입력 감지: \(searchText)")
+        
         if case .university = currentStep {
             viewModel.search(query: searchText)
         }
-        // TODO: 학과 검색 로직 (로컬 필터링 또는 API 호출)
     }
 }
 
@@ -153,5 +128,67 @@ extension AddUniversityViewController: AddUniversityViewDelegate {
         self.navigationItem.rightBarButtonItem?.isEnabled = true
         // (선택된 학과에 대한 시각적 피드백, 예: 체크마크)
         addUniversityView?.searchBar.text = department.majorName
+    }
+}
+
+extension AddUniversityViewController: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        switch currentStep {
+        case .university:
+            return viewModel.searchResults.count
+        case .department:
+            return viewModel.departmentResults.count
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        
+        switch currentStep {
+        case .university:
+            let university = viewModel.searchResults[indexPath.row]
+            var content = cell.defaultContentConfiguration()
+            content.text = university.name
+            content.secondaryText = university.location
+            cell.contentConfiguration = content
+        case .department:
+            let department = viewModel.departmentResults[indexPath.row]
+            var content = cell.defaultContentConfiguration()
+            content.text = department.majorName
+            cell.contentConfiguration = content
+        }
+        
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        switch currentStep {
+        case .university:
+            let university = viewModel.searchResults[indexPath.row]
+            self.selectedUniversity = university
+            self.currentStep = .department(university: university)
+            
+            // UI 업데이트
+            self.title = university.name
+            addUniversityView?.searchBar.text = ""
+            addUniversityView?.searchBar.placeholder = "\(university.name)의 학과를 검색하세요"
+            
+            // 학과 목록 가져오기
+            viewModel.fetchDepartments(university: university)
+            
+            // 키보드 내리기
+            addUniversityView?.searchBar.resignFirstResponder()
+            
+        case .department:
+            let department = viewModel.departmentResults[indexPath.row]
+            self.selectedDepartment = department
+            
+            // UI 업데이트
+            addUniversityView?.searchBar.text = department.majorName
+            self.navigationItem.rightBarButtonItem?.isEnabled = true
+            addUniversityView?.searchBar.resignFirstResponder()
+        }
     }
 }
