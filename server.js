@@ -20,6 +20,7 @@ const NAVER_CLIENT_ID = process.env.NAVER_CLIENT_ID;
 const NAVER_CLIENT_SECRET = process.env.NAVER_CLIENT_SECRET;
 
 let allUniversities = [];
+let koreaAdmissionData = {};
 // -----------------------------------API라우트------------------------------------------- //
 
 // let users = [{ id: 1, name: 'OOO', kakaoId: '12345' }];
@@ -486,6 +487,44 @@ app.post('/api/reading', async (req, res) => {
     }
 });
 
+// [수정] 사용자의 평균 내신 등급 계산 함수 (NULL 처리 + 등급 사용)
+async function getUserAverageGrade(userId) {
+    try {
+        // 1. exam_type이 '내신'이면서
+        // 2. ⭐️ grade_level이 NULL이 아닌 것만 가져옵니다. (SQL에서 미리 거름)
+        const [rows] = await db.query(
+            `SELECT grade_level FROM grades 
+             WHERE user_id = ? 
+             AND exam_type = '내신' 
+             AND grade_level IS NOT NULL`, 
+            [userId]
+        );
+
+        // 내신 성적이 하나도 없으면 0 반환
+        if (rows.length === 0) return 0;
+
+        // 3. 평균 계산
+        // grade_level을 숫자로 변환해서 더함
+        const total = rows.reduce((sum, row) => {
+            const grade = parseFloat(row.grade_level);
+            // 만약 grade가 NaN이면(혹시 모를 에러 방지) 0으로 취급하거나 제외
+            return isNaN(grade) ? sum : sum + grade;
+        }, 0);
+
+        const average = total / rows.length;
+        
+        // 소수점 둘째자리까지 반올림 (예: 1.56)
+        const result = Math.round(average * 100) / 100;
+        
+        console.log(`🧮 성적 계산: 총합 ${total} / 과목수 ${rows.length} = 평균 ${result}`);
+        return result;
+
+    } catch (error) {
+        console.error("내신 평균 계산 실패:", error);
+        return 0;
+    }
+}
+
 app.get('/api/university/schedule', async (req, res) => {
     // 1. JWT 인증
     const authHeader = req.headers['authorization'];
@@ -594,6 +633,41 @@ function loadCsvData() {
 
 // 서버 시작 시 데이터 로드 실행
 loadCsvData();
+
+function loadAdmissionData() {
+    const results = [];
+    fs.createReadStream('korea_univ_recommendation.csv')
+        .pipe(csv({ headers: false })) 
+        .on('data', (data) => results.push(data))
+        .on('end', () => {
+            results.forEach(row => {
+                // index 1: 학과명, index 2: 70% 컷
+                let deptName = row['1']; 
+                let cut70 = parseFloat(row['2']);
+
+                if (deptName && !isNaN(cut70)) {
+                    // ⭐️ [핵심] 공백(띄어쓰기)을 모두 없애서 저장 (매칭 확률 높이기)
+                    // 예: "기계 공학과" -> "기계공학과"
+                    deptName = deptName.replace(/\s+/g, '').trim();
+
+                    // 50% 컷 추정 (70% 컷 - 0.15)
+                    const estimatedCut50 = parseFloat((cut70 - 0.15).toFixed(2));
+
+                    koreaAdmissionData[deptName] = {
+                        cut50: estimatedCut50,
+                        cut70: cut70
+                    };
+                }
+            });
+            console.log(`✅ 고려대 입시 데이터 로드 완료! (${Object.keys(koreaAdmissionData).length}개 학과)`);
+            
+            // [디버깅] CSV에 있는 학과 이름 5개만 샘플로 출력해보기
+            const sampleKeys = Object.keys(koreaAdmissionData).slice(0, 5);
+            console.log("👉 CSV 포함 학과(샘플):", sampleKeys);
+        });
+}
+
+loadAdmissionData();
 
 // --------------------------------------------------------------------------
 // 1. 대학 검색 API (CSV 기반) - 최종 수정본
@@ -750,46 +824,81 @@ async function searchNaverNews(query) {
 }
 
 app.get('/api/university/my', async (req, res) => {
-    // 1. JWT 인증
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) return res.sendStatus(401);
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        const userId = decoded.userId; // JWT에 userId가 있다고 가정
+        const userId = decoded.userId;
 
-        // 2. DB에서 이 사용자의 대학 목록 조회
-        const [rows] = await db.query(
-            'SELECT * FROM user_universities WHERE userId = ?',
-            [userId]
-        );
+        // 1. 내신 계산
+        const myAvgGrade = await getUserAverageGrade(userId);
         
-        // 3. iOS 앱의 'UniversityItem' 모델 형식에 맞게 키 이름을 변경
-        const myUniversities = rows.map(row => ({
-            id: row.id,
-            universityName: row.universityName,
-            department: row.department,
-            major: row.major || "",
-            myScore: row.myScore || 0,
-            requiredScore: row.requiredScore || 0,
-            deadline: row.deadline || "N/A",
-            status: row.status || "appropriate",
-            location: row.location || "",
-            competitionRate: row.competitionRate || ""
-        }));
+        // 2. 내 대학 목록 조회
+        const [rows] = await db.query('SELECT * FROM user_universities WHERE userId = ?', [userId]);
+        
+        const myUniversities = rows.map(row => {
+            let status = "appropriate"; 
+            let requiredScore = 0;
+            const univName = row.universityName;
+            
+            // ⭐️ [핵심] DB에 저장된 학과 이름에서 공백 제거
+            const myDeptName = row.department.replace(/\s+/g, '').trim(); 
+
+            // 3. 고려대 매칭 시도
+            if (univName.includes("고려대")) {
+                // (1) 정확히 일치하는지 찾기
+                let data = koreaAdmissionData[myDeptName];
+
+                // (2) 없다면? '비슷한' 이름이 있는지 CSV 전체를 뒤져서 찾기 (유사 검색)
+                if (!data) {
+                    const foundKey = Object.keys(koreaAdmissionData).find(csvKey => {
+                        // DB이름("컴퓨터공학과")이 CSV이름("컴퓨터학과")를 포함하거나, 그 반대인 경우
+                        return myDeptName.includes(csvKey) || csvKey.includes(myDeptName);
+                    });
+                    if (foundKey) {
+                        data = koreaAdmissionData[foundKey];
+                        console.log(`🔗 [매칭 성공] DB('${myDeptName}') ≈ CSV('${foundKey}')`);
+                    }
+                }
+
+                if (data) {
+                    requiredScore = data.cut70;
+                    
+                    // 내신 점수 비교 로직
+                    if (myAvgGrade > 0) {
+                        if (myAvgGrade <= data.cut50) status = "safe";
+                        else if (myAvgGrade <= data.cut70) status = "appropriate";
+                        else status = "challenging";
+                    }
+                } else {
+                     // 범인 색출용 로그
+                     console.log(`❌ [매칭 실패] DB에 있는 '${myDeptName}'를 CSV에서 못 찾았습니다.`);
+                }
+            }
+
+            return {
+                id: row.id,
+                universityName: univName,
+                department: row.department,
+                major: row.major || "",
+                myScore: myAvgGrade,
+                requiredScore: requiredScore,
+                deadline: row.deadline || "2024-09-13",
+                status: status, 
+                location: row.location || "",
+                competitionRate: row.competitionRate || "15.4:1"
+            };
+        });
 
         res.json(myUniversities);
 
     } catch (error) {
-        if (error.name === 'JsonWebTokenError') {
-            return res.status(401).json({ message: '유효하지 않은 토큰입니다.' });
-        }
-        console.error("'내 대학' 조회 중 DB 오류:", error);
+        console.error("내 대학 조회 오류:", error);
         res.status(500).json({ message: "서버 오류" });
     }
 });
-
 //
 // [신규] '내 대학' 탭 - '관심 대학' 추가 (POST)
 // (AddUniversityViewController의 '완료' 버튼이 호출할 API)
