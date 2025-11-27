@@ -655,8 +655,6 @@ app.get('/api/university/departments', async (req, res) => {
 });
 
 app.get('/api/university/news', async (req, res) => {
-
-    // 1. JWT 인증으로 사용자 ID 가져오기
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) return res.sendStatus(401);
@@ -664,43 +662,28 @@ app.get('/api/university/news', async (req, res) => {
     let userId;
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        userId = decoded.userId; // 3. JWT에 userId가 있다고 가정
+        userId = decoded.userId;
     } catch (error) {
         return res.status(401).json({ message: '유효하지 않은 토큰입니다.' });
     }
 
     try {
-        // 4. DB에서 '내 대학' 목록 가져오기
-        // (DB 테이블과 컬럼명은 실제에 맞게 수정 필요)
         const [myUniversities] = await db.query(
             'SELECT universityName FROM user_universities WHERE userId = ?', 
             [userId]
         );
-        
-        // 5. '내 대학' + '공통 키워드'로 전체 검색 목록 생성
         const commonKeywords = ['입시', '수능', '대입'];
         const userKeywords = myUniversities.map(uni => uni.universityName);
-        
-        // (예: ['서울대학교', '연세대학교', '입시', '수능', '대입'])
         const allKeywords = [...userKeywords, ...commonKeywords];
-
-        // 6. 모든 키워드로 네이버 뉴스 API를 '병렬' 호출
         const searchPromises = allKeywords.map(keyword => 
             searchNaverNews(keyword)
         );
         const allResults = await Promise.all(searchPromises);
-
-        // 7. 모든 결과(2D 배열)를 1개의 배열로 합치기
         const allItems = allResults.flat();
-
-        // 8. 'link' 기준으로 중복 제거 (중요)
         const uniqueItems = Array.from(
             new Map(allItems.map(item => [item.link, item])).values()
         );
-
-        // 9. 최종 목록을 앱에 응답
         res.json(uniqueItems);
-
     } catch (error) {
         console.error("뉴스 조회 중 오류:", error.message);
         res.status(500).json({ message: '뉴스 조회 중 서버 오류가 발생했습니다.' });
