@@ -943,6 +943,114 @@ app.post('/api/university/my', async (req, res) => {
     }
 });
 
+// --------------------------------------------------------------------------
+// 📝 상담(질문) 관련 API
+// --------------------------------------------------------------------------
+
+// 1. 질문 등록하기
+app.post('/api/counseling/questions', async (req, res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+        const { question, category } = req.body; // 카테고리는 선택 (기본값 설정 가능)
+
+        if (!question) return res.status(400).json({ message: "질문 내용을 입력해주세요." });
+
+        // 질문 저장
+        await db.query(
+            'INSERT INTO counseling_questions (user_id, question, category) VALUES (?, ?, ?)',
+            [userId, question, category || '진학상담']
+        );
+
+        // 💡 [확장 포인트] 여기에 AI 챗봇 로직을 추가하면 '즉시 답변'도 가능합니다.
+        // 지금은 일단 '대기 중' 상태로 저장만 합니다.
+
+        res.status(201).json({ message: "질문이 등록되었습니다." });
+
+    } catch (error) {
+        console.error("질문 등록 오류:", error);
+        res.status(500).json({ message: "서버 오류" });
+    }
+});
+
+// 2. 내 질문 목록 조회
+app.get('/api/counseling/questions', async (req, res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+
+        // 최신순 정렬
+        const [rows] = await db.query(
+            `SELECT id, category, question, answer, counselor_name, status, 
+                    DATE_FORMAT(created_at, '%Y-%m-%d') as date 
+             FROM counseling_questions 
+             WHERE user_id = ? 
+             ORDER BY created_at DESC`,
+            [userId]
+        );
+        
+        res.json(rows);
+
+    } catch (error) {
+        console.error("질문 목록 조회 오류:", error);
+        res.status(500).json({ message: "서버 오류" });
+    }
+});
+
+// --------------------------------------------------------------------------
+// 👑 관리자(Admin) 전용 API
+// --------------------------------------------------------------------------
+
+// 1. 관리자용: 모든 질문 목록 조회 (답변 안 달린 것 우선)
+app.get('/api/admin/questions', async (req, res) => {
+    // (실제 서비스라면 여기서 관리자 권한 체크를 해야 하지만, 지금은 생략합니다)
+    try {
+        const [rows] = await db.query(
+            `SELECT q.id, q.category, q.question, q.answer, q.status, q.created_at, u.name as userName
+             FROM counseling_questions q
+             JOIN users u ON q.user_id = u.user_id
+             ORDER BY q.status = 'waiting' DESC, q.created_at DESC`
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error("관리자 질문 조회 오류:", error);
+        res.status(500).json({ message: "서버 오류" });
+    }
+});
+
+// 2. 관리자용: 답변 등록하기 (PUT Update)
+app.put('/api/admin/questions/:id', async (req, res) => {
+    const questionId = req.params.id;
+    const { answer, counselorName } = req.body;
+
+    try {
+        await db.query(
+            `UPDATE counseling_questions 
+             SET answer = ?, counselor_name = ?, status = 'answered', answered_at = NOW()
+             WHERE id = ?`,
+            [answer, counselorName, questionId]
+        );
+        res.json({ message: "답변이 등록되었습니다." });
+    } catch (error) {
+        console.error("답변 등록 오류:", error);
+        res.status(500).json({ message: "서버 오류" });
+    }
+});
+
+// 3. 관리자 웹페이지 접속 라우트
+const path = require('path'); // 파일 경로 다루는 모듈
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
 app.listen(port, '0.0.0.0', () => {
   console.log(`I-Gou 서버가 http://localhost:${port} 에서 실행 중입니다.`);
 });

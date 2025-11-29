@@ -8,8 +8,9 @@
 import UIKit
 
 class MyQuestionsView: UIView {
-
+    
     private let mainStackView = UIStackView()
+    private let historyStackView = UIStackView()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -72,16 +73,20 @@ class MyQuestionsView: UIView {
         
         return card
     }
-
+    
     private func createCounselingHistoryCard() -> CardView {
         let card = CardView()
         let header = createCardHeader(title: "상담 내역", subtitle: "지금까지의 질문과 답변을 확인하세요")
         
-        let item1 = createHistoryItem(category: "진학상담", status: .answered, question: "수시 지원 전략에 대해 상담받고 싶습니다", date: "2024-09-08", counselor: "김진학 선생님", answer: "현재 성적을 고려할 때 안전, 적정, 소신 지원을 2:4:2 비율로 구성하시는 것을 추천드립니다...")
-        let item2 = createHistoryItem(category: "학생부관리", status: .answered, question: "비교과 활동이 부족한 것 같은데 어떻게 보완해야 할까요?", date: "2024-09-06", counselor: "이상담 선생님", answer: "남은 기간 동안 질보다는 양적인 측면에서 체계적으로 준비하시기 바랍니다...")
-        let item3 = createHistoryItem(category: "진학상담", status: .waiting, question: "정시와 수시 중 어느 쪽에 더 집중해야 할까요?", date: "2024-09-05", counselor: nil, answer: nil)
-
-        let stack = UIStackView(arrangedSubviews: [header, item1, item2, item3])
+        // 스택뷰 설정
+        historyStackView.axis = .vertical
+        historyStackView.spacing = 16
+        historyStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // [수정] 초기에는 비워둡니다 (또는 로딩 표시)
+        // 하드코딩된 item1, item2, item3 삭제!
+        
+        let stack = UIStackView(arrangedSubviews: [header, historyStackView])
         stack.axis = .vertical
         stack.spacing = 16
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -95,6 +100,37 @@ class MyQuestionsView: UIView {
         ])
         
         return card
+    }
+    
+    func updateHistory(with questions: [CounselingQuestion]) {
+        // 기존 뷰 제거 (초기화)
+        historyStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        
+        if questions.isEmpty {
+            let label = UILabel()
+            label.text = "상담 내역이 없습니다."
+            label.textColor = .gray
+            label.textAlignment = .center
+            historyStackView.addArrangedSubview(label)
+            return
+        }
+        
+        for q in questions {
+            // Enum 변환
+            let statusEnum: CounselingStatus = (q.status == "answered") ? .answered : .waiting
+            
+            // 뷰 생성 및 추가
+            let itemView = createHistoryItem(
+                category: q.category,
+                status: statusEnum,
+                question: q.question,
+                date: q.date,
+                // [수정] counselor_name -> counselorName
+                counselor: q.counselorName,
+                answer: q.answer
+            )
+            historyStackView.addArrangedSubview(itemView)
+        }
     }
     
     // MARK: - Helper Methods

@@ -358,7 +358,7 @@ class APIService {
             department: department.majorName,
             majorSeq: department.majorSeq
         )
-
+        
         var request = createRequest(with: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -374,5 +374,45 @@ class APIService {
         let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc2NDIzNTkzNywiZXhwIjoxNzk1NzcxOTM3fQ.POsS83WIVRAt44HZDXv6qQzPR9HbU6W_H5WoqzeK1Yg"
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
+    }
+    
+    // MARK: - Counseling
+    func fetchMyQuestions() async throws -> [CounselingQuestion] {
+        guard let url = URL(string: "\(baseUrl)/counseling/questions") else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        addAuthHeader(to: &request) // 토큰 추가
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        
+        return try JSONDecoder().decode([CounselingQuestion].self, from: data)
+    }
+    
+    // 2. 질문 등록
+    func postQuestion(question: String, category: String) async throws {
+        guard let url = URL(string: "\(baseUrl)/counseling/questions") else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        addAuthHeader(to: &request) // 토큰 추가
+        
+        let body = PostQuestionRequest(question: question, category: category)
+        request.httpBody = try JSONEncoder().encode(body)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 201 else {
+            throw URLError(.badServerResponse)
+        }
     }
 }

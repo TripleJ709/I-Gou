@@ -8,19 +8,26 @@
 import UIKit
 
 class CounselingViewController: UIViewController {
-
+    
     private var counselingView: CounselingView?
     private var activeViewController: UIViewController?
-    private lazy var myQuestionsVC = MyQuestionsViewController()
+    private lazy var viewModel: MyQuestionsViewModel = {
+        let apiService = APIService()
+        let repository = DefaultCounselingRepository(apiService: apiService)
+        let fetchUseCase = FetchMyQuestionsUseCase(repository: repository)
+        let postUseCase = PostQuestionUseCase(repository: repository)
+        return MyQuestionsViewModel(fetchUseCase: fetchUseCase, postUseCase: postUseCase)
+    }()
+    private lazy var myQuestionsVC = MyQuestionsViewController(viewModel: viewModel)
     private lazy var notificationsVC = NotificationsViewController()
     private lazy var faqVC = FaqViewController()
-
+    
     override func loadView() {
         let view = CounselingView()
         self.counselingView = view
         self.view = view
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
@@ -33,13 +40,13 @@ class CounselingViewController: UIViewController {
         navigationItem.title = "I-GoU"
         view.backgroundColor = .systemGroupedBackground
     }
-
+    
     private func setupSegmentButtons() {
         counselingView?.myQuestionsButton.addTarget(self, action: #selector(didTapSegmentButton(_:)), for: .touchUpInside)
         counselingView?.notificationsButton.addTarget(self, action: #selector(didTapSegmentButton(_:)), for: .touchUpInside)
         counselingView?.faqButton.addTarget(self, action: #selector(didTapSegmentButton(_:)), for: .touchUpInside)
     }
-
+    
     @objc private func didTapSegmentButton(_ sender: UIButton) {
         guard let counselingView = self.counselingView else { return }
         
@@ -51,7 +58,7 @@ class CounselingViewController: UIViewController {
         
         sender.backgroundColor = .white
         sender.setTitleColor(.black, for: .normal)
-
+        
         if sender == counselingView.myQuestionsButton {
             displayChildController(myQuestionsVC)
         } else if sender == counselingView.notificationsButton {
@@ -63,7 +70,7 @@ class CounselingViewController: UIViewController {
     
     private func displayChildController(_ newChildVC: UIViewController) {
         if activeViewController == newChildVC { return }
-
+        
         if let existingChildVC = activeViewController {
             existingChildVC.willMove(toParent: nil)
             existingChildVC.view.removeFromSuperview()
@@ -91,8 +98,7 @@ class CounselingViewController: UIViewController {
 
 extension CounselingViewController: CounselingViewDelegate {
     func didTapAskQuestionButton() {
-        let askVC = AskQuestionViewController()
-        askVC.delegate = self
+        let askVC = AskQuestionViewController(viewModel: viewModel)
         let navController = UINavigationController(rootViewController: askVC)
         self.present(navController, animated: true)
     }

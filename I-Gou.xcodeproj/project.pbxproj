@@ -63,6 +63,11 @@
 		8997E9E02E8C4F3400E572E7 /* AddSchedulViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9DF2E8C4F3400E572E7 /* AddSchedulViewController.swift */; };
 		8997E9E22E8C5A6500E572E7 /* PlannerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9E12E8C5A6500E572E7 /* PlannerData.swift */; };
 		8997E9E42E8C5A8000E572E7 /* PlannerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8997E9E32E8C5A8000E572E7 /* PlannerViewModel.swift */; };
+		89A776E72EDB0B9A00C544D6 /* CounselingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776E62EDB0B9A00C544D6 /* CounselingModels.swift */; };
+		89A776E92EDB0CBD00C544D6 /* MyQuestionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776E82EDB0CBD00C544D6 /* MyQuestionViewModel.swift */; };
+		89A776EB2EDB0E8000C544D6 /* CounselingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776EA2EDB0E8000C544D6 /* CounselingRepository.swift */; };
+		89A776ED2EDB0EB000C544D6 /* CounselingUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776EC2EDB0EB000C544D6 /* CounselingUseCase.swift */; };
+		89A776EF2EDB0ED500C544D6 /* DefaultCounselingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776EE2EDB0ED500C544D6 /* DefaultCounselingRepository.swift */; };
 		89BB27842EC2392F00C3BCC8 /* AddReadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BB27832EC2392F00C3BCC8 /* AddReadingViewController.swift */; };
 		89C627552E80E6B200CAB833 /* GradesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627542E80E6B200CAB833 /* GradesViewController.swift */; };
 		89C627572E80E6BB00CAB833 /* GradesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627562E80E6BB00CAB833 /* GradesView.swift */; };
@@ -149,6 +154,11 @@
 		8997E9DF2E8C4F3400E572E7 /* AddSchedulViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddSchedulViewController.swift; sourceTree = "<group>"; };
 		8997E9E12E8C5A6500E572E7 /* PlannerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlannerData.swift; sourceTree = "<group>"; };
 		8997E9E32E8C5A8000E572E7 /* PlannerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlannerViewModel.swift; sourceTree = "<group>"; };
+		89A776E62EDB0B9A00C544D6 /* CounselingModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounselingModels.swift; sourceTree = "<group>"; };
+		89A776E82EDB0CBD00C544D6 /* MyQuestionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyQuestionViewModel.swift; sourceTree = "<group>"; };
+		89A776EA2EDB0E8000C544D6 /* CounselingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounselingRepository.swift; sourceTree = "<group>"; };
+		89A776EC2EDB0EB000C544D6 /* CounselingUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounselingUseCase.swift; sourceTree = "<group>"; };
+		89A776EE2EDB0ED500C544D6 /* DefaultCounselingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultCounselingRepository.swift; sourceTree = "<group>"; };
 		89BB27832EC2392F00C3BCC8 /* AddReadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReadingViewController.swift; sourceTree = "<group>"; };
 		89C627542E80E6B200CAB833 /* GradesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesViewController.swift; sourceTree = "<group>"; };
 		89C627562E80E6BB00CAB833 /* GradesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesView.swift; sourceTree = "<group>"; };
@@ -292,6 +302,7 @@
 				8926FC1E2EB09ED800C5CB80 /* GradeUseCase.swift */,
 				890F70EC2EC2246F0043F56A /* ExtraCurricularUseCase.swift */,
 				89FC03BA2EC33E07004EB55F /* UniversityUseCase.swift */,
+				89A776EC2EDB0EB000C544D6 /* CounselingUseCase.swift */,
 			);
 			path = UseCases;
 			sourceTree = "<group>";
@@ -303,6 +314,7 @@
 				8926FC1C2EB09E6E00C5CB80 /* GradeRepository.swift */,
 				890F70EA2EC2243B0043F56A /* ExtraCurricularRepository.swift */,
 				89FC03B62EC33D99004EB55F /* UniversityRepository.swift */,
+				89A776EA2EDB0E8000C544D6 /* CounselingRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -314,6 +326,7 @@
 				8926FC202EB09F1500C5CB80 /* DefaultGradeRepository.swift */,
 				890F70EE2EC224AD0043F56A /* DefaultExtraCurricularRepository.swift */,
 				89FC03B82EC33DC1004EB55F /* DefaultUniversityRepository.swift */,
+				89A776EE2EDB0ED500C544D6 /* DefaultCounselingRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -460,6 +473,7 @@
 			children = (
 				8997E9C42E8BDF8600E572E7 /* MyQuestionView.swift */,
 				8997E9C62E8BDF9200E572E7 /* MyQuestionViewController.swift */,
+				89A776E82EDB0CBD00C544D6 /* MyQuestionViewModel.swift */,
 			);
 			path = MyQuestions;
 			sourceTree = "<group>";
@@ -490,6 +504,7 @@
 				8926FC242EB0A1FA00C5CB80 /* GradeDataModel.swift */,
 				890F70E82EC223DC0043F56A /* ExtraCurricularData.swift */,
 				89FC03B42EC33D04004EB55F /* UniversityDataModel.swift */,
+				89A776E62EDB0B9A00C544D6 /* CounselingModels.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -716,8 +731,10 @@
 				89C627662E80E9B600CAB833 /* InternalGradesView.swift in Sources */,
 				890F70EB2EC2243B0043F56A /* ExtraCurricularRepository.swift in Sources */,
 				89FC03BD2EC33E5B004EB55F /* AdmissionSchedulViewModel.swift in Sources */,
+				89A776ED2EDB0EB000C544D6 /* CounselingUseCase.swift in Sources */,
 				89C627612E80E8E000CAB833 /* ExtraCurricularViewController.swift in Sources */,
 				8997E9CB2E8BE16400E572E7 /* NotificationView.swift in Sources */,
+				89A776EF2EDB0ED500C544D6 /* DefaultCounselingRepository.swift in Sources */,
 				8997E9DB2E8C25C800E572E7 /* UniversityNewsDetailViewController.swift in Sources */,
 				890E6D222E7FD9640037EEB9 /* HomeViewController.swift in Sources */,
 				8926FC252EB0A1FA00C5CB80 /* GradeDataModel.swift in Sources */,
@@ -750,13 +767,16 @@
 				8997E9D12E8BE1C200E572E7 /* FaqViewController.swift in Sources */,
 				890E6D1F2E7FD8A60037EEB9 /* MainTabBarController.swift in Sources */,
 				89CBA1B42E82656E0075941D /* AdmissionScheduleView.swift in Sources */,
+				89A776E92EDB0CBD00C544D6 /* MyQuestionViewModel.swift in Sources */,
 				89FC03BF2EC3637F004EB55F /* MyUniversitiesViewModel.swift in Sources */,
 				890F70F12EC224E50043F56A /* ExtraCurricularViewModel.swift in Sources */,
 				89C627572E80E6BB00CAB833 /* GradesView.swift in Sources */,
+				89A776EB2EDB0E8000C544D6 /* CounselingRepository.swift in Sources */,
 				8926FC1F2EB09ED800C5CB80 /* GradeUseCase.swift in Sources */,
 				8926FC272EB10D4B00C5CB80 /* GradeInputCell.swift in Sources */,
 				89CBA1A92E82639E0075941D /* MyUniversitiesView.swift in Sources */,
 				890E6D2B2E80130D0037EEB9 /* PlannerViewController.swift in Sources */,
+				89A776E72EDB0B9A00C544D6 /* CounselingModels.swift in Sources */,
 				897667902E9382D6009ECEFC /* AddGradeViewController.swift in Sources */,
 				89C6275D2E80E8B100CAB833 /* InternalGradesViewController.swift in Sources */,
 				89FC03B52EC33D04004EB55F /* UniversityDataModel.swift in Sources */,

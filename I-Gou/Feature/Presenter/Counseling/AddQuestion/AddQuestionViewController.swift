@@ -6,27 +6,40 @@
 //
 
 import UIKit
+import Combine
 
 protocol AskQuestionDelegate: AnyObject {
     func didPostQuestion(text: String)
 }
 
 class AskQuestionViewController: UIViewController, UITextViewDelegate {
-
+    
     private var askQuestionView: AskQuestionView?
-    weak var delegate: AskQuestionDelegate?
-
+    private let viewModel: MyQuestionsViewModel // 주입받을 뷰모델
+    private var cancellables = Set<AnyCancellable>()
+    
+    // ⭐️ Init (주입)
+    init(viewModel: MyQuestionsViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func loadView() {
         let view = AskQuestionView()
         self.askQuestionView = view
         self.view = view
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.title = "질문하기"
         setupNavigationBar()
         askQuestionView?.questionTextView.delegate = self
+        bindViewModel()
     }
     
     private func setupNavigationBar() {
@@ -36,22 +49,29 @@ class AskQuestionViewController: UIViewController, UITextViewDelegate {
         self.navigationItem.leftBarButtonItem = cancelButton
         self.navigationItem.rightBarButtonItem = postButton
     }
-
+    
+    private func bindViewModel() {
+        // 등록 성공 시 창 닫기
+        viewModel.didPostQuestionSuccess
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.dismiss(animated: true)
+            }
+            .store(in: &cancellables)
+    }
+    
     @objc private func cancelButtonTapped() {
         self.dismiss(animated: true)
     }
-
+    
     @objc private func postButtonTapped() {
         guard let textView = askQuestionView?.questionTextView,
-              textView.textColor != .placeholderText, // 플레이스홀더 상태가 아닐 때
+              textView.textColor != .placeholderText,
               !textView.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        else {
-            print("질문 내용을 입력하세요.")
-            return
-        }
+        else { return }
         
-        delegate?.didPostQuestion(text: textView.text)
-        self.dismiss(animated: true)
+        // ⭐️ 뷰모델을 통해 질문 등록 요청
+        viewModel.postQuestion(text: textView.text)
     }
     
     // MARK: - UITextViewDelegate (플레이스홀더 처리)
