@@ -9,6 +9,8 @@ import UIKit
 
 class MyQuestionsView: UIView {
     
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
     private let mainStackView = UIStackView()
     private let historyStackView = UIStackView()
     
@@ -22,22 +24,48 @@ class MyQuestionsView: UIView {
     }
     
     private func setupUI() {
-        mainStackView.translatesAutoresizingMaskIntoConstraints = false
-        mainStackView.axis = .vertical
-        mainStackView.spacing = 20
-        self.addSubview(mainStackView)
-        mainStackView.addArrangedSubview(createCounselingHistoryCard())
-        setupLayout()
-    }
+            // 스크롤뷰 설정
+            scrollView.translatesAutoresizingMaskIntoConstraints = false
+            contentView.translatesAutoresizingMaskIntoConstraints = false
+            
+            self.addSubview(scrollView)
+            scrollView.addSubview(contentView)
+            
+            // 메인 스택뷰 설정
+            mainStackView.translatesAutoresizingMaskIntoConstraints = false
+            mainStackView.axis = .vertical
+            mainStackView.spacing = 20
+            
+            contentView.addSubview(mainStackView)
+            
+            // 카드 추가 (빠른 질문은 삭제했으므로 상담 내역만)
+            mainStackView.addArrangedSubview(createCounselingHistoryCard())
+            
+            setupLayout()
+        }
     
     private func setupLayout() {
-        NSLayoutConstraint.activate([
-            mainStackView.topAnchor.constraint(equalTo: self.topAnchor),
-            mainStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            mainStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            mainStackView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
-        ])
-    }
+            NSLayoutConstraint.activate([
+                // ScrollView (화면 꽉 채움)
+                scrollView.topAnchor.constraint(equalTo: self.topAnchor),
+                scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+                scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+                scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+                
+                // ContentView
+                contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+                contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+                contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+                contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+                
+                // MainStackView (패딩 추가)
+                mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 0), // 상단 여백은 CounselingView에서 이미 줌
+                mainStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+                mainStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+                mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
+            ])
+        }
     
     // MARK: - View Factory Methods
     private func createCounselingHistoryCard() -> CardView {

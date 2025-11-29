@@ -415,4 +415,16 @@ class APIService {
             throw URLError(.badServerResponse)
         }
     }
+    
+    func fetchNotifications() async throws -> [NotificationItem] {
+        guard let url = URL(string: "\(baseUrl)/notifications") else { throw URLError(.badURL) }
+        var request = URLRequest(url: url)
+        addAuthHeader(to: &request)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw URLError(.badServerResponse)
+        }
+        return try JSONDecoder().decode([NotificationItem].self, from: data)
+    }
 }

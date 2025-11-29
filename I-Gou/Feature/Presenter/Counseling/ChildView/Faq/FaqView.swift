@@ -10,11 +10,14 @@ import UIKit
 class FaqView: UIView {
 
     // MARK: - UI Components
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
     private let mainStackView = UIStackView()
 
     // MARK: - Initializer
     override init(frame: CGRect) {
         super.init(frame: frame)
+        backgroundColor = .systemGroupedBackground // 배경색 통일
         setupUI()
     }
 
@@ -24,23 +27,44 @@ class FaqView: UIView {
 
     // MARK: - Private Methods
     private func setupUI() {
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.translatesAutoresizingMaskIntoConstraints = false
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        self.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        contentView.addSubview(mainStackView)
+        
+        // 메인 스택뷰 설정
         mainStackView.axis = .vertical
         mainStackView.spacing = 20
-        self.addSubview(mainStackView)
         
+        // ⭐️ [수정] 상담 신청 카드는 삭제하고 FAQ 목록만 추가
         mainStackView.addArrangedSubview(createFaqListCard())
-        mainStackView.addArrangedSubview(createApplyCounselingCard())
         
         setupLayout()
     }
 
     private func setupLayout() {
         NSLayoutConstraint.activate([
-            mainStackView.topAnchor.constraint(equalTo: self.topAnchor),
-            mainStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            mainStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            mainStackView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+            // ScrollView (화면 전체)
+            scrollView.topAnchor.constraint(equalTo: self.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
+            
+            // ContentView
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            // MainStackView (패딩 추가)
+            mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            mainStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            mainStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
         ])
     }
 
@@ -50,6 +74,7 @@ class FaqView: UIView {
         let card = CardView()
         let header = createCardHeader(iconName: "questionmark.circle.fill", title: "자주 묻는 질문", subtitle: "일반적인 질문과 답변을 확인하세요")
         
+        // FAQ 아이템들 (나중에 필요하면 서버에서 받아오도록 수정 가능)
         let qa1 = createQAItem(
             question: "수시 원서는 몇 개까지 넣을 수 있나요?",
             answer: "수시모집에서는 최대 6개 대학에 지원할 수 있습니다. 각 대학마다 최대 3개 전형까지 지원 가능합니다."
@@ -64,34 +89,6 @@ class FaqView: UIView {
         )
         
         let stack = UIStackView(arrangedSubviews: [header, qa1, qa2, qa3])
-        stack.axis = .vertical
-        stack.spacing = 16
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        
-        card.addSubview(stack)
-        NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
-            stack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
-            stack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
-        ])
-        
-        return card
-    }
-    
-    private func createApplyCounselingCard() -> CardView {
-        let card = CardView()
-        let header = createCardHeader(iconName: nil, title: "상담 신청", subtitle: "전문 상담이 필요하시면 신청해 주세요")
-        
-        let applyButton1 = createApplyButton(iconName: "person.fill", title: "1:1 진학 상담 신청")
-        let applyButton2 = createApplyButton(iconName: "bubble.left.and.bubble.right.fill", title: "그룹 상담 신청")
-        let applyButton3 = createApplyButton(iconName: "slider.horizontal.3", title: "학습 컨설팅 신청")
-        
-        let buttonStack = UIStackView(arrangedSubviews: [applyButton1, applyButton2, applyButton3])
-        buttonStack.axis = .vertical
-        buttonStack.spacing = 10
-        
-        let stack = UIStackView(arrangedSubviews: [header, buttonStack])
         stack.axis = .vertical
         stack.spacing = 16
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -151,6 +148,7 @@ class FaqView: UIView {
         let qLabel = UILabel()
         qLabel.text = "Q."
         qLabel.font = .systemFont(ofSize: 16, weight: .bold)
+        qLabel.textColor = .systemBlue // 질문 강조색
         
         let questionLabel = UILabel()
         questionLabel.text = question
@@ -163,7 +161,7 @@ class FaqView: UIView {
         
         let aLabel = UILabel()
         aLabel.text = "A."
-        aLabel.font = .systemFont(ofSize: 15)
+        aLabel.font = .systemFont(ofSize: 15, weight: .bold)
         aLabel.textColor = .darkGray
         
         let answerLabel = UILabel()
@@ -190,23 +188,5 @@ class FaqView: UIView {
         ])
         
         return container
-    }
-    
-    private func createApplyButton(iconName: String, title: String) -> UIButton {
-        let button = UIButton(type: .system)
-        button.setTitle(title, for: .normal)
-        button.setImage(UIImage(systemName: iconName), for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 15)
-        button.setTitleColor(.darkGray, for: .normal)
-        button.tintColor = .darkGray
-        button.backgroundColor = .systemBackground
-        button.layer.cornerRadius = 10
-        button.layer.borderColor = UIColor.systemGray5.cgColor
-        button.layer.borderWidth = 1
-        button.contentHorizontalAlignment = .left
-        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
-        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        return button
     }
 }

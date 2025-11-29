@@ -1026,6 +1026,76 @@ app.get('/api/admin/questions', async (req, res) => {
     }
 });
 
+// 관리자용: 답변 등록하기 (수정 버전)
+app.put('/api/admin/questions/:id', async (req, res) => {
+    const questionId = req.params.id;
+    const { answer, counselorName } = req.body;
+
+    try {
+        // 1. 답변 업데이트
+        await db.query(
+            `UPDATE counseling_questions 
+             SET answer = ?, counselor_name = ?, status = 'answered', answered_at = NOW()
+             WHERE id = ?`,
+            [answer, counselorName, questionId]
+        );
+
+        // ⭐️ [추가] 2. 질문을 올린 학생의 ID 찾기
+        const [rows] = await db.query('SELECT user_id FROM counseling_questions WHERE id = ?', [questionId]);
+        
+        if (rows.length > 0) {
+            const studentId = rows[0].user_id;
+            
+            // ⭐️ [추가] 3. 그 학생에게 알림 보내기 (DB 저장)
+            await db.query(
+                `INSERT INTO notifications (user_id, type, title, message) 
+                 VALUES (?, 'counseling', '진학 상담 답변이 도착했습니다', '등록하신 질문에 선생님이 답변을 남겼습니다.')`,
+                [studentId]
+            );
+            console.log(`🔔 사용자(${studentId})에게 알림 생성 완료`);
+        }
+
+        res.json({ message: "답변 및 알림 등록 완료." });
+    } catch (error) {
+        console.error("답변 등록 오류:", error);
+        res.status(500).json({ message: "서버 오류" });
+    }
+});
+
+// server.js (알림 조회 API 부분 수정)
+
+app.get('/api/notifications', async (req, res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+
+        // ⭐️ [로그 추가] 누가 요청했는지 확인
+        console.log(`🔔 [Server] User ID ${userId}가 알림 목록을 요청함`);
+
+        const [rows] = await db.query(
+            `SELECT id, type, title, message, 
+                    DATE_FORMAT(created_at, '%Y-%m-%d %H:%i') as time 
+             FROM notifications 
+             WHERE user_id = ? 
+             ORDER BY created_at DESC`,
+            [userId]
+        );
+        
+        // ⭐️ [로그 추가] 몇 개를 찾았는지 확인
+        console.log(`   👉 DB 조회 결과: ${rows.length}건 발견`);
+        // console.log(rows); // 필요하면 상세 데이터 출력
+
+        res.json(rows);
+    } catch (error) {
+        console.error("알림 조회 오류:", error);
+        res.status(500).json({ message: "서버 오류" });
+    }
+});
+
 // 2. 관리자용: 답변 등록하기 (PUT Update)
 app.put('/api/admin/questions/:id', async (req, res) => {
     const questionId = req.params.id;

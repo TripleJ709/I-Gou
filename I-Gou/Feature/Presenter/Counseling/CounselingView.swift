@@ -10,8 +10,6 @@ import UIKit
 class CounselingView: UIView {
     
     // MARK: - UI Components
-    private let scrollView = UIScrollView()
-    private let contentView = UIView()
     private let mainStackView = UIStackView()
     let questionButton = UIButton(type: .system)
     
@@ -21,7 +19,7 @@ class CounselingView: UIView {
     weak var delegate: CounselingViewDelegate?
     
     let contentContainerView = UIView()
-
+    
     // MARK: - Initializer
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -34,41 +32,29 @@ class CounselingView: UIView {
     
     // MARK: - Private Methods
     private func setupUI() {
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.translatesAutoresizingMaskIntoConstraints = false
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
         mainStackView.axis = .vertical
         mainStackView.spacing = 20
         contentContainerView.translatesAutoresizingMaskIntoConstraints = false
-        
-        self.addSubview(scrollView)
-        scrollView.addSubview(contentView)
-        contentView.addSubview(mainStackView)
-        
+        self.addSubview(mainStackView)
+        self.addSubview(contentContainerView)
         mainStackView.addArrangedSubview(createHeaderView())
         mainStackView.addArrangedSubview(createSegmentedControl())
-        mainStackView.addArrangedSubview(contentContainerView)
-        
         setupLayout()
     }
     
     private func setupLayout() {
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor),
+            // 1. 상단 고정 영역 (헤더 + 탭 버튼)
+            mainStackView.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor, constant: 10),
+            mainStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
+            mainStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20),
             
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            
-            mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
-            mainStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            mainStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
+            // 2. 하단 컨텐츠 영역 (나머지 공간 꽉 채우기)
+            contentContainerView.topAnchor.constraint(equalTo: mainStackView.bottomAnchor, constant: 20),
+            contentContainerView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            contentContainerView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            contentContainerView.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor) // 바닥까지
         ])
     }
     
@@ -135,7 +121,7 @@ class CounselingView: UIView {
     @objc private func askQuestionButtonTapped() {
         delegate?.didTapAskQuestionButton()
     }
-
+    
 }
 
 protocol CounselingViewDelegate: AnyObject {

@@ -68,6 +68,10 @@
 		89A776EB2EDB0E8000C544D6 /* CounselingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776EA2EDB0E8000C544D6 /* CounselingRepository.swift */; };
 		89A776ED2EDB0EB000C544D6 /* CounselingUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776EC2EDB0EB000C544D6 /* CounselingUseCase.swift */; };
 		89A776EF2EDB0ED500C544D6 /* DefaultCounselingRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776EE2EDB0ED500C544D6 /* DefaultCounselingRepository.swift */; };
+		89A776F12EDB33A900C544D6 /* NotificationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776F02EDB33A900C544D6 /* NotificationItem.swift */; };
+		89A776F32EDB33CA00C544D6 /* NotificationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776F22EDB33CA00C544D6 /* NotificationRepository.swift */; };
+		89A776F52EDB340100C544D6 /* DefaultNotificationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776F42EDB340100C544D6 /* DefaultNotificationRepository.swift */; };
+		89A776F72EDB342A00C544D6 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776F62EDB342A00C544D6 /* NotificationViewModel.swift */; };
 		89BB27842EC2392F00C3BCC8 /* AddReadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BB27832EC2392F00C3BCC8 /* AddReadingViewController.swift */; };
 		89C627552E80E6B200CAB833 /* GradesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627542E80E6B200CAB833 /* GradesViewController.swift */; };
 		89C627572E80E6BB00CAB833 /* GradesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627562E80E6BB00CAB833 /* GradesView.swift */; };
@@ -159,6 +163,10 @@
 		89A776EA2EDB0E8000C544D6 /* CounselingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounselingRepository.swift; sourceTree = "<group>"; };
 		89A776EC2EDB0EB000C544D6 /* CounselingUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CounselingUseCase.swift; sourceTree = "<group>"; };
 		89A776EE2EDB0ED500C544D6 /* DefaultCounselingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultCounselingRepository.swift; sourceTree = "<group>"; };
+		89A776F02EDB33A900C544D6 /* NotificationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationItem.swift; sourceTree = "<group>"; };
+		89A776F22EDB33CA00C544D6 /* NotificationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationRepository.swift; sourceTree = "<group>"; };
+		89A776F42EDB340100C544D6 /* DefaultNotificationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultNotificationRepository.swift; sourceTree = "<group>"; };
+		89A776F62EDB342A00C544D6 /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
 		89BB27832EC2392F00C3BCC8 /* AddReadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReadingViewController.swift; sourceTree = "<group>"; };
 		89C627542E80E6B200CAB833 /* GradesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesViewController.swift; sourceTree = "<group>"; };
 		89C627562E80E6BB00CAB833 /* GradesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesView.swift; sourceTree = "<group>"; };
@@ -315,6 +323,7 @@
 				890F70EA2EC2243B0043F56A /* ExtraCurricularRepository.swift */,
 				89FC03B62EC33D99004EB55F /* UniversityRepository.swift */,
 				89A776EA2EDB0E8000C544D6 /* CounselingRepository.swift */,
+				89A776F22EDB33CA00C544D6 /* NotificationRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -327,6 +336,7 @@
 				890F70EE2EC224AD0043F56A /* DefaultExtraCurricularRepository.swift */,
 				89FC03B82EC33DC1004EB55F /* DefaultUniversityRepository.swift */,
 				89A776EE2EDB0ED500C544D6 /* DefaultCounselingRepository.swift */,
+				89A776F42EDB340100C544D6 /* DefaultNotificationRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -483,6 +493,7 @@
 			children = (
 				8997E9CA2E8BE16400E572E7 /* NotificationView.swift */,
 				8997E9CC2E8BE16F00E572E7 /* NotificationViewController.swift */,
+				89A776F62EDB342A00C544D6 /* NotificationViewModel.swift */,
 			);
 			path = Notifications;
 			sourceTree = "<group>";
@@ -505,6 +516,7 @@
 				890F70E82EC223DC0043F56A /* ExtraCurricularData.swift */,
 				89FC03B42EC33D04004EB55F /* UniversityDataModel.swift */,
 				89A776E62EDB0B9A00C544D6 /* CounselingModels.swift */,
+				89A776F02EDB33A900C544D6 /* NotificationItem.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -714,6 +726,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				890F70ED2EC2246F0043F56A /* ExtraCurricularUseCase.swift in Sources */,
+				89A776F12EDB33A900C544D6 /* NotificationItem.swift in Sources */,
+				89A776F52EDB340100C544D6 /* DefaultNotificationRepository.swift in Sources */,
 				890F70F42EC2313A0043F56A /* AddActivityView.swift in Sources */,
 				8997E9CF2E8BE1B900E572E7 /* FaqView.swift in Sources */,
 				89FC03B92EC33DC1004EB55F /* DefaultUniversityRepository.swift in Sources */,
@@ -782,6 +796,7 @@
 				89FC03B52EC33D04004EB55F /* UniversityDataModel.swift in Sources */,
 				896E3C072E7EFF4900AC49CF /* SceneDelegate.swift in Sources */,
 				890F70E72EC1DD970043F56A /* MockExamViewModel.swift in Sources */,
+				89A776F72EDB342A00C544D6 /* NotificationViewModel.swift in Sources */,
 				89C627682E8118CE00CAB833 /* MockExamView.swift in Sources */,
 				89C6275F2E80E8C700CAB833 /* MockExamViewController.swift in Sources */,
 				8997E9C02E8BDEE300E572E7 /* CounselingView.swift in Sources */,
@@ -793,6 +808,7 @@
 				89CBA1B12E8265360075941D /* AdmissionNewsViewController.swift in Sources */,
 				89CBA1A62E8263680075941D /* UniversityViewController.swift in Sources */,
 				89CBA1A32E8262DB0075941D /* UniversityView.swift in Sources */,
+				89A776F32EDB33CA00C544D6 /* NotificationRepository.swift in Sources */,
 				8956A7442E9CCE04004678F0 /* AddQuestionViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
