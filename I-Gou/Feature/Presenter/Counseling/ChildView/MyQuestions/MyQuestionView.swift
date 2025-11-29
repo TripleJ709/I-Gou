@@ -26,10 +26,7 @@ class MyQuestionsView: UIView {
         mainStackView.axis = .vertical
         mainStackView.spacing = 20
         self.addSubview(mainStackView)
-        
-        mainStackView.addArrangedSubview(createQuickQuestionsCard())
         mainStackView.addArrangedSubview(createCounselingHistoryCard())
-        
         setupLayout()
     }
     
@@ -43,37 +40,6 @@ class MyQuestionsView: UIView {
     }
     
     // MARK: - View Factory Methods
-    private func createQuickQuestionsCard() -> CardView {
-        let card = CardView()
-        let header = createCardHeader(title: "빠른 질문", subtitle: "자주 묻는 질문을 클릭하세요")
-        
-        let questions = [
-            "수시 지원 전략이 궁금해요", "정시 준비 방법을 알고 싶어요", "학생부 관리는 어떻게 해야 하나요?",
-            "모의고사 성적이 안 나와요", "진로 선택에 고민이 있어요", "면접 준비는 어떻게 해야 하나요?"
-        ]
-        
-        let questionButtons = questions.map { createQuestionButton(title: $0) }
-        
-        let questionStack = UIStackView(arrangedSubviews: questionButtons)
-        questionStack.axis = .vertical
-        questionStack.spacing = 10
-        
-        let stack = UIStackView(arrangedSubviews: [header, questionStack])
-        stack.axis = .vertical
-        stack.spacing = 16
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        
-        card.addSubview(stack)
-        NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
-            stack.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
-            stack.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
-        ])
-        
-        return card
-    }
-    
     private func createCounselingHistoryCard() -> CardView {
         let card = CardView()
         let header = createCardHeader(title: "상담 내역", subtitle: "지금까지의 질문과 답변을 확인하세요")
