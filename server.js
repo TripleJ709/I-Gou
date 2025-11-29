@@ -63,69 +63,79 @@ app.post('/api/auth/kakao', async (req, res) => {
     }
 });
 
-// [수정] 홈 데이터 조회 API (DB 연동)
-app.get('/api/home', async (req, res) => { // async 키워드 추가
+app.get('/api/home', async (req, res) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) return res.sendStatus(401);
 
     try {
-        // 토큰 검증
         const decoded = jwt.verify(token, JWT_SECRET);
         const userId = decoded.userId;
 
-        // --- 여기서부터 DB 조회 ---
-
-        // 1. 사용자 이름 조회 (DB 사용)
+        // 1. 사용자 이름 조회
         const [userRows] = await db.query('SELECT name FROM users WHERE user_id = ?', [userId]);
-        if (userRows.length === 0) {
-            return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
-        }
+        if (userRows.length === 0) return res.status(404).json({ message: '사용자 없음' });
         const user = userRows[0];
 
-        // 2. 오늘의 일정 조회 (DB 사용)
+        // 2. 오늘의 일정 조회
         const [scheduleRows] = await db.query(
             'SELECT DATE_FORMAT(start_time, "%H:%i") as startTime, title, type FROM schedules WHERE user_id = ? AND DATE(start_time) = CURDATE() ORDER BY start_time ASC',
             [userId]
         );
 
-        // 3. 최근 성적 조회 (DB 사용 - 내신/모의고사 구분 없이 최근 2개)
+        // 3. 최근 성적 조회
         const [gradeRows] = await db.query(
             'SELECT subject_name as subjectName, score, grade_level as gradeLevel FROM grades WHERE user_id = ? ORDER BY exam_date DESC LIMIT 2',
             [userId]
         );
         
-        // 4. 알림 및 대학 소식 (아직 DB 연동 전 - 임시 하드코딩)
-        // TODO: 이 부분도 나중에 DB에서 가져오도록 수정해야 합니다.
-        const notifications = [
-            { content: "2025학년도 수시모집 원서접수 시작", createdAt: "2시간 전" },
-            { content: "11월 모의고사 성적 확인 가능", createdAt: "1일 전" }
-        ];
-        const universityNews = [
-            { universityName: "서울대학교", title: "2025학년도 수시모집 합격자 발표", isNew: true, content: "..." },
-            { universityName: "연세대학교", title: "정시모집 전형계획 발표", isNew: false, content: "..." }
-        ];
+        // ⭐️ [수정 4] 알림 (DB 연동) - notifications 테이블에서 최근 2개
+        const [notiRows] = await db.query(
+            `SELECT message as content, 
+                    DATE_FORMAT(created_at, '%m/%d %H:%i') as createdAt 
+             FROM notifications 
+             WHERE user_id = ? 
+             ORDER BY created_at DESC 
+             LIMIT 2`,
+            [userId]
+        );
 
-        // --- DB 조회 끝 ---
+        // ⭐️ [수정 5] 대학 뉴스 (Naver API 연동) - 내 대학 중 1개 골라서 검색
+        const [myUnivs] = await db.query('SELECT universityName FROM user_universities WHERE userId = ?', [userId]);
         
-        // 조회된 실제 데이터로 homeData 객체 구성
+        let newsItems = [];
+        
+        // 관심 대학이 있으면 그 대학 뉴스를, 없으면 '대입' 뉴스를 보여줌
+        const searchKeyword = myUnivs.length > 0 ? myUnivs[0].universityName : "대입";
+        
+        // searchNaverNews 함수는 이전에 server.js 하단에 만들어둔 것을 사용
+        const naverResults = await searchNaverNews(searchKeyword);
+        
+        // 상위 2개만 추려서 포맷팅
+        newsItems = naverResults.slice(0, 2).map((item, index) => ({
+            universityName: searchKeyword,
+            title: item.title.replace(/<[^>]+>/g, '').replace(/&quot;/g, '"'),
+            isNew: index === 0, 
+            content: item.description.replace(/<[^>]+>/g, '').replace(/&quot;/g, '"')
+        }));
+
+        // 최종 응답 데이터
         const homeData = {
             user: { name: user.name },
             todaySchedules: scheduleRows,
             recentGrades: gradeRows,
-            notifications: notifications, 
-            universityNews: universityNews  
+            notifications: notiRows,
+            universityNews: newsItems
         };
         
         res.json(homeData);
 
     } catch (error) {
-        // JWT 에러 처리
         if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
             return res.status(403).json({ message: '유효하지 않은 토큰입니다.' });
         }
-        console.error("홈 데이터 조회 중 DB 오류:", error);
+        console.error("홈 데이터 조회 중 오류:", error);
         res.status(500).json({ message: '서버 오류가 발생했습니다.' });
     }
 });

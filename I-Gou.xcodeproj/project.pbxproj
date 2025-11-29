@@ -72,6 +72,9 @@
 		89A776F32EDB33CA00C544D6 /* NotificationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776F22EDB33CA00C544D6 /* NotificationRepository.swift */; };
 		89A776F52EDB340100C544D6 /* DefaultNotificationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776F42EDB340100C544D6 /* DefaultNotificationRepository.swift */; };
 		89A776F72EDB342A00C544D6 /* NotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776F62EDB342A00C544D6 /* NotificationViewModel.swift */; };
+		89A776F92EDB4C0300C544D6 /* HomeRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776F82EDB4C0300C544D6 /* HomeRepository.swift */; };
+		89A776FB2EDB4C2E00C544D6 /* HomeUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776FA2EDB4C2E00C544D6 /* HomeUseCase.swift */; };
+		89A776FD2EDB4CC600C544D6 /* DefaultHomeRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89A776FC2EDB4CC600C544D6 /* DefaultHomeRepository.swift */; };
 		89BB27842EC2392F00C3BCC8 /* AddReadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89BB27832EC2392F00C3BCC8 /* AddReadingViewController.swift */; };
 		89C627552E80E6B200CAB833 /* GradesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627542E80E6B200CAB833 /* GradesViewController.swift */; };
 		89C627572E80E6BB00CAB833 /* GradesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C627562E80E6BB00CAB833 /* GradesView.swift */; };
@@ -167,6 +170,9 @@
 		89A776F22EDB33CA00C544D6 /* NotificationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationRepository.swift; sourceTree = "<group>"; };
 		89A776F42EDB340100C544D6 /* DefaultNotificationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultNotificationRepository.swift; sourceTree = "<group>"; };
 		89A776F62EDB342A00C544D6 /* NotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationViewModel.swift; sourceTree = "<group>"; };
+		89A776F82EDB4C0300C544D6 /* HomeRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeRepository.swift; sourceTree = "<group>"; };
+		89A776FA2EDB4C2E00C544D6 /* HomeUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeUseCase.swift; sourceTree = "<group>"; };
+		89A776FC2EDB4CC600C544D6 /* DefaultHomeRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultHomeRepository.swift; sourceTree = "<group>"; };
 		89BB27832EC2392F00C3BCC8 /* AddReadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReadingViewController.swift; sourceTree = "<group>"; };
 		89C627542E80E6B200CAB833 /* GradesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesViewController.swift; sourceTree = "<group>"; };
 		89C627562E80E6BB00CAB833 /* GradesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradesView.swift; sourceTree = "<group>"; };
@@ -306,6 +312,7 @@
 		8956A7452E9D4104004678F0 /* UseCases */ = {
 			isa = PBXGroup;
 			children = (
+				89A776FA2EDB4C2E00C544D6 /* HomeUseCase.swift */,
 				8956A75B2E9E4FF9004678F0 /* PlannerUseCase.swift */,
 				8926FC1E2EB09ED800C5CB80 /* GradeUseCase.swift */,
 				890F70EC2EC2246F0043F56A /* ExtraCurricularUseCase.swift */,
@@ -318,6 +325,7 @@
 		8956A7522E9E4DA9004678F0 /* Repositories */ = {
 			isa = PBXGroup;
 			children = (
+				89A776F82EDB4C0300C544D6 /* HomeRepository.swift */,
 				8956A7532E9E4DCB004678F0 /* ScheduleRepository.swift */,
 				8926FC1C2EB09E6E00C5CB80 /* GradeRepository.swift */,
 				890F70EA2EC2243B0043F56A /* ExtraCurricularRepository.swift */,
@@ -337,6 +345,7 @@
 				89FC03B82EC33DC1004EB55F /* DefaultUniversityRepository.swift */,
 				89A776EE2EDB0ED500C544D6 /* DefaultCounselingRepository.swift */,
 				89A776F42EDB340100C544D6 /* DefaultNotificationRepository.swift */,
+				89A776FC2EDB4CC600C544D6 /* DefaultHomeRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -773,9 +782,11 @@
 				8997E9D62E8BF9A100E572E7 /* HomeViewModel.swift in Sources */,
 				8956A7542E9E4DCB004678F0 /* ScheduleRepository.swift in Sources */,
 				8956A7422E9CCDF8004678F0 /* AddQuestionView.swift in Sources */,
+				89A776F92EDB4C0300C544D6 /* HomeRepository.swift in Sources */,
 				89CBA1AB2E8264AC0075941D /* MyUniversitiesViewController.swift in Sources */,
 				890F08822E951B4900B47FCE /* UniversityDetailViewController.swift in Sources */,
 				8997E9DE2E8C4F2400E572E7 /* AddScheduleView.swift in Sources */,
+				89A776FD2EDB4CC600C544D6 /* DefaultHomeRepository.swift in Sources */,
 				8956A7592E9E4F0D004678F0 /* DefaultSchedulRepository.swift in Sources */,
 				89FC03B72EC33D99004EB55F /* UniversityRepository.swift in Sources */,
 				8997E9D12E8BE1C200E572E7 /* FaqViewController.swift in Sources */,
@@ -784,6 +795,7 @@
 				89A776E92EDB0CBD00C544D6 /* MyQuestionViewModel.swift in Sources */,
 				89FC03BF2EC3637F004EB55F /* MyUniversitiesViewModel.swift in Sources */,
 				890F70F12EC224E50043F56A /* ExtraCurricularViewModel.swift in Sources */,
+				89A776FB2EDB4C2E00C544D6 /* HomeUseCase.swift in Sources */,
 				89C627572E80E6BB00CAB833 /* GradesView.swift in Sources */,
 				89A776EB2EDB0E8000C544D6 /* CounselingRepository.swift in Sources */,
 				8926FC1F2EB09ED800C5CB80 /* GradeUseCase.swift in Sources */,

@@ -8,49 +8,75 @@
 import UIKit
 
 class UniversityNewsDetailViewController: UIViewController {
-
+    
     var newsItem: UniversityNews?
-
+    
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
+    
+    private let titleLabel = UILabel()
+    private let dateLabel = UILabel()
+    private let contentLabel = UILabel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemGroupedBackground
+        view.backgroundColor = .systemBackground
+        self.title = newsItem?.universityName ?? "대학 소식"
+        
         setupUI()
+        configureData()
     }
-
-    private func setupUI() {
-        guard let newsItem = newsItem else { return }
     
-        self.title = newsItem.universityName
+    private func setupUI() {
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.translatesAutoresizingMaskIntoConstraints = false
         
-        let card = CardView()
-        
-        let titleLabel = UILabel()
-        titleLabel.text = newsItem.title
-        titleLabel.font = .systemFont(ofSize: 20, weight: .bold)
-        titleLabel.numberOfLines = 0
-        
-        let contentLabel = UILabel()
-        contentLabel.text = newsItem.content
-        contentLabel.font = .systemFont(ofSize: 16)
-        contentLabel.numberOfLines = 0
-        
-        let stackView = UIStackView(arrangedSubviews: [titleLabel, contentLabel])
-        stackView.axis = .vertical
-        stackView.spacing = 16
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        
-        card.addSubview(stackView)
-        view.addSubview(card)
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
         
         NSLayoutConstraint.activate([
-            card.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            card.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            card.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            stackView.topAnchor.constraint(equalTo: card.topAnchor, constant: 20),
-            stackView.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: card.trailingAnchor, constant: -20),
-            stackView.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -20)
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
         ])
+        
+        // 라벨 설정
+        titleLabel.font = .systemFont(ofSize: 22, weight: .bold)
+        titleLabel.numberOfLines = 0
+        
+        dateLabel.font = .systemFont(ofSize: 14)
+        dateLabel.textColor = .gray
+        
+        contentLabel.font = .systemFont(ofSize: 16)
+        contentLabel.numberOfLines = 0
+        contentLabel.textColor = .darkGray
+        
+        let stack = UIStackView(arrangedSubviews: [titleLabel, dateLabel, contentLabel])
+        stack.axis = .vertical
+        stack.spacing = 20
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        
+        contentView.addSubview(stack)
+        
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            stack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            stack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20)
+        ])
+    }
+    
+    private func configureData() {
+        guard let item = newsItem else { return }
+        titleLabel.text = item.title
+        dateLabel.text = "최신 소식" // 날짜 데이터가 있다면 여기에 넣으세요
+        contentLabel.text = item.content
     }
 }

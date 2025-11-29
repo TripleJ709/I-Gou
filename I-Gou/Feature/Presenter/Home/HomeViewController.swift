@@ -13,7 +13,12 @@ class HomeViewController: UIViewController {
     // MARK: - Properties
     
     private var homeView: HomeView?
-    private let viewModel = HomeViewModel()
+    private lazy var viewModel: HomeViewModel = {
+        let apiService = APIService()
+        let repository = DefaultHomeRepository(apiService: apiService)
+        let useCase = FetchHomeDataUseCase(repository: repository)
+        return HomeViewModel(fetchHomeDataUseCase: useCase)
+    }()
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Lifecycle
@@ -39,7 +44,7 @@ class HomeViewController: UIViewController {
     @objc private func logoutButtonTapped() {
         UserDefaults.standard.removeObject(forKey: "accessToken")
         print("토큰 삭제, 로그아웃")
-    
+        
         guard let window = self.view.window else { return }
         
         let loginViewController = LoginViewController()
