@@ -37,8 +37,8 @@ class HomeViewController: UIViewController {
         viewModel.fetchHomeData()
         
         //임시 로그아웃
-        let logoutButton = UIBarButtonItem(title: "로그아웃", style: .plain, target: self, action: #selector(logoutButtonTapped))
-        self.navigationItem.leftBarButtonItem = logoutButton
+//        let logoutButton = UIBarButtonItem(title: "로그아웃", style: .plain, target: self, action: #selector(logoutButtonTapped))
+//        self.navigationItem.leftBarButtonItem = logoutButton
     }
     
     @objc private func logoutButtonTapped() {

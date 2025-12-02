@@ -512,10 +512,13 @@ app.get('/api/university/schedule', async (req, res) => {
 
 function loadCsvData() {
     const results = [];
+    
+    // [수정] 인코딩 변환 없이 바로 읽기 (UTF-8)
     fs.createReadStream('university_data.csv')
         .pipe(csv()) 
         .on('data', (data) => {
             if (results.length === 0) {
+                // BOM 제거 로직 (기존 유지)
                 const firstKey = Object.keys(data)[0];
                 if (firstKey.includes('조사년도') && firstKey !== '조사년도') {
                      data['조사년도'] = data[firstKey]; 
@@ -526,7 +529,16 @@ function loadCsvData() {
         .on('end', () => {
             allUniversities = results
                 .filter(row => {
-                    return row['학교명'] && row['학과상태'] !== '폐지';
+                    // 1. 학교명이 있고, 폐지되지 않은 학과만 선택
+                    if (!row['학교명'] || row['학과상태'] === '폐지') return false;
+
+                    // ⭐️ [추가] 대학원 제외 로직 ⭐️
+                    // '대학구분'이 '대학원' 또는 '대학원대학'이면 제외합니다.
+                    // '학교구분'에 '대학원' 글자가 포함되어 있어도 제외합니다 (일반대학원, 특수대학원 등)
+                    if (row['대학구분'] === '대학원' || row['대학구분'] === '대학원대학') return false;
+                    if (row['학교구분'] && row['학교구분'].includes('대학원')) return false;
+
+                    return true;
                 })
                 .map(row => ({
                     univName: row['학교명'],       
@@ -534,7 +546,11 @@ function loadCsvData() {
                     location: row['지역'],         
                     category: row['학교구분']       
                 }));
+            
+            console.log(`✅ CSV 데이터 로드 완료! (대학원 제외) 유효한 학과 정보: ${allUniversities.length}개`);
+            
             if (allUniversities.length > 0) {
+                console.log("✅ 매핑 성공 (첫 번째 데이터):", allUniversities[0]);
             }
         });
 }
@@ -732,7 +748,7 @@ app.get('/api/university/my', async (req, res) => {
                 major: row.major || "",
                 myScore: myAvgGrade,
                 requiredScore: requiredScore,
-                deadline: row.deadline || "2024-09-13",
+                deadline: row.deadline || "2025-09-13",
                 status: status, 
                 location: row.location || "",
                 competitionRate: row.competitionRate || "15.4:1"
